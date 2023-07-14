@@ -9,7 +9,7 @@ public interface DefinedMessageInt {
 
     public void saveMessage ();
 
-    public void processMessage(CodesPacs002 codesPacs002, String filePath) throws Exception;
+    public void processMessage(CodesPacs002 codesPacs002) throws Exception;
 
     public CodesPacs002 validate() throws Exception;
 }

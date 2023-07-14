@@ -59,7 +59,7 @@ public class FIToFIPaymentStatusReportMessage extends DefinedMessage {
     }
 
     @Override
-    public void processMessage(CodesPacs002 codesPacs002, String filePath) {
+    public void processMessage(CodesPacs002 codesPacs002) {
 
     }
 

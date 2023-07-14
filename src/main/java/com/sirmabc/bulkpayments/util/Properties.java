@@ -34,6 +34,8 @@ public class Properties {
 
     private PropertiesEntity bizMsgIdr;
 
+    private PropertiesEntity fiToFICstmrCdtTrfXmlFilePath;
+
     PropertiesRepository repository;
 
     @Autowired
@@ -53,7 +55,7 @@ public class Properties {
             logger.info("Borica url: " + borikaUrl.getValue());
 
             accValidUrl = repository.findByName("accValidUrl");
-            logger.info("Account validation service url: " + borikaUrl.getValue());
+            logger.info("Account validation service url: " + accValidUrl.getValue());
 
             accValidBranch = repository.findByName("accValidBranch");
             logger.info("Account validation service branch: " + accValidBranch.getValue());
@@ -77,10 +79,11 @@ public class Properties {
             logger.info("Flex cube service url: " + fcUrl.getValue());
 
             bizMsgIdr = repository.findByName("bizMsgIdr");
-            logger.info("Flex cube bizMsgIdr url: " + rtpVersion.getValue());
+            logger.info("Flex cube bizMsgIdr url: " + bizMsgIdr.getValue());
 
+            fiToFICstmrCdtTrfXmlFilePath = repository.findByName("fiToFICstmrCdtTrfXmlFilePath");
+            logger.info("fiToFICstmrCdtTrf XML file path: " + fiToFICstmrCdtTrfXmlFilePath.getValue());
         } catch (Exception e) {
-
             throw new AppException(e.getMessage(), e);
         }
     }
@@ -163,5 +166,13 @@ public class Properties {
 
     public void setBizMsgIdr(PropertiesEntity bizMsgIdr) {
         this.bizMsgIdr = bizMsgIdr;
+    }
+
+    public String getFiToFICstmrCdtTrfXmlFilePath() {
+        return fiToFICstmrCdtTrfXmlFilePath.getValue();
+    }
+
+    public void setFiToFICstmrCdtTrfXmlFilePath(PropertiesEntity fiToFICstmrCdtTrfXmlFilePath) {
+        this.fiToFICstmrCdtTrfXmlFilePath = fiToFICstmrCdtTrfXmlFilePath;
     }
 }

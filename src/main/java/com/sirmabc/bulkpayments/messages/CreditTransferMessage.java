@@ -58,9 +58,9 @@ public class CreditTransferMessage extends DefinedMessage {
         this.accountValidationClient = accountValidationClient;
     }
     @Override
-    public void processMessage(CodesPacs002 codesPacs002, String filePath) throws Exception {
+    public void processMessage(CodesPacs002 codesPacs002) throws Exception {
         logger.info("processMessage()...");
-        XMLFileHelper.objectToXmlFile(fiToFICstmrCdtTrf, filePath);
+        XMLFileHelper.objectToXmlFile(fiToFICstmrCdtTrf, properties.getFiToFICstmrCdtTrfXmlFilePath());
     }
 
     @Override

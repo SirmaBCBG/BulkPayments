@@ -69,7 +69,7 @@ public class BorikaMessageService {
             definedMessage.saveMessage();
             CodesPacs002 codesPacs002 = definedMessage.validate();
 
-            definedMessage.processMessage(codesPacs002, "C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop");
+            definedMessage.processMessage(codesPacs002);
         } catch (Exception e) {
             logger.error(Thread.currentThread().getName() + "threw an error: " + e.getMessage(), e);
 
