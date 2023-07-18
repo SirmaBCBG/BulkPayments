@@ -54,7 +54,7 @@ public class XMLFileHelper {
         return xml;
     }
 
-    public static <T>T deserializeXml (String xml, Class<T> tClass) throws  JAXBException {
+    public static <T>T deserializeXml (String xml, Class<T> tClass) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(tClass);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 

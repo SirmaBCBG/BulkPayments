@@ -41,4 +41,20 @@ public class BorikaClientScheduler {
         }
     }
 
+    /*@Scheduled(cron = "0 1 00 * * ?")
+    public void getParticipantsMessage() {
+        logger.info("Get participants message from Borika...");
+
+        try {
+            HttpClient client = borikaClient.buildClient(5);
+            HttpRequest request = borikaClient.buildGETParticipantsRequest();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            logger.debug("Borika server response: " + response.body());
+
+            borikaMessageService.asyncStartProcessingParticipantsMessage(response);
+        } catch (Exception e) {
+            logger.error("getMessage error: " + e.getMessage(), e);
+        }
+    }*/
 }

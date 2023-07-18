@@ -33,7 +33,6 @@ public class BorikaClient {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         return response;
-
     }
 
     public void postAcknowledge(String msgSeq) throws IOException, InterruptedException {
@@ -44,7 +43,6 @@ public class BorikaClient {
         HttpRequest request = buildPostRequest("", msgSeq);
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
     }
 
     public HttpClient buildClient(int connectionTimeout) {
@@ -64,6 +62,15 @@ public class BorikaClient {
                 .build();
     }
 
+    /*public HttpRequest buildGETParticipantsRequest () {
+        return HttpRequest.newBuilder()
+                .uri(URI.create(properties.getBorikaUrl() + "/api/participants"))
+                .header(X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
+                .header(X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
+                .GET()
+                .build();
+    }*/
+
     public HttpRequest buildPostRequest(String requestBody) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(properties.getBorikaUrl() + "/bulk/Message"))
@@ -82,5 +89,4 @@ public class BorikaClient {
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
     }
-
 }

@@ -35,175 +35,175 @@ import java.util.List;
 @Component
 @Scope("singleton")
 public class XMLSigner {
-  public static String SIGNATURE_PARENT_TAG = "Sgntr";
-  public static String SIGNATURE_PARENT_TAG_NS = "";
+    public static String SIGNATURE_PARENT_TAG = "Sgntr";
+    public static String SIGNATURE_PARENT_TAG_NS = "";
 
-  private static final Logger logger = LoggerFactory.getLogger(BorikaClientScheduler.class);
+    private static final Logger logger = LoggerFactory.getLogger(BorikaClientScheduler.class);
 
-  MontranPublicKeySelector montranPublicKeySelector;
-  @Autowired
-  public XMLSigner (MontranPublicKeySelector montranPublicKeySelector) {
-    this.montranPublicKeySelector = montranPublicKeySelector;
-  }
-
-  public Document string2XML(String xml) throws Exception
-  {
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    factory.setNamespaceAware(true);
-
-    DocumentBuilder builder = factory.newDocumentBuilder();
-    InputSource is = new InputSource(new StringReader(xml));
-
-    return builder.parse(is);
-  }
-
-  public String xml2String(Document document) throws Exception {
-    StringWriter writer = new StringWriter();
-
-    TransformerFactory tf = TransformerFactory.newInstance();
-    Transformer transformer = tf.newTransformer();
-    //transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-    transformer.transform(new DOMSource(document), new StreamResult(writer));
-    //String output = writer.getBuffer().toString().replaceAll("\n|\r", "");
-    String output = writer.getBuffer().toString();
-
-    return output;
-  }
-
-  public void saveXML(Document document, File file) throws Exception {
-    OutputStream os = new FileOutputStream(file);
-
-    TransformerFactory tf = TransformerFactory.newInstance();
-    Transformer transformer = tf.newTransformer();
-    transformer.transform(new DOMSource(document), new StreamResult(os));
-  }
-
-  public Document loadXMLFromFile(File xmlFile) throws Exception
-  {
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    dbf.setNamespaceAware(true);
-    Document doc = dbf.newDocumentBuilder().parse(new FileInputStream(xmlFile));
-
-    return doc;
-  }
-
-  public boolean verifyWithExternalKey(Document document) throws Exception {
-    NodeList nl = document.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
-    if (nl.getLength() == 0) {
-      logger.info("Cannot find Signature element");
-
-      return false;
+    MontranPublicKeySelector montranPublicKeySelector;
+    @Autowired
+    public XMLSigner (MontranPublicKeySelector montranPublicKeySelector) {
+      this.montranPublicKeySelector = montranPublicKeySelector;
     }
 
-    DOMValidateContext valContext = new DOMValidateContext(montranPublicKeySelector, nl.item(0));
+    public Document string2XML(String xml) throws Exception
+    {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setNamespaceAware(true);
 
-    XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
-    XMLSignature signature = fac.unmarshalXMLSignature(valContext);
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      InputSource is = new InputSource(new StringReader(xml));
 
-    return signature.validate(valContext);
-  }
-
-  public boolean verify(Document document) throws Exception {
-    XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
-
-    NodeList nl = document.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
-    if (nl.getLength() == 0) {
-      logger.info("Cannot find Signature element");
-
-      return false;
+      return builder.parse(is);
     }
 
-    boolean result = false;
+    public String xml2String(Document document) throws Exception {
+      StringWriter writer = new StringWriter();
 
-    // try with presented cert in XML (if any)
-    NodeList x509elements = document.getElementsByTagNameNS(XMLSignature.XMLNS, "X509Certificate");
-    if (x509elements.getLength() > 0) {
-      logger.info("There is a cert, lets validate with it...");
+      TransformerFactory tf = TransformerFactory.newInstance();
+      Transformer transformer = tf.newTransformer();
+      //transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+      transformer.transform(new DOMSource(document), new StreamResult(writer));
+      //String output = writer.getBuffer().toString().replaceAll("\n|\r", "");
+      String output = writer.getBuffer().toString();
 
-      DOMValidateContext valContext = new DOMValidateContext(new X509KeySelector(), nl.item(0));
-      XMLSignature signature = fac.unmarshalXMLSignature(valContext);
+      return output;
+    }
 
-      try {
-        result = signature.validate(valContext);
-      } catch (Exception e) {
-        logger.info(e.getMessage(), e);
+    public void saveXML(Document document, File file) throws Exception {
+      OutputStream os = new FileOutputStream(file);
+
+      TransformerFactory tf = TransformerFactory.newInstance();
+      Transformer transformer = tf.newTransformer();
+      transformer.transform(new DOMSource(document), new StreamResult(os));
+    }
+
+    public Document loadXMLFromFile(File xmlFile) throws Exception
+    {
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      dbf.setNamespaceAware(true);
+      Document doc = dbf.newDocumentBuilder().parse(new FileInputStream(xmlFile));
+
+      return doc;
+    }
+
+    public boolean verifyWithExternalKey(Document document) throws Exception {
+      NodeList nl = document.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
+      if (nl.getLength() == 0) {
+        logger.info("Cannot find Signature element");
 
         return false;
       }
+
+      DOMValidateContext valContext = new DOMValidateContext(montranPublicKeySelector, nl.item(0));
+
+      XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
+      XMLSignature signature = fac.unmarshalXMLSignature(valContext);
+
+      return signature.validate(valContext);
     }
 
-    // try with external keystore
-//    if (!result) {
-//      DOMValidateContext valContext = new DOMValidateContext(new MontranPublicKeySelector(), nl.item(0));
-//      XMLSignature signature = fac.unmarshalXMLSignature(valContext);
-//
-//      result = signature.validate(valContext);
-//    }
+    public boolean verify(Document document) throws Exception {
+      XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
 
-    return result;
-  }
+      NodeList nl = document.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
+      if (nl.getLength() == 0) {
+        logger.info("Cannot find Signature element");
 
+        return false;
+      }
 
+      boolean result = false;
 
+      // try with presented cert in XML (if any)
+      NodeList x509elements = document.getElementsByTagNameNS(XMLSignature.XMLNS, "X509Certificate");
+      if (x509elements.getLength() > 0) {
+        logger.info("There is a cert, lets validate with it...");
 
-  public Document sign(Document doc, KeyStore.PrivateKeyEntry keyEntry) throws Exception {
-    XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
-    Transform exc14nTranform = fac.newTransform("http://www.w3.org/TR/2001/REC-xml-c14n-20010315", (TransformParameterSpec) null);
-    Transform envTransform = fac.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null);
+        DOMValidateContext valContext = new DOMValidateContext(new X509KeySelector(), nl.item(0));
+        XMLSignature signature = fac.unmarshalXMLSignature(valContext);
 
-    List<Transform> transformList = new ArrayList();
-    transformList.add(envTransform);
-    transformList.add(exc14nTranform);
+        try {
+          result = signature.validate(valContext);
+        } catch (Exception e) {
+          logger.info(e.getMessage(), e);
 
-    Reference ref = fac.newReference("", fac.newDigestMethod(DigestMethod.SHA256, null), transformList, null, null);
-    //Reference ref = fac.newReference("",fac.newDigestMethod(DigestMethod.SHA256, null));
+          return false;
+        }
+      }
 
-    //todo: encrypt digest with SHA256 (Java 17 or BouncyCastle) instead of SHA1 (Java 1.8)
-    SignedInfo si = fac.newSignedInfo(fac.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE, (C14NMethodParameterSpec) null),
-            fac.newSignatureMethod(SignatureMethod.RSA_SHA256, null), Collections.singletonList(ref));
+      // try with external keystore
+  //    if (!result) {
+  //      DOMValidateContext valContext = new DOMValidateContext(new MontranPublicKeySelector(), nl.item(0));
+  //      XMLSignature signature = fac.unmarshalXMLSignature(valContext);
+  //
+  //      result = signature.validate(valContext);
+  //    }
 
-    X509Certificate cert = (X509Certificate) keyEntry.getCertificate();
-
-    KeyInfoFactory kif = fac.getKeyInfoFactory();
-    List x509Content = new ArrayList();
-
-    X509IssuerSerial issuer = kif.newX509IssuerSerial(cert.getIssuerX500Principal().toString(), cert.getSerialNumber());
-
-    x509Content.add(cert.getSubjectX500Principal().getName());
-    x509Content.add(issuer);
-    //x509Content.add(cert);
-
-    X509Data xd = kif.newX509Data(x509Content);
-    KeyInfo ki = kif.newKeyInfo(Collections.singletonList(xd));
-
-    NodeList nl = doc.getElementsByTagName(SIGNATURE_PARENT_TAG);
-    Node node = nl.item(0);
-    DOMSignContext dsc = new DOMSignContext(keyEntry.getPrivateKey(), node);
-    XMLSignature signature = fac.newXMLSignature(si, ki);//, Collections.singletonList(obj), null, null);
-    signature.sign(dsc);
-
-    return doc;
-  }
+      return result;
+    }
 
 
 
-  public static void main(String[] args) {
-//    try {
-//      KeyStore ks = KeyStore.getInstance("JKS");
-//      ks.load(new FileInputStream("d:\\xml_sign.jks"), "sla6945".toCharArray());
-//      KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry("sirmabcxml", new KeyStore.PasswordProtection("sla6945".toCharArray()));
-//
-//      Document doc = loadXMLFromFile(new File("d:/work/c.xml"));
-//      Document signedDoc = sign(doc, keyEntry);
-//      System.out.println(xml2String(signedDoc));
-//      saveXML(signedDoc, new File("d:/work/c3_signed.xml"));
-//
-//      Document doc2 = loadXMLFromFile(new File("d:/work/c3_signed.xml"));
-//
-//      System.out.println(verify(doc2));
-//    } catch (Exception e) {
-//      e.printStackTrace();
-//    }
-  }
+
+    public Document sign(Document doc, KeyStore.PrivateKeyEntry keyEntry) throws Exception {
+      XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
+      Transform exc14nTranform = fac.newTransform("http://www.w3.org/TR/2001/REC-xml-c14n-20010315", (TransformParameterSpec) null);
+      Transform envTransform = fac.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null);
+
+      List<Transform> transformList = new ArrayList();
+      transformList.add(envTransform);
+      transformList.add(exc14nTranform);
+
+      Reference ref = fac.newReference("", fac.newDigestMethod(DigestMethod.SHA256, null), transformList, null, null);
+      //Reference ref = fac.newReference("",fac.newDigestMethod(DigestMethod.SHA256, null));
+
+      //todo: encrypt digest with SHA256 (Java 17 or BouncyCastle) instead of SHA1 (Java 1.8)
+      SignedInfo si = fac.newSignedInfo(fac.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE, (C14NMethodParameterSpec) null),
+              fac.newSignatureMethod(SignatureMethod.RSA_SHA256, null), Collections.singletonList(ref));
+
+      X509Certificate cert = (X509Certificate) keyEntry.getCertificate();
+
+      KeyInfoFactory kif = fac.getKeyInfoFactory();
+      List x509Content = new ArrayList();
+
+      X509IssuerSerial issuer = kif.newX509IssuerSerial(cert.getIssuerX500Principal().toString(), cert.getSerialNumber());
+
+      x509Content.add(cert.getSubjectX500Principal().getName());
+      x509Content.add(issuer);
+      //x509Content.add(cert);
+
+      X509Data xd = kif.newX509Data(x509Content);
+      KeyInfo ki = kif.newKeyInfo(Collections.singletonList(xd));
+
+      NodeList nl = doc.getElementsByTagName(SIGNATURE_PARENT_TAG);
+      Node node = nl.item(0);
+      DOMSignContext dsc = new DOMSignContext(keyEntry.getPrivateKey(), node);
+      XMLSignature signature = fac.newXMLSignature(si, ki);//, Collections.singletonList(obj), null, null);
+      signature.sign(dsc);
+
+      return doc;
+    }
+
+
+
+    public static void main(String[] args) {
+  //    try {
+  //      KeyStore ks = KeyStore.getInstance("JKS");
+  //      ks.load(new FileInputStream("d:\\xml_sign.jks"), "sla6945".toCharArray());
+  //      KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry("sirmabcxml", new KeyStore.PasswordProtection("sla6945".toCharArray()));
+  //
+  //      Document doc = loadXMLFromFile(new File("d:/work/c.xml"));
+  //      Document signedDoc = sign(doc, keyEntry);
+  //      System.out.println(xml2String(signedDoc));
+  //      saveXML(signedDoc, new File("d:/work/c3_signed.xml"));
+  //
+  //      Document doc2 = loadXMLFromFile(new File("d:/work/c3_signed.xml"));
+  //
+  //      System.out.println(verify(doc2));
+  //    } catch (Exception e) {
+  //      e.printStackTrace();
+  //    }
+    }
 
 }

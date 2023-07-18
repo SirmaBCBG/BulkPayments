@@ -1,6 +1,5 @@
 package com.sirmabc.bulkpayments.util;
 
-import com.sirmabc.bulkpayments.communicators.BorikaClientScheduler;
 import com.sirmabc.bulkpayments.exceptions.AppException;
 import com.sirmabc.bulkpayments.persistance.entities.PropertiesEntity;
 import com.sirmabc.bulkpayments.persistance.repositories.PropertiesRepository;
@@ -34,17 +33,16 @@ public class Properties {
 
     private PropertiesEntity bizMsgIdr;
 
-    private PropertiesEntity fiToFICstmrCdtTrfXmlFilePath;
+    private PropertiesEntity bulkMsgsDirPath;
 
-    PropertiesRepository repository;
+    private final PropertiesRepository repository;
 
     @Autowired
     public Properties(PropertiesRepository repository){
         this.repository = repository;
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(BorikaClientScheduler.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(Properties.class);
 
     @PostConstruct
     public void postConstruct () throws AppException {
@@ -81,8 +79,8 @@ public class Properties {
             bizMsgIdr = repository.findByName("bizMsgIdr");
             logger.info("Flex cube bizMsgIdr url: " + bizMsgIdr.getValue());
 
-            fiToFICstmrCdtTrfXmlFilePath = repository.findByName("fiToFICstmrCdtTrfXmlFilePath");
-            logger.info("fiToFICstmrCdtTrf XML file path: " + fiToFICstmrCdtTrfXmlFilePath.getValue());
+            bulkMsgsDirPath = repository.findByName("bulkMsgsDirPath");
+            logger.info("Bulk messages directory path: " + bulkMsgsDirPath.getValue());
         } catch (Exception e) {
             throw new AppException(e.getMessage(), e);
         }
@@ -168,11 +166,11 @@ public class Properties {
         this.bizMsgIdr = bizMsgIdr;
     }
 
-    public String getFiToFICstmrCdtTrfXmlFilePath() {
-        return fiToFICstmrCdtTrfXmlFilePath.getValue();
+    public String getBulkMsgsDirPath() {
+        return bulkMsgsDirPath.getValue();
     }
 
-    public void setFiToFICstmrCdtTrfXmlFilePath(PropertiesEntity fiToFICstmrCdtTrfXmlFilePath) {
-        this.fiToFICstmrCdtTrfXmlFilePath = fiToFICstmrCdtTrfXmlFilePath;
+    public void setBulkMsgsDirPath(PropertiesEntity bulkMsgsDirPath) {
+        this.bulkMsgsDirPath = bulkMsgsDirPath;
     }
 }
