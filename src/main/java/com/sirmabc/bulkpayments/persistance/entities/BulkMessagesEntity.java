@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "BULK_MESSAGES", schema = "UBXIP", catalog = "")
-public class MessagesEntity {
+public class BulkMessagesEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "ID")
@@ -25,31 +25,14 @@ public class MessagesEntity {
     @Column(name = "MESSAGE_XML")
     private String messageXml;
     @Basic
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "MESSAGE_CREATION_DATE")
-    private Date messageCreationDate;
-    @Basic
     @Column(name = "MESSAGE_TYPE")
     private String messageType;
-    /*@Basic
-    @Column(name = "CREDITOR_IBAN")
-    private String creditorIban;
-    @Basic
-    @Column(name = "DEBTOR_IBAN")
-    private String debtorIban;*/
-    @Basic
-    @Column(name = "PREV_MESSAGE_ID")
-    private String prevMessageId;
     @Basic
     @Column(name = "MESSAGE_SEQ")
     private String messageSeq;
     @Basic
     @Column(name = "ACKNOWLEDGED")
     private String acknowledged;
-
-    @Basic
-    @Column(name = "MESSAGE_STATUS")
-    private String messageStatus;
 
     public BigInteger getId() {
         return id;
@@ -83,44 +66,12 @@ public class MessagesEntity {
         this.messageXml = messageXml;
     }
 
-    public Date getMessageCreationDate() {
-        return messageCreationDate;
-    }
-
-    public void setMessageCreationDate(Date messageCreationDate) {
-        this.messageCreationDate = messageCreationDate;
-    }
-
     public String getMessageType() {
         return messageType;
     }
 
     public void setMessageType(String messageType) {
         this.messageType = messageType;
-    }
-
-    /*public String getCreditorIban() {
-        return creditorIban;
-    }
-
-    public void setCreditorIban(String creditorIban) {
-        this.creditorIban = creditorIban;
-    }
-
-    public String getDebtorIban() {
-        return debtorIban;
-    }
-
-    public void setDebtorIban(String debtorIban) {
-        this.debtorIban = debtorIban;
-    }*/
-
-    public String getPrevMessageId() {
-        return prevMessageId;
-    }
-
-    public void setPrevMessageId(String prevMessageId) {
-        this.prevMessageId = prevMessageId;
     }
 
     public String getMessageSeq() {
@@ -139,24 +90,16 @@ public class MessagesEntity {
         this.acknowledged = acknowledged;
     }
 
-    public String getMessageStatus() {
-        return messageStatus;
-    }
-
-    public void setMessageStatus(String messageStatus) {
-        this.messageStatus = messageStatus;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MessagesEntity that = (MessagesEntity) o;
-        return Objects.equals(id, that.id) && Objects.equals(creationDate, that.creationDate) && Objects.equals(messageId, that.messageId) && Objects.equals(messageXml, that.messageXml) && Objects.equals(messageCreationDate, that.messageCreationDate) && Objects.equals(messageType, that.messageType) /*&& Objects.equals(creditorIban, that.creditorIban) && Objects.equals(debtorIban, that.debtorIban)*/ && Objects.equals(prevMessageId, that.prevMessageId) && Objects.equals(messageSeq, that.messageSeq) && Objects.equals(acknowledged, that.acknowledged);
+        BulkMessagesEntity that = (BulkMessagesEntity) o;
+        return Objects.equals(id, that.id) && Objects.equals(creationDate, that.creationDate) && Objects.equals(messageId, that.messageId) && Objects.equals(messageXml, that.messageXml) && Objects.equals(messageType, that.messageType) && Objects.equals(messageSeq, that.messageSeq);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, creationDate, messageId, messageXml, messageCreationDate, messageType, /*creditorIban, debtorIban,*/ prevMessageId, messageSeq, acknowledged);
+        return Objects.hash(id, creationDate, messageId, messageXml, messageType, messageSeq);
     }
 }
