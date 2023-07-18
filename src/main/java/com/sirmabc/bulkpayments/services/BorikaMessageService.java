@@ -2,17 +2,15 @@ package com.sirmabc.bulkpayments.services;
 
 import com.sirmabc.bulkpayments.communicators.BorikaClient;
 import com.sirmabc.bulkpayments.exceptions.AppException;
-import com.sirmabc.bulkpayments.messages.DefinedMessage;
-import com.sirmabc.bulkpayments.util.CodesPacs002;
-import com.sirmabc.bulkpayments.util.XMLFileHelper;
+import com.sirmabc.bulkpayments.util.*;
 import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
 import montranMessage.montran.message.Message;
-import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -34,25 +32,17 @@ public class BorikaMessageService {
     @Value("${keystore.sign.alias}")
     private String keyStoreAlias;
 
-    DefinedMessageService definedMessageService;
+    private final BorikaClient borikaClient;
 
-    BorikaClient borikaClient;
+    private final Properties properties;
 
-    //FCService fcService;
-
-    XMLSigner xmlSigner;
-    //CreditTransferMessageBuilder creditTransferMessageBuilder;
+    private XMLSigner xmlSigner;
 
     @Autowired
-    public BorikaMessageService(DefinedMessageService definedMessageService,
-                                BorikaClient borikaClient,
-                                /*FCService fcService,*/ XMLSigner xmlSigner
-                                /*CreditTransferMessageBuilder creditTransferMessageBuilder*/) {
+    public BorikaMessageService(Properties properties, BorikaClient borikaClient, XMLSigner xmlSigner) {
         this.borikaClient = borikaClient;
-        //this.fcService = fcService;
+        this.properties = properties;
         this.xmlSigner = xmlSigner;
-        this.definedMessageService = definedMessageService;
-        //this.creditTransferMessageBuilder = creditTransferMessageBuilder;
     }
 
     @Async
@@ -64,56 +54,44 @@ public class BorikaMessageService {
             acknowledge(headers);
 
             Message message = XMLFileHelper.deserializeXml(response.body(), Message.class);
-            DefinedMessage definedMessage = definedMessageService.define(headers, message, response.body());
+            //DefinedMessage definedMessage = definedMessageService.define(headers, message, response.body());
 
-            definedMessage.saveMessage();
-            CodesPacs002 codesPacs002 = definedMessage.validate();
+            DatabaseService.saveBulkMessage(message.getAppHdr(), response.body(), headers.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ).get(0));
+            CodesPacs002 codesPacs002 = BulkMessageValidator.validate(message.getAppHdr(), headers, response.body());
 
-            definedMessage.processMessage(codesPacs002);
+            //definedMessage.processMessage(codesPacs002);
+            if (codesPacs002 == CodesPacs002.OK01) {
+                XMLFileHelper.objectToXmlFile(message, properties.getBulkMsgsDirPath());
+            }
         } catch (Exception e) {
             logger.error(Thread.currentThread().getName() + "threw an error: " + e.getMessage(), e);
-
             throw new AppException(e.getMessage(), e);
         }
     }
 
-    /*public FIToFIPaymentStatusReportMessage answerToBorika(Message answerMessage) throws Exception {
-        logger.info("prepareMessage()");
+    /*@Async()
+    public void asyncStartProcessingParticipantsMessage(HttpResponse<String> response) throws AppException {
+        logger.info("asyncStartProcessingParticipantsMessage..." + Thread.currentThread().getName());
 
-        String requestMessageXml = XMLFileHelper.serializeXml(answerMessage);
-        String signedRequestMessageXML = signMessage(requestMessageXml);
+        try {
+            Map<String, List<String>> headers = response.headers().map();
+            Message message = XMLFileHelper.deserializeXml(response.body(), Message.class);
+            DefinedMessage definedMessage = definedMessageService.define(headers, message, response.body());
 
-        HttpResponse<String> response = borikaClient.postMessage(signedRequestMessageXML);
+            definedMessage.saveMessage();
+            CodesPacs002 pacs002Code = definedMessage.isValidAppHdr();
 
-        //Deserialize response body to java object and get request headers.
-        Map<String, List<String>> headers = response.headers().map();
-        Message responseMessage = XMLFileHelper.deserializeXml(response.body(), Message.class);
-
-        FIToFIPaymentStatusReportMessage responseDefinedMessage = (FIToFIPaymentStatusReportMessage) definedMessageService.define(headers, responseMessage, response.body());
-
-        return responseDefinedMessage;
-    }
-
-    public String signMessage(String xml) throws Exception {
-
-        Document document = xmlSigner.string2XML(xml);
-
-        KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
-        KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(keyStorePassword.toCharArray());
-        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(keyStoreAlias, passwordProtection);
-
-        document = xmlSigner.sign(document, keyEntry);
-        String signedXml = xmlSigner.xml2String(document);
-
-        return signedXml;
+            definedMessage.processMessage(pacs002Code);
+        } catch (Exception e) {
+            logger.error(Thread.currentThread().getName() + "threw an error: " + e.getMessage(), e);
+            throw new AppException(e.getMessage(), e);
+        }
     }*/
 
-    public void acknowledge(Map<String, List<String>> headers) throws IOException, InterruptedException {
+    private void acknowledge(Map<String, List<String>> headers) throws IOException, InterruptedException {
         logger.info("Acknowledging headers...");
 
         String msgSeq = headers.get(X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0);
         borikaClient.postAcknowledge(msgSeq);
     }
-
 }
