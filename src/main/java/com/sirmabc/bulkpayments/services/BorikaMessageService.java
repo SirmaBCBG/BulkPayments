@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.sirmabc.bulkpayments.util.Header.X_MONTRAN_RTP_MESSAGE_SEQ;
 
@@ -54,14 +55,13 @@ public class BorikaMessageService {
             acknowledge(headers);
 
             Message message = XMLFileHelper.deserializeXml(response.body(), Message.class);
-            //DefinedMessage definedMessage = definedMessageService.define(headers, message, response.body());
 
             DatabaseService.saveBulkMessage(message.getAppHdr(), response.body(), headers.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ).get(0));
             CodesPacs002 codesPacs002 = BulkMessageValidator.validate(message.getAppHdr(), headers, response.body());
 
-            //definedMessage.processMessage(codesPacs002);
+            // TODO: Change the name generation of the .xml file
             if (codesPacs002 == CodesPacs002.OK01) {
-                XMLFileHelper.objectToXmlFile(message, properties.getBulkMsgsDirPath());
+                XMLFileHelper.objectToXmlFile(message, properties.getBulkMsgsDirPath() + "\\" + UUID.randomUUID() + ".xml");
             }
         } catch (Exception e) {
             logger.error(Thread.currentThread().getName() + "threw an error: " + e.getMessage(), e);
