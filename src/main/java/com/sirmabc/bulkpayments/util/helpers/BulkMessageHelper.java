@@ -5,7 +5,6 @@ import com.sirmabc.bulkpayments.persistance.repositories.BulkMessagesRepository;
 import com.sirmabc.bulkpayments.persistance.repositories.ParticipantsRepository;
 import com.sirmabc.bulkpayments.util.CodesPacs002;
 import com.sirmabc.bulkpayments.util.Properties;
-import com.sirmabc.bulkpayments.util.message.MessageNameIdentifications;
 import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
 import montranMessage.iso.std.iso._20022.tech.xsd.head_001_001.*;
 import montranMessage.iso.std.iso._20022.tech.xsd.pacs_002_001.GroupHeader37;
@@ -48,7 +47,7 @@ public class BulkMessageHelper {
             GroupHeader33 grpHdr = message.getFIToFICstmrCdtTrf().getGrpHdr();
 
             appHdr.setFr(generateParty9Choice(grpHdr.getInstgAgt().getFinInstnId().getBIC()));
-            appHdr.setMsgDefIdr(MessageNameIdentifications.PACS008.nameIdentification);
+            //appHdr.setMsgDefIdr(...);
             appHdr.setCreDt(grpHdr.getCreDtTm());
         } else {
             // pacs.002
@@ -56,7 +55,7 @@ public class BulkMessageHelper {
                 GroupHeader37 grpHdr = message.getFIToFIPmtStsRpt().getGrpHdr();
 
                 appHdr.setFr(generateParty9Choice(grpHdr.getInstgAgt().getFinInstnId().getBIC()));
-                appHdr.setMsgDefIdr(MessageNameIdentifications.PACS002.nameIdentification);
+                //appHdr.setMsgDefIdr(...);
                 appHdr.setCreDt(grpHdr.getCreDtTm());
             }
         }

@@ -1,4 +1,4 @@
-package com.sirmabc.bulkpayments.util.message;
+package com.sirmabc.bulkpayments.util;
 
 public enum MsgStatuses {
 
