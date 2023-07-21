@@ -37,6 +37,7 @@ public class BulkMessageHelper {
     @Autowired
     private static XMLSigner xmlSigner;
 
+    // TODO: Check if everything in the buildAppHdr method is correct
     public static BusinessApplicationHeaderV01 buildAppHdr(Message message) {
         logger.info("Building application header...");
 
