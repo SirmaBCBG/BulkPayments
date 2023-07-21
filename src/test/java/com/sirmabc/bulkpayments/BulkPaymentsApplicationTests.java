@@ -1,7 +1,7 @@
 package com.sirmabc.bulkpayments;
 
 import com.sirmabc.bulkpayments.util.Properties;
-import com.sirmabc.bulkpayments.util.XMLFileHelper;
+import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
 import montranMessage.montran.message.Message;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -875,8 +875,8 @@ class BulkPaymentsApplicationTests {
         //endregion
 
         try {
-            Message message = XMLFileHelper.deserializeXml(xmlString, Message.class);
-            XMLFileHelper.objectToXmlFile(message, properties.getBulkMsgsDirPath() + "\\" + UUID.randomUUID() + ".xml");
+            Message message = XMLHelper.deserializeXml(xmlString, Message.class);
+            XMLHelper.objectToXmlFile(message, properties.getBulkMsgsDirPath() + "\\" + UUID.randomUUID() + ".xml");
         } catch (Exception e) {
             logger.error("testObjectToXMLFile error: " + e.getMessage());
         }
