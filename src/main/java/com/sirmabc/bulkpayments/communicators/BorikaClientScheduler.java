@@ -1,6 +1,7 @@
 package com.sirmabc.bulkpayments.communicators;
 
 import com.sirmabc.bulkpayments.services.BorikaMessageService;
+import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -36,6 +38,19 @@ public class BorikaClientScheduler {
             logger.debug("Borika server response: " + response.body());
 
             borikaMessageService.asyncStartProcessingMessage(response);
+        } catch (Exception e) {
+            logger.error("getMessage error: " + e.getMessage(), e);
+        }
+    }
+
+    @Scheduled(fixedDelay = 60000)
+    public void sendMessage() {
+        logger.info("Sending message to Borika...");
+
+        try {
+            // TODO: Add PropertiesEntity for the file path
+            File[] xmlFiles = XMLHelper.getAllXmlFilesInDirectory("C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\xml_files\\to_process");
+            for (File xmlFile : xmlFiles) borikaMessageService.asyncStartBuildingMessage(xmlFile);
         } catch (Exception e) {
             logger.error("getMessage error: " + e.getMessage(), e);
         }
