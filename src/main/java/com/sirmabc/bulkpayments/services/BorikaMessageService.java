@@ -2,7 +2,11 @@ package com.sirmabc.bulkpayments.services;
 
 import com.sirmabc.bulkpayments.communicators.BorikaClient;
 import com.sirmabc.bulkpayments.exceptions.AppException;
-import com.sirmabc.bulkpayments.util.*;
+import com.sirmabc.bulkpayments.util.CodesPacs002;
+import com.sirmabc.bulkpayments.util.Header;
+import com.sirmabc.bulkpayments.util.Properties;
+import com.sirmabc.bulkpayments.util.helpers.BulkMessageHelper;
+import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
 import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
 import montranMessage.montran.message.Message;
 import org.slf4j.Logger;
@@ -12,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -54,16 +59,36 @@ public class BorikaMessageService {
             Map<String, List<String>> headers = response.headers().map();
             acknowledge(headers);
 
-            Message message = XMLFileHelper.deserializeXml(response.body(), Message.class);
+            Message message = XMLHelper.deserializeXml(response.body(), Message.class);
 
             DatabaseService.saveBulkMessage(message.getAppHdr(), response.body(), headers.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ).get(0));
-            CodesPacs002 codesPacs002 = BulkMessageValidator.validate(message.getAppHdr(), headers, response.body());
+            CodesPacs002 codesPacs002 = BulkMessageHelper.validate(message.getAppHdr(), headers, response.body());
 
             // TODO: Change the name generation of the .xml file
             if (codesPacs002 == CodesPacs002.OK01) {
-                XMLFileHelper.objectToXmlFile(message, properties.getBulkMsgsDirPath() + "\\" + UUID.randomUUID() + ".xml");
+                XMLHelper.objectToXmlFile(message, properties.getBulkMsgsDirPath() + "\\" + UUID.randomUUID() + ".xml");
             }
         } catch (Exception e) {
+            logger.error(Thread.currentThread().getName() + "threw an error: " + e.getMessage(), e);
+            throw new AppException(e.getMessage(), e);
+        }
+    }
+
+    @Async
+    public void asyncStartBuildingMessage(File xmlFile) throws AppException {
+        logger.info("Building message asynchronously..." + Thread.currentThread().getName());
+
+        try {
+            // TODO: Add PropertiesEntity for the file path
+            XMLHelper.moveFile(xmlFile, "C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\xml_files\\in_progress");
+            Message message = XMLHelper.deserializeXml(xmlFile, Message.class);
+
+            // TODO: Check if everything in the buildAppHdr method is correct
+            message.setAppHdr(BulkMessageHelper.buildAppHdr(message));
+
+            // TODO: Send the message to Borika
+        } catch (Exception e) {
+            // TODO: Decide what to do if an error occurs
             logger.error(Thread.currentThread().getName() + "threw an error: " + e.getMessage(), e);
             throw new AppException(e.getMessage(), e);
         }
