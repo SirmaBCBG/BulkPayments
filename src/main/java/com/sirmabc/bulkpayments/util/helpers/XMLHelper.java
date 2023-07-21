@@ -1,4 +1,4 @@
-package com.sirmabc.bulkpayments.util;
+package com.sirmabc.bulkpayments.util.helpers;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -20,8 +20,26 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-public class XMLFileHelper {
+public class XMLHelper {
+
+    public static void moveFile(File file, String targetPath) throws IOException {
+        Path source = Path.of(file.getPath());
+        Path target = Path.of(targetPath + "\\" + file.getName());
+
+        Files.move(source, target);
+    }
+
+    // Gets all files that are directly inside the given directory
+    // If the given directory itself contains other directories, their content won't be read
+    public static File[] getAllXmlFilesInDirectory(String dirPath) {
+        File dir = new File(dirPath);
+        File[] files = dir.listFiles((dir1, name) -> name.toLowerCase().endsWith(".xml"));
+
+        return files != null ? files : new File[0];
+    }
 
     public static void objectToXmlFile(Object o, String filePath) throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
         String xmlString = serializeXml(o);
@@ -54,12 +72,21 @@ public class XMLFileHelper {
         return xml;
     }
 
-    public static <T>T deserializeXml (String xml, Class<T> tClass) throws JAXBException {
+    public static <T>T deserializeXml(String xml, Class<T> tClass) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(tClass);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
         StringReader reader = new StringReader(xml);
         T result = (T) unmarshaller.unmarshal(reader);
+
+        return result;
+    }
+
+    public static <T>T deserializeXml(File xmlFile, Class<T> tClass) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(tClass);
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+
+        T result = (T) unmarshaller.unmarshal(xmlFile);
 
         return result;
     }
