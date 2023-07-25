@@ -1,5 +1,8 @@
 package com.sirmabc.bulkpayments.util.helpers;
 
+import com.sirmabc.bulkpayments.util.Directory;
+import com.sirmabc.bulkpayments.util.Properties;
+import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -16,29 +19,36 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.security.KeyStore;
 
-public class XMLHelper {
+public class FileHelper {
 
     public static void moveFile(File file, String targetPath) throws IOException {
         Path source = Path.of(file.getPath());
-        Path target = Path.of(targetPath + "\\" + file.getName());
+        Path target = Path.of(targetPath);
 
-        Files.move(source, target);
+        Files.move(source, target.resolve(source.getFileName()), StandardCopyOption.REPLACE_EXISTING);
     }
 
     // Gets all files that are directly inside the given directory
-    // If the given directory itself contains other directories, their content won't be read
-    public static File[] getAllXmlFilesInDirectory(String dirPath) {
-        File dir = new File(dirPath);
-        File[] files = dir.listFiles((dir1, name) -> name.toLowerCase().endsWith(".xml"));
+    // If the given directory contains other directories, their content won't be read
+    public static Directory getDirectoryObject(String path, String extension) {
+        File dir = new File(path);
+        File[] files;
 
-        return files != null ? files : new File[0];
+        if (extension != null && !extension.isBlank()) {
+            files = dir.listFiles((dir1, name) -> name.toLowerCase().endsWith(extension.toLowerCase()));
+        } else {
+            files = dir.listFiles();
+        }
+
+        if (files == null) files = new File[0];
+
+        return new Directory(path, files);
     }
 
     public static void objectToXmlFile(Object o, String filePath) throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
@@ -91,4 +101,17 @@ public class XMLHelper {
         return result;
     }
 
+    public static String signMessage(String xml, XMLSigner xmlSigner, Properties properties) throws Exception {
+        Document document = xmlSigner.string2XML(xml);
+
+        KeyStore ks = KeyStore.getInstance("JKS");
+        ks.load(new FileInputStream(properties.getKeyStorePath()), properties.getKeyStorePassword().toCharArray());
+        KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(properties.getKeyStorePassword().toCharArray());
+        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(properties.getKeyStoreAlias(), passwordProtection);
+
+        document = xmlSigner.sign(document, keyEntry);
+        String signedXml = xmlSigner.xml2String(document);
+
+        return signedXml;
+    }
 }
