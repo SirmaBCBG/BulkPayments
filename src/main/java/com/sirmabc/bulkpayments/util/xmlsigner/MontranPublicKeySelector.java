@@ -1,6 +1,7 @@
 package com.sirmabc.bulkpayments.util.xmlsigner;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.sirmabc.bulkpayments.util.Properties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.xml.crypto.*;
@@ -14,18 +15,16 @@ import java.security.cert.X509Certificate;
 @Component
 public class MontranPublicKeySelector extends KeySelector {
 
-  @Value("${keystore.sign.path}")
-  private String keyStorePath;
+    @Autowired
+    Properties properties;
 
-  @Value("${keystore.sign.password}")
-  private String keyStorePassword;
     public KeySelectorResult select(KeyInfo keyInfo, Purpose purpose, AlgorithmMethod method, XMLCryptoContext context)
           throws KeySelectorException {
 
       try {
         KeyStore ks = KeyStore.getInstance("JKS");
 
-        ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
+        ks.load(new FileInputStream(properties.getKeyStorePath()), properties.getKeyStorePassword().toCharArray());
         X509Certificate cert = (X509Certificate) ks.getCertificate("sirmabcxml");//, new KeyStore.PasswordProtection("sla6945".toCharArray()));
 
 
