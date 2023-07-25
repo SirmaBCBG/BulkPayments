@@ -886,11 +886,6 @@ class BulkPaymentsApplicationTests {
     }
 
     @Test
-    void testGetAllDirectoryPaths() {
-        for (String path : properties.getAllOutgngBulkMsgsDirPaths()) logger.info(path);
-    }
-
-    @Test
     void testFileMoving() {
         try {
             List<Directory> directories = new ArrayList<>();
