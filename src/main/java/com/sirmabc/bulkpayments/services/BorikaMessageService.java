@@ -70,7 +70,6 @@ public class BorikaMessageService {
         logger.info("Asynchronously building the message that is going to Borika " + Thread.currentThread().getName());
 
         try {
-            // TODO: Test file moving
             FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsInProgressDirPath());
             Message message = FileHelper.deserializeXml(xmlFile, Message.class);
 

@@ -36,12 +36,12 @@ public class FileHelper {
 
     // Gets all files that are directly inside the given directory
     // If the given directory contains other directories, their content won't be read
-    public static Directory getDirectoryObject(String path, String extension) {
+    public static Directory getDirectoryObject(String path, String fileExtension) {
         File dir = new File(path);
         File[] files;
 
-        if (extension != null && !extension.isBlank()) {
-            files = dir.listFiles((dir1, name) -> name.toLowerCase().endsWith(extension.toLowerCase()));
+        if (fileExtension != null && !fileExtension.isBlank()) {
+            files = dir.listFiles((dir1, name) -> name.toLowerCase().endsWith(fileExtension.toLowerCase()));
         } else {
             files = dir.listFiles();
         }

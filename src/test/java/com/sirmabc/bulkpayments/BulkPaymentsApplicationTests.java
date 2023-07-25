@@ -1,5 +1,6 @@
 package com.sirmabc.bulkpayments;
 
+import com.sirmabc.bulkpayments.util.Directory;
 import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import montranMessage.montran.message.Message;
@@ -9,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.UUID;
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 class BulkPaymentsApplicationTests {
@@ -885,5 +888,25 @@ class BulkPaymentsApplicationTests {
     @Test
     void testGetAllDirectoryPaths() {
         for (String path : properties.getAllOutgngBulkMsgsDirPaths()) logger.info(path);
+    }
+
+    @Test
+    void testFileMoving() {
+        try {
+            List<Directory> directories = new ArrayList<>();
+            for (String path : properties.getAllOutgngBulkMsgsDirPaths())
+                directories.add(FileHelper.getDirectoryObject(path, ".xml"));
+
+            for (Directory dir : directories) {
+                for (File file : dir.getFiles()) FileHelper.moveFile(file, properties.getOutgngBulkMsgsInProgressDirPath());
+            }
+
+            TimeUnit.SECONDS.sleep(5);
+
+            Directory inProgressDir = FileHelper.getDirectoryObject(properties.getOutgngBulkMsgsInProgressDirPath(), ".xml");
+            for (File file : inProgressDir.getFiles()) file.delete();
+        } catch (Exception e) {
+            logger.error("testFileMoving error: " + e.getMessage());
+        }
     }
 }
