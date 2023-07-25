@@ -3,12 +3,17 @@ package com.sirmabc.bulkpayments.util;
 import com.sirmabc.bulkpayments.exceptions.AppException;
 import com.sirmabc.bulkpayments.persistance.entities.PropertiesEntity;
 import com.sirmabc.bulkpayments.persistance.repositories.PropertiesRepository;
+import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Scope("singleton")
@@ -33,7 +38,17 @@ public class Properties {
 
     private PropertiesEntity bizMsgIdr;
 
-    private PropertiesEntity bulkMsgsDirPath;
+    private PropertiesEntity keyStorePath;
+
+    private PropertiesEntity keyStorePassword;
+
+    private PropertiesEntity keyStoreAlias;
+
+    private PropertiesEntity incmgBulkMsgsDirPath;
+
+    private PropertiesEntity outgngBulkMsgsDirPath;
+
+    private PropertiesEntity outgngBulkMsgsInProgressDirPath;
 
     private final PropertiesRepository repository;
 
@@ -79,8 +94,23 @@ public class Properties {
             bizMsgIdr = repository.findByName("bizMsgIdr");
             logger.info("Flex cube bizMsgIdr url: " + bizMsgIdr.getValue());
 
-            bulkMsgsDirPath = repository.findByName("bulkMsgsDirPath");
-            logger.info("Bulk messages directory path: " + bulkMsgsDirPath.getValue());
+            keyStorePath = repository.findByName("keyStorePath");
+            logger.info("JKS file path: " + keyStorePath.getValue());
+
+            keyStorePassword = repository.findByName("keyStorePassword");
+            logger.info("JKS password: " + keyStorePassword.getValue());
+
+            keyStoreAlias = repository.findByName("keyStoreAlias");
+            logger.info("JKS alias: " + keyStoreAlias.getValue());
+
+            incmgBulkMsgsDirPath = repository.findByName("incmgBulkMsgsDirPath");
+            logger.info("Incoming bulk messages directory path: " + incmgBulkMsgsDirPath.getValue());
+
+            outgngBulkMsgsDirPath = repository.findByName("outgngBulkMsgsDirPath");
+            logger.info("Outgoing bulk messages directory path: " + outgngBulkMsgsDirPath.getValue());
+
+            outgngBulkMsgsInProgressDirPath = repository.findByName("outgngBulkMsgsInProgressDirPath");
+            logger.info("Outgoing bulk messages in progress directory path: " + outgngBulkMsgsInProgressDirPath.getValue());
         } catch (Exception e) {
             throw new AppException(e.getMessage(), e);
         }
@@ -166,11 +196,63 @@ public class Properties {
         this.bizMsgIdr = bizMsgIdr;
     }
 
-    public String getBulkMsgsDirPath() {
-        return bulkMsgsDirPath.getValue();
+    public String getKeyStorePath() {
+        return keyStorePath.getValue();
     }
 
-    public void setBulkMsgsDirPath(PropertiesEntity bulkMsgsDirPath) {
-        this.bulkMsgsDirPath = bulkMsgsDirPath;
+    public void setKeyStorePath(PropertiesEntity keyStorePath) {
+        this.keyStorePath = keyStorePath;
+    }
+
+    public String getKeyStorePassword() {
+        return keyStorePassword.getValue();
+    }
+
+    public void setKeyStorePassword(PropertiesEntity keyStorePassword) {
+        this.keyStorePassword = keyStorePassword;
+    }
+
+    public String getKeyStoreAlias() {
+        return keyStoreAlias.getValue();
+    }
+
+    public void setKeyStoreAlias(PropertiesEntity keyStoreAlias) {
+        this.keyStoreAlias = keyStoreAlias;
+    }
+
+    public String getIncmgBulkMsgsDirPath() {
+        return incmgBulkMsgsDirPath.getValue();
+    }
+
+    public void setIncmgBulkMsgsDirPath(PropertiesEntity incmgBulkMsgsDirPath) {
+        this.incmgBulkMsgsDirPath = incmgBulkMsgsDirPath;
+    }
+
+    public String getOutgngBulkMsgsDirPath() {
+        return outgngBulkMsgsDirPath.getValue();
+    }
+
+    public void setOutgngBulkMsgsDirPath(PropertiesEntity outgngBulkMsgsDirPath) {
+        this.outgngBulkMsgsDirPath = outgngBulkMsgsDirPath;
+    }
+
+    public String getOutgngBulkMsgsInProgressDirPath() {
+        return outgngBulkMsgsInProgressDirPath.getValue();
+    }
+
+    public void setOutgngBulkMsgsInProgressDirPath(PropertiesEntity outgngBulkMsgsInProgressDirPath) {
+        this.outgngBulkMsgsInProgressDirPath = outgngBulkMsgsInProgressDirPath;
+    }
+
+    /* TODO: Decide if there are going to be different PropertiesEntity fields for all outgoing messages directories
+    *   or a single PropertiesEntity field for a directory that contains all outgoing messages directories!
+    *   Currently the latter is implemented. */
+    public List<String> getAllOutgngBulkMsgsDirPaths() {
+        Directory outgngBulkMsgsDir = FileHelper.getDirectoryObject(outgngBulkMsgsDirPath.getValue(), null);
+        ArrayList<String> dirPaths = new ArrayList<>();
+
+        for (File file : outgngBulkMsgsDir.getFiles()) dirPaths.add(file.getPath());
+
+        return dirPaths;
     }
 }
