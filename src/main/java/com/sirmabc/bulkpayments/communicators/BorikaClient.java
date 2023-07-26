@@ -24,25 +24,25 @@ public class BorikaClient {
     Properties properties;
 
     public HttpResponse<String> postMessage(String requestBody) throws IOException, InterruptedException {
-        logger.info("Posting message to Borika...");
+        logger.info("Posting message to Borika");
 
         HttpClient client = buildClient(20);
-
         HttpRequest request = buildPostRequest(requestBody);
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        logger.info("Post request response: " + response.body());
 
         return response;
     }
 
     public void postAcknowledge(String msgSeq) throws IOException, InterruptedException {
-        logger.info("Posting acknowledge message to Borika...");
+        logger.info("Posting acknowledge message to Borika");
 
         HttpClient client = buildClient(20);
-
         HttpRequest request = buildPostRequest("", msgSeq);
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        logger.info("Post request response: " + response.body());
     }
 
     public HttpClient buildClient(int connectionTimeout) {
@@ -53,7 +53,7 @@ public class BorikaClient {
                 .build();
     }
 
-    public HttpRequest buildGETRequest () {
+    public HttpRequest buildGETRequest() {
         return HttpRequest.newBuilder()
                 .uri(URI.create(properties.getBorikaUrl() + "/bulk/Message"))
                 .header(X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())

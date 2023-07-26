@@ -61,7 +61,7 @@ public class Properties {
 
     @PostConstruct
     public void postConstruct () throws AppException {
-        logger.info("Getting properties from db...");
+        logger.info("Getting properties from the database");
 
         try {
             borikaUrl = repository.findByName("borikaUrl");

@@ -1,8 +1,6 @@
 package com.sirmabc.bulkpayments.util.helpers;
 
 import com.sirmabc.bulkpayments.util.Directory;
-import com.sirmabc.bulkpayments.util.Properties;
-import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -19,11 +17,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.security.KeyStore;
 
 public class FileHelper {
 
@@ -99,19 +99,5 @@ public class FileHelper {
         T result = (T) unmarshaller.unmarshal(xmlFile);
 
         return result;
-    }
-
-    public static String signMessage(String xml, XMLSigner xmlSigner, Properties properties) throws Exception {
-        Document document = xmlSigner.string2XML(xml);
-
-        KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(properties.getKeyStorePath()), properties.getKeyStorePassword().toCharArray());
-        KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(properties.getKeyStorePassword().toCharArray());
-        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(properties.getKeyStoreAlias(), passwordProtection);
-
-        document = xmlSigner.sign(document, keyEntry);
-        String signedXml = xmlSigner.xml2String(document);
-
-        return signedXml;
     }
 }
