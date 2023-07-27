@@ -2,9 +2,12 @@ package com.sirmabc.bulkpayments.services;
 
 import com.sirmabc.bulkpayments.communicators.BorikaClient;
 import com.sirmabc.bulkpayments.exceptions.AppException;
+import com.sirmabc.bulkpayments.messages.IncmgBulkMsg;
+import com.sirmabc.bulkpayments.messages.OutgngBulkMsg;
+import com.sirmabc.bulkpayments.messages.messageBuilder.IncmgBulkMsgBuilder;
+import com.sirmabc.bulkpayments.messages.messageBuilder.OutgngBulkMsgBuilder;
 import com.sirmabc.bulkpayments.util.CodesPacs002;
 import com.sirmabc.bulkpayments.util.Properties;
-import com.sirmabc.bulkpayments.util.helpers.BulkMessageHelper;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
 import montranMessage.montran.message.Message;
@@ -34,14 +37,22 @@ public class BorikaMessageService {
 
     private final XMLSigner xmlSigner;
 
-    private final BulkMessageHelper bulkMessageHelper;
+    private final IncmgBulkMsgBuilder incmgBulkMsgBuilder;
+
+    private final OutgngBulkMsgBuilder outgngBulkMsgBuilder;
 
     @Autowired
-    public BorikaMessageService(Properties properties, BorikaClient borikaClient, XMLSigner xmlSigner, BulkMessageHelper bulkMessageHelper) {
+    public BorikaMessageService(Properties properties,
+                                BorikaClient borikaClient,
+                                XMLSigner xmlSigner,
+                                IncmgBulkMsgBuilder incmgBulkMsgBuilder,
+                                OutgngBulkMsgBuilder outgngBulkMsgBuilder) {
         this.borikaClient = borikaClient;
         this.properties = properties;
         this.xmlSigner = xmlSigner;
-        this.bulkMessageHelper = bulkMessageHelper;
+        this.incmgBulkMsgBuilder = incmgBulkMsgBuilder;
+        this.outgngBulkMsgBuilder = outgngBulkMsgBuilder;
+
     }
 
     @Async
@@ -50,14 +61,16 @@ public class BorikaMessageService {
 
         try {
             acknowledge(response.headers().map());
-            Message message = FileHelper.deserializeXml(response.body(), Message.class);
+            IncmgBulkMsg incmgBulkMsg = incmgBulkMsgBuilder.build(FileHelper.deserializeXml(response.body(), Message.class), response);
 
-            DatabaseService.saveBulkMessage(message.getAppHdr(), response);
-            CodesPacs002 codesPacs002 = bulkMessageHelper.validate(message.getAppHdr(), response);
+            // TODO: Save message to the database
+            incmgBulkMsg.saveMessage();
+            CodesPacs002 codesPacs002 = incmgBulkMsg.validate();
 
             // TODO: Change the name generation of the .xml file
             if (codesPacs002 == CodesPacs002.OK01) {
-                FileHelper.objectToXmlFile(message, properties.getIncmgBulkMsgsDirPath() + "\\" + UUID.randomUUID() + ".xml");
+                // TODO: Move the objectToXmlFile method to the bulk message classes
+                FileHelper.objectToXmlFile(incmgBulkMsg.getMessage(), properties.getIncmgBulkMsgsDirPath() + "\\" + UUID.randomUUID() + ".xml");
             }
         } catch (Exception e) {
             logger.error(Thread.currentThread().getName() + " threw an error: " + e.getMessage(), e);
@@ -66,18 +79,28 @@ public class BorikaMessageService {
     }
 
     @Async
-    public void asyncProcessOutgoingMessage(File xmlFile) throws AppException {
+    public void asyncProcessOutgoingMessage(File xmlFile, String parentDirPath) throws AppException {
         logger.info("Asynchronously building the outgoing message " + Thread.currentThread().getName());
 
         try {
-            FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsInProgressDirPath());
-            Message message = FileHelper.deserializeXml(xmlFile, Message.class);
+            xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsInProgressDirPath());
+            OutgngBulkMsg outgngBulkMsg = outgngBulkMsgBuilder.build(FileHelper.deserializeXml(xmlFile, Message.class));
 
-            // TODO: Check if everything in the buildAppHdr method is correct
-            message.setAppHdr(bulkMessageHelper.buildAppHdr(message));
+            outgngBulkMsg.buildAppHdr();
+            // TODO: Save message to the database
+            HttpResponse<String> response = sendMessageToBorika(outgngBulkMsg);
 
-            // TODO: Send the message to Borika
-            Message responseMessage = sendMessageToBorika(message);
+            boolean inProgressXmlFileDeleted = xmlFile.delete();
+
+            IncmgBulkMsg incmgBulkMsg = incmgBulkMsgBuilder.build(FileHelper.deserializeXml(response.body(), Message.class), response);
+            // TODO: Save response message to the database
+            CodesPacs002 codesPacs002 = incmgBulkMsg.validate();
+
+            if (codesPacs002 == CodesPacs002.OK01) {
+                // TODO: Save the pacs.002 response
+            } else {
+                // TODO: Decide what to do if the header wasn't validated successfully
+            }
         } catch (Exception e) {
             // TODO: Decide what to do with the file if an error occurs
             logger.error(Thread.currentThread().getName() + " threw an error: " + e.getMessage(), e);
@@ -111,17 +134,10 @@ public class BorikaMessageService {
         borikaClient.postAcknowledge(msgSeq);
     }
 
-    private Message sendMessageToBorika(Message message) throws Exception {
+    private HttpResponse<String> sendMessageToBorika(OutgngBulkMsg outgngBulkMsg) throws Exception {
         logger.info("Sending message to Borika");
+        String signedRequestMessageXML = outgngBulkMsg.signMessage();
 
-        String requestMessageXml = FileHelper.serializeXml(message);
-        String signedRequestMessageXML = bulkMessageHelper.signMessage(requestMessageXml);
-
-        HttpResponse<String> response = borikaClient.postMessage(signedRequestMessageXML);
-
-        //Deserialize response body to java object and get request headers.
-        Message responseMessage = FileHelper.deserializeXml(response.body(), Message.class);
-
-        return responseMessage;
+        return borikaClient.postMessage(signedRequestMessageXML);
     }
 }
