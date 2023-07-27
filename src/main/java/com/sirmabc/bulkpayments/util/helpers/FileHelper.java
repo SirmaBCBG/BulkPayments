@@ -1,6 +1,5 @@
 package com.sirmabc.bulkpayments.util.helpers;
 
-import com.sirmabc.bulkpayments.util.Directory;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -27,16 +26,16 @@ import java.nio.file.StandardCopyOption;
 
 public class FileHelper {
 
-    public static void moveFile(File file, String targetPath) throws IOException {
+    public static File moveFile(File file, String targetPath) throws IOException {
         Path source = Path.of(file.getPath());
         Path target = Path.of(targetPath);
 
-        Files.move(source, target.resolve(source.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+        return Files.move(source, target.resolve(source.getFileName()), StandardCopyOption.REPLACE_EXISTING).toFile();
     }
 
     // Gets all files that are directly inside the given directory
     // If the given directory contains other directories, their content won't be read
-    public static Directory getDirectoryObject(String path, String fileExtension) {
+    public static File[] getFilesFromPath(String path, String fileExtension) {
         File dir = new File(path);
         File[] files;
 
@@ -48,7 +47,7 @@ public class FileHelper {
 
         if (files == null) files = new File[0];
 
-        return new Directory(path, files);
+        return files;
     }
 
     public static void objectToXmlFile(Object o, String filePath) throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {

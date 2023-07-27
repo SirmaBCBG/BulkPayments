@@ -12,8 +12,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @Scope("singleton")
@@ -247,11 +245,11 @@ public class Properties {
     /* TODO: Decide if there are going to be different PropertiesEntity fields for all outgoing messages directories
     *   or a single PropertiesEntity field for a directory that contains all outgoing messages directories!
     *   Currently the latter is implemented. */
-    public List<String> getAllOutgngBulkMsgsDirPaths() {
-        Directory outgngBulkMsgsDir = FileHelper.getDirectoryObject(outgngBulkMsgsDirPath.getValue(), null);
-        ArrayList<String> dirPaths = new ArrayList<>();
+    public String[] getAllOutgngBulkMsgsDirPaths() {
+        File[] outgngBulkMsgsDir = FileHelper.getFilesFromPath(outgngBulkMsgsDirPath.getValue(), null);
+        String[] dirPaths = new String[outgngBulkMsgsDir.length];
 
-        for (File file : outgngBulkMsgsDir.getFiles()) dirPaths.add(file.getPath());
+        for (int i = 0; i < outgngBulkMsgsDir.length; i++) dirPaths[i] = outgngBulkMsgsDir[i].getPath();
 
         return dirPaths;
     }

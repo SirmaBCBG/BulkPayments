@@ -1,6 +1,5 @@
 package com.sirmabc.bulkpayments;
 
-import com.sirmabc.bulkpayments.util.Directory;
 import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import montranMessage.montran.message.Message;
@@ -11,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
-import java.util.*;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
@@ -881,27 +880,24 @@ class BulkPaymentsApplicationTests {
             Message message = FileHelper.deserializeXml(xmlString, Message.class);
             FileHelper.objectToXmlFile(message, properties.getIncmgBulkMsgsDirPath() + "\\" + UUID.randomUUID() + ".xml");
         } catch (Exception e) {
-            logger.error("testObjectToXMLFile error: " + e.getMessage());
+            logger.error("testObjectToXMLFile() error: " + e.getMessage(), e);
         }
     }
 
     @Test
     void testFileMoving() {
         try {
-            List<Directory> directories = new ArrayList<>();
-            for (String path : properties.getAllOutgngBulkMsgsDirPaths())
-                directories.add(FileHelper.getDirectoryObject(path, ".xml"));
-
-            for (Directory dir : directories) {
-                for (File file : dir.getFiles()) FileHelper.moveFile(file, properties.getOutgngBulkMsgsInProgressDirPath());
+            for (String path : properties.getAllOutgngBulkMsgsDirPaths()) {
+                File[] files = FileHelper.getFilesFromPath(path, ".xml");
+                for (File file : files) FileHelper.moveFile(file, properties.getOutgngBulkMsgsInProgressDirPath());
             }
 
             TimeUnit.SECONDS.sleep(5);
 
-            Directory inProgressDir = FileHelper.getDirectoryObject(properties.getOutgngBulkMsgsInProgressDirPath(), ".xml");
-            for (File file : inProgressDir.getFiles()) file.delete();
+            File[] inProgressDir = FileHelper.getFilesFromPath(properties.getOutgngBulkMsgsInProgressDirPath(), ".xml");
+            for (File file : inProgressDir) file.delete();
         } catch (Exception e) {
-            logger.error("testFileMoving error: " + e.getMessage());
+            logger.error("testFileMoving() error: " + e.getMessage(), e);
         }
     }
 }
