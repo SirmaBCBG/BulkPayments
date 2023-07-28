@@ -47,14 +47,20 @@ public class BorikaMessageService {
         logger.info("Asynchronously processing the incoming message " + Thread.currentThread().getName());
 
         try {
+            // Acknowledge the headers
             acknowledge(response.headers().map());
+            // Create a MessageWrapper object for the incoming message
             MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
 
+            // Save the message to the database
             incmgMsgWrapper.saveMessageToDatabase();
+            // Validate the message
             CodesPacs002 codesPacs002 = incmgMsgWrapper.validate();
 
+            // Check if the validation was successful
             // TODO: Change the name generation of the .xml file
             if (codesPacs002 == CodesPacs002.OK01) {
+                // Save the message to an xml file
                 incmgMsgWrapper.saveMessageToXmlFile(UUID.randomUUID().toString());
             } else {
                 // TODO: Decide what to do if the header wasn't validated successfully
@@ -71,22 +77,33 @@ public class BorikaMessageService {
         logger.info("Asynchronously building the outgoing message " + Thread.currentThread().getName());
 
         try {
+            // Move the xml file to the "in progress" directory
             xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsInProgressDirPath());
+            // Create a MessageWrapper object for the outgoing message
             MessageWrapper outgngMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlFile, Message.class), null);
 
+            // Build application header for the message
             outgngMsgWrapper.buildAppHdr();
+            // Save the message to the database
             outgngMsgWrapper.saveMessageToDatabase();
 
+            // Send the message to Borika and get the response
             HttpResponse<String> response = sendMessageToBorika(outgngMsgWrapper);
+            // Delete the xml file from the "in progress" directory
             boolean inProgressXmlFileDeleted = xmlFile.delete();
 
+            // Create a MessageWrapper object for the incoming message
             MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
+            // Save the message to the database
             incmgMsgWrapper.saveMessageToDatabase();
 
+            // Validate the message
             CodesPacs002 codesPacs002 = incmgMsgWrapper.validate();
 
+            // Check if the validation was successful
             // TODO: Change the name generation of the .xml file
             if (codesPacs002 == CodesPacs002.OK01) {
+                // Save the message to an xml file
                 incmgMsgWrapper.saveMessageToXmlFile(UUID.randomUUID().toString());
             } else {
                 // TODO: Decide what to do if the header wasn't validated successfully

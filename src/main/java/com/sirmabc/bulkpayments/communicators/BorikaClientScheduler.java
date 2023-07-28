@@ -35,12 +35,16 @@ public class BorikaClientScheduler {
         logger.info("Getting message from Borika");
 
         try {
+            // Build http client
             HttpClient client = borikaClient.buildClient(5);
+            // Build GET request
             HttpRequest request = borikaClient.buildGETRequest();
 
+            // Send the GET request
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             logger.info("GET request response: " + response.body());
 
+            // Process the incoming message
             borikaMessageService.asyncProcessIncomingMessage(response);
         } catch (Exception e) {
             logger.error("getMessage() error: " + e.getMessage(), e);
@@ -52,8 +56,11 @@ public class BorikaClientScheduler {
         logger.info("Sending message to Borika");
 
         try {
+            // Get the paths for all outgoing messages
             for (String path : properties.getAllOutgngBulkMsgsDirPaths()) {
+                // Get all xml files from each directory
                 File[] files = FileHelper.getFilesFromPath(path, ".xml");
+                // Process the files simultaneously
                 for (File file : files) borikaMessageService.asyncProcessOutgoingMessage(file, path);
             }
         } catch (Exception e) {
