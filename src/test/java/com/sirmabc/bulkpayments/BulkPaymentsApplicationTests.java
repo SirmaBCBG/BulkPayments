@@ -1,7 +1,10 @@
 package com.sirmabc.bulkpayments;
 
+import com.sirmabc.bulkpayments.message.MessageWrapper;
+import com.sirmabc.bulkpayments.message.MessageWrapperBuilder;
 import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
+import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
 import montranMessage.montran.message.Message;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -20,6 +23,9 @@ class BulkPaymentsApplicationTests {
 
     @Autowired
     private Properties properties;
+
+    @Autowired
+    private MessageWrapperBuilder messageWrapperBuilder;
 
     @Test
     void testObjectToXMLFile() {
@@ -877,8 +883,8 @@ class BulkPaymentsApplicationTests {
         //endregion
 
         try {
-            Message message = FileHelper.deserializeXml(xmlString, Message.class);
-            FileHelper.objectToXmlFile(message, properties.getIncmgBulkMsgsDirPath() + "\\" + UUID.randomUUID() + ".xml");
+            MessageWrapper messageWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlString, Message.class), null);
+            messageWrapper.saveMessageToXmlFile(UUID.randomUUID().toString());
         } catch (Exception e) {
             logger.error("testObjectToXMLFile() error: " + e.getMessage(), e);
         }
@@ -886,6 +892,8 @@ class BulkPaymentsApplicationTests {
 
     @Test
     void testFileMoving() {
+        // !!! Before starting this test comment out the code inside the sendMessage() method inside the scheduler class !!!
+
         try {
             for (String path : properties.getAllOutgngBulkMsgsDirPaths()) {
                 File[] files = FileHelper.getFilesFromPath(path, ".xml");
