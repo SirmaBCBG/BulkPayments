@@ -95,24 +95,22 @@ public class MessageWrapper {
     }
 
     public CodesPacs002 validate() throws Exception {
-        if (response != null) {
-            logger.info("Validating application header");
+        logger.info("Validating message");
 
-            CodesPacs002 pacs002Code = isValidAppHdr();
-            if (!pacs002Code.equals(CodesPacs002.OK01)) {
-                return pacs002Code;
-            }
-
-            pacs002Code = isDuplicate();
-            if (!pacs002Code.equals(CodesPacs002.OK01)) {
-                return pacs002Code;
-            }
-
-            return CodesPacs002.OK01;
-        } else {
-            logger.info("Could not validate application header because there is no http response present");
-            return CodesPacs002.MS03;
+        CodesPacs002 pacs002Code = isValidAppHdr();
+        if (!pacs002Code.equals(CodesPacs002.OK01)) {
+            logger.error("An error occurred while validating the application header. Error code: " + pacs002Code.errorCode);
+            return pacs002Code;
         }
+
+        pacs002Code = isDuplicate();
+        if (!pacs002Code.equals(CodesPacs002.OK01)) {
+            logger.info("The message is duplicate." + (pacs002Code != CodesPacs002.MS03 ? (" Error code: " + pacs002Code.errorCode) : ""));
+            return pacs002Code;
+        }
+
+        logger.info("The message is valid");
+        return CodesPacs002.OK01;
     }
 
     public String getSignedMessage() throws Exception {
@@ -130,6 +128,8 @@ public class MessageWrapper {
     }
 
     public CodesPacs002 isValidAppHdr() throws Exception {
+        logger.info("Validating the application header");
+
         Document document = xmlSigner.string2XML(XMLHelper.serializeXml(message));
         if (!xmlSigner.verify(document)) {
             return CodesPacs002.FF01;
@@ -141,20 +141,26 @@ public class MessageWrapper {
         int result = participantsRepository.checkParticipant(senderBic);
         String bic = properties.getRtpChannel();
 
-        //check if sender bic is valid and check if receiver bic is the same as the institution bic.
+        // Check if sender bic is valid and check if receiver bic is the same as the institution bic.
         if(result == 0 || !receiverBic.equals(bic)) {
             return CodesPacs002.RC01;
         }
 
-        return  CodesPacs002.OK01;
+        return CodesPacs002.OK01;
     }
 
     public void saveMessageToDatabase() throws JAXBException {
-        BulkMessagesEntity entity = buildBulkMessagesEntity(message.getAppHdr(),
-                XMLHelper.serializeXml(message),
-                response != null ? response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ).get(0) : null);
+        logger.info("Saving message to the database");
 
-        bulkMessagesRepository.save(entity);
+        if (response != null) {
+            BulkMessagesEntity entity = buildBulkMessagesEntity(message.getAppHdr(),
+                    XMLHelper.serializeXml(message),
+                    response != null ? response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ).get(0) : null);
+
+            bulkMessagesRepository.save(entity);
+        } else {
+            logger.info("Could not save the message to the database because there is no http response present");
+        }
     }
 
     public void saveMessageToXmlFile(String fileName) throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
@@ -175,17 +181,25 @@ public class MessageWrapper {
     }
 
     private CodesPacs002 isDuplicate() {
-        boolean isDuplicateHeader = response.headers().map().containsKey(X_MONTRAN_RTP_POSSIBLE_DUPLICATE.header);
+        logger.info("Checking if the message is duplicate");
 
-        // this way so there is no call to db if the header present!
-        if (isDuplicateHeader) {
-            BulkMessagesEntity entity = bulkMessagesRepository.findByMessageId(message.getAppHdr().getBizMsgIdr());
+        if (response != null) {
+            boolean isDuplicateHeader = response.headers().map().containsKey(X_MONTRAN_RTP_POSSIBLE_DUPLICATE.header);
 
-            if(entity != null) {
-                return CodesPacs002.AM05;
+            // This way so there is no call to db if the header is present
+            if (isDuplicateHeader) {
+                BulkMessagesEntity entity = bulkMessagesRepository.findByMessageId(message.getAppHdr().getBizMsgIdr());
+
+                if (entity != null) {
+                    return CodesPacs002.AM05;
+                }
             }
+
+            return CodesPacs002.OK01;
+        } else {
+            logger.info("Could not check if the message is duplicate because there is no http response present");
+            return CodesPacs002.MS03;
         }
-        return CodesPacs002.OK01;
     }
 
     private Party9Choice generateParty9Choice(String bicfi) {
