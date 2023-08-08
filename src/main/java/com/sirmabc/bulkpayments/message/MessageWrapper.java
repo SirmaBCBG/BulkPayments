@@ -91,7 +91,7 @@ public class MessageWrapper {
             appHdr.setSgntr(new SignatureEnvelope());
 
             message.setAppHdr(appHdr);
-        } else { logger.info("Application header already exists"); }
+        } else { logger.error("Application header already exists"); }
     }
 
     public CodesPacs002 validate() throws Exception {
@@ -105,7 +105,7 @@ public class MessageWrapper {
 
         pacs002Code = isDuplicate();
         if (!pacs002Code.equals(CodesPacs002.OK01)) {
-            logger.info("The message is duplicate." + (pacs002Code != CodesPacs002.MS03 ? (" Error code: " + pacs002Code.errorCode) : ""));
+            logger.error("The message is duplicate. Error code: " + pacs002Code.errorCode);
             return pacs002Code;
         }
 
@@ -152,15 +152,11 @@ public class MessageWrapper {
     public void saveMessageToDatabase() throws JAXBException {
         logger.info("Saving message to the database");
 
-        if (response != null) {
-            BulkMessagesEntity entity = buildBulkMessagesEntity(message.getAppHdr(),
-                    XMLHelper.serializeXml(message),
-                    response != null ? response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ).get(0) : null);
+        BulkMessagesEntity entity = buildBulkMessagesEntity(message.getAppHdr(),
+                XMLHelper.serializeXml(message),
+                response != null ? response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ).get(0) : null);
 
-            bulkMessagesRepository.save(entity);
-        } else {
-            logger.info("Could not save the message to the database because there is no http response present");
-        }
+        bulkMessagesRepository.save(entity);
     }
 
     public void saveMessageToXmlFile(String fileName) throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
@@ -183,23 +179,17 @@ public class MessageWrapper {
     private CodesPacs002 isDuplicate() {
         logger.info("Checking if the message is duplicate");
 
-        if (response != null) {
-            boolean isDuplicateHeader = response.headers().map().containsKey(X_MONTRAN_RTP_POSSIBLE_DUPLICATE.header);
+        Boolean isDuplicateHeader = response != null ? response.headers().map().containsKey(X_MONTRAN_RTP_POSSIBLE_DUPLICATE.header) : null;
 
-            // This way so there is no call to db if the header is present
-            if (isDuplicateHeader) {
-                BulkMessagesEntity entity = bulkMessagesRepository.findByMessageId(message.getAppHdr().getBizMsgIdr());
+        if (Boolean.TRUE.equals(isDuplicateHeader)) {
+            BulkMessagesEntity entity = bulkMessagesRepository.findByMessageId(message.getAppHdr().getBizMsgIdr());
 
-                if (entity != null) {
-                    return CodesPacs002.AM05;
-                }
+            if (entity != null) {
+                return CodesPacs002.AM05;
             }
-
-            return CodesPacs002.OK01;
-        } else {
-            logger.info("Could not check if the message is duplicate because there is no http response present");
-            return CodesPacs002.MS03;
         }
+
+        return CodesPacs002.OK01;
     }
 
     private Party9Choice generateParty9Choice(String bicfi) {
