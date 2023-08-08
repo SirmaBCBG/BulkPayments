@@ -109,7 +109,6 @@ public class XMLSigner {
       NodeList nl = document.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
       if (nl.getLength() == 0) {
         logger.info("Cannot find Signature element");
-
         return false;
       }
 
@@ -127,7 +126,6 @@ public class XMLSigner {
           result = signature.validate(valContext);
         } catch (Exception e) {
           logger.info(e.getMessage(), e);
-
           return false;
         }
       }

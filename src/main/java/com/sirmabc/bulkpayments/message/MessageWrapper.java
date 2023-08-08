@@ -35,8 +35,6 @@ import java.io.StringReader;
 import java.net.http.HttpResponse;
 import java.security.KeyStore;
 
-import static com.sirmabc.bulkpayments.util.Header.X_MONTRAN_RTP_POSSIBLE_DUPLICATE;
-
 public class MessageWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageWrapper.class);
@@ -95,21 +93,20 @@ public class MessageWrapper {
     }
 
     public CodesPacs002 validate() throws Exception {
-        logger.info("Validating message");
-
-        CodesPacs002 pacs002Code = isValidAppHdr();
+        // TODO: Uncomment
+        /*CodesPacs002 pacs002Code = isValidAppHdr();
         if (!pacs002Code.equals(CodesPacs002.OK01)) {
             logger.error("An error occurred while validating the application header. Error code: " + pacs002Code.errorCode);
             return pacs002Code;
-        }
+        }*/
 
-        pacs002Code = isDuplicate();
+        // TODO: Uncomment
+        /*pacs002Code = isDuplicate();
         if (!pacs002Code.equals(CodesPacs002.OK01)) {
             logger.error("The message is duplicate. Error code: " + pacs002Code.errorCode);
             return pacs002Code;
-        }
+        }*/
 
-        logger.info("The message is valid");
         return CodesPacs002.OK01;
     }
 
@@ -154,12 +151,14 @@ public class MessageWrapper {
 
         BulkMessagesEntity entity = buildBulkMessagesEntity(message.getAppHdr(),
                 XMLHelper.serializeXml(message),
-                response != null ? response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ).get(0) : null);
+                response != null ? response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0) : null);
 
         bulkMessagesRepository.save(entity);
     }
 
     public void saveMessageToXmlFile(String fileName) throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
+        logger.info("Saving message to an xml file");
+
         String xmlString = XMLHelper.serializeXml(message);
 
         // Parse the XML String to prevent encoding issues
@@ -179,7 +178,7 @@ public class MessageWrapper {
     private CodesPacs002 isDuplicate() {
         logger.info("Checking if the message is duplicate");
 
-        Boolean isDuplicateHeader = response != null ? response.headers().map().containsKey(X_MONTRAN_RTP_POSSIBLE_DUPLICATE.header) : null;
+        Boolean isDuplicateHeader = response != null ? response.headers().map().containsKey(Header.X_MONTRAN_RTP_POSSIBLE_DUPLICATE.header) : null;
 
         if (Boolean.TRUE.equals(isDuplicateHeader)) {
             BulkMessagesEntity entity = bulkMessagesRepository.findByMessageId(message.getAppHdr().getBizMsgIdr());

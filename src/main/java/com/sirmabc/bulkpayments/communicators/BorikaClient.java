@@ -1,5 +1,6 @@
 package com.sirmabc.bulkpayments.communicators;
 
+import com.sirmabc.bulkpayments.util.Header;
 import com.sirmabc.bulkpayments.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +13,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-
-import static com.sirmabc.bulkpayments.util.Header.*;
 
 @Component
 public class BorikaClient {
@@ -39,7 +38,7 @@ public class BorikaClient {
         logger.info("Posting acknowledge message to Borika");
 
         HttpClient client = buildClient(20);
-        HttpRequest request = buildPostRequest("", msgSeq);
+        HttpRequest request = buildPostAcknowledgeRequest("", msgSeq);
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         logger.info("Post request response: " + response.body());
@@ -56,8 +55,8 @@ public class BorikaClient {
     public HttpRequest buildGETRequest() {
         return HttpRequest.newBuilder()
                 .uri(URI.create(properties.getBorikaUrl() + "/bulk/Message"))
-                .header(X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
-                .header(X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
+                .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
+                .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
                 .GET()
                 .build();
     }
@@ -74,18 +73,18 @@ public class BorikaClient {
     public HttpRequest buildPostRequest(String requestBody) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(properties.getBorikaUrl() + "/bulk/Message"))
-                .header(X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
-                .header(X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
+                .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
+                .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
     }
 
-    public HttpRequest buildPostRequest(String requestBody, String msgSeq) {
+    public HttpRequest buildPostAcknowledgeRequest(String requestBody, String msgSeq) {
         return HttpRequest.newBuilder()
-                .uri(URI.create(properties.getBorikaUrl() + "/bulk/Message"))
-                .header(X_MONTRAN_RTP_CHANNEL.header, properties.getRtpVersion())
-                .header(X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
-                .header(X_MONTRAN_RTP_MESSAGE_SEQ.header, msgSeq)
+                .uri(URI.create(properties.getBorikaUrl() + "/bulk/MessageAck"))
+                .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpVersion())
+                .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
+                .header(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header, msgSeq)
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
     }

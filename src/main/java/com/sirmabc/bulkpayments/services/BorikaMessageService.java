@@ -5,6 +5,7 @@ import com.sirmabc.bulkpayments.exceptions.AppException;
 import com.sirmabc.bulkpayments.message.MessageWrapper;
 import com.sirmabc.bulkpayments.message.MessageWrapperBuilder;
 import com.sirmabc.bulkpayments.util.CodesPacs002;
+import com.sirmabc.bulkpayments.util.Header;
 import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
@@ -21,8 +22,6 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.sirmabc.bulkpayments.util.Header.X_MONTRAN_RTP_MESSAGE_SEQ;
 
 @Service
 public class BorikaMessageService {
@@ -48,12 +47,16 @@ public class BorikaMessageService {
 
         try {
             // Acknowledge the headers
-            acknowledge(response.headers().map());
+            // TODO: Uncomment
+            // acknowledge(response.headers().map());
+
             // Create a MessageWrapper object for the incoming message
             MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
 
             // Save the message to the database
-            incmgMsgWrapper.saveMessageToDatabase();
+            // TODO: Uncomment
+            // incmgMsgWrapper.saveMessageToDatabase();
+
             // Validate the message
             CodesPacs002 codesPacs002 = incmgMsgWrapper.validate();
 
@@ -63,7 +66,7 @@ public class BorikaMessageService {
                 // Save the message to an xml file
                 incmgMsgWrapper.saveMessageToXmlFile(UUID.randomUUID().toString());
             } else {
-                // TODO: Decide what to do if the header wasn't validated successfully
+                // TODO: Decide what to do if the validation wasn't successful
             }
         } catch (Exception e) {
             // TODO: Decide what to do if an error occurs
@@ -84,18 +87,23 @@ public class BorikaMessageService {
 
             // Build application header for the message
             outgngMsgWrapper.buildAppHdr();
+
             // Save the message to the database
-            outgngMsgWrapper.saveMessageToDatabase();
+            // TODO: Uncomment
+            // outgngMsgWrapper.saveMessageToDatabase();
 
             // Send the message to Borika and get the response
             HttpResponse<String> response = sendMessageToBorika(outgngMsgWrapper);
+
             // Delete the xml file from the "in progress" directory
             boolean inProgressXmlFileDeleted = xmlFile.delete();
 
             // Create a MessageWrapper object for the incoming message
             MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
+
             // Save the message to the database
-            incmgMsgWrapper.saveMessageToDatabase();
+            // TODO: Uncomment
+            // incmgMsgWrapper.saveMessageToDatabase();
 
             // Validate the message
             CodesPacs002 codesPacs002 = incmgMsgWrapper.validate();
@@ -106,7 +114,7 @@ public class BorikaMessageService {
                 // Save the message to an xml file
                 incmgMsgWrapper.saveMessageToXmlFile(UUID.randomUUID().toString());
             } else {
-                // TODO: Decide what to do if the header wasn't validated successfully
+                // TODO: Decide what to do if the validation wasn't successful
             }
         } catch (Exception e) {
             // TODO: Decide what to do with the file if an error occurs
@@ -137,7 +145,7 @@ public class BorikaMessageService {
     private void acknowledge(Map<String, List<String>> headers) throws IOException, InterruptedException {
         logger.info("Acknowledging headers");
 
-        String msgSeq = headers.get(X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0);
+        String msgSeq = headers.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0);
         borikaClient.postAcknowledge(msgSeq);
     }
 
