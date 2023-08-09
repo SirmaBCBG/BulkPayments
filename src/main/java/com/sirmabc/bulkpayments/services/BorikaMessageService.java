@@ -87,7 +87,6 @@ public class BorikaMessageService {
 
             // Build application header for the message
             outgngMsgWrapper.buildAppHdr();
-            logger.debug("Message after building application header: " + XMLHelper.serializeXml(outgngMsgWrapper.getMessage()));
 
             // Save the message to the database
             // TODO: Uncomment
@@ -97,7 +96,7 @@ public class BorikaMessageService {
             HttpResponse<String> response = sendMessageToBorika(outgngMsgWrapper);
 
             // Delete the xml file from the "in progress" directory
-            boolean inProgressXmlFileDeleted = xmlFile.delete();
+            xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkProcessedPath());
 
             // Create a MessageWrapper object for the incoming message
             MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
@@ -154,6 +153,7 @@ public class BorikaMessageService {
         logger.info("Sending message to Borika");
 
         String signedRequestMessageXML = outgngMsgWrapper.getSignedMessage();
+        logger.debug("Message after building application header: " + signedRequestMessageXML);
         HttpResponse<String> response = borikaClient.postMessage(signedRequestMessageXML);
 
         return response;

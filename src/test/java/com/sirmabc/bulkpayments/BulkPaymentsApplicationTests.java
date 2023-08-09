@@ -903,7 +903,7 @@ class BulkPaymentsApplicationTests {
             TimeUnit.SECONDS.sleep(5);
 
             File[] inProgressDir = FileHelper.getFilesFromPath(properties.getOutgngBulkInProgressPath(), ".xml");
-            for (File file : inProgressDir) file.delete();
+            for (File file : inProgressDir) FileHelper.moveFile(file, properties.getOutgngBulkProcessedPath());
         } catch (Exception e) {
             logger.error("testFileMoving() error: " + e.getMessage(), e);
         }

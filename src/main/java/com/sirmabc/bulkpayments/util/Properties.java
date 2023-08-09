@@ -62,6 +62,8 @@ public class Properties {
 
     private PropertiesEntity outgngBulkInProgressPath;
 
+    private PropertiesEntity outgngBulkProcessedPath;
+
     private final PropertiesRepository repository;
 
     @Autowired
@@ -144,6 +146,9 @@ public class Properties {
 
             outgngBulkInProgressPath = repository.findByName("outgngBulkInProgressPath");
             logger.info("Outgoing bulk messages in progress directory path: " + outgngBulkInProgressPath.getValue());
+
+            outgngBulkProcessedPath = repository.findByName("outgngBulkProcessedPath");
+            logger.info("Outgoing processed bulk messages directory path: " + outgngBulkProcessedPath.getValue());
         } catch (Exception e) {
             throw new AppException(e.getMessage(), e);
         }
@@ -333,6 +338,14 @@ public class Properties {
 
     public void setOutgngBulkInProgressPath(PropertiesEntity outgngBulkInProgressPath) {
         this.outgngBulkInProgressPath = outgngBulkInProgressPath;
+    }
+
+    public String getOutgngBulkProcessedPath() {
+        return outgngBulkProcessedPath.getValue();
+    }
+
+    public void setOutgngBulkProcessedPath(PropertiesEntity outgngBulkProcessedPath) {
+        this.outgngBulkProcessedPath = outgngBulkProcessedPath;
     }
 
     public List<String> getAllOutgngBulkMsgsDirPaths() {
