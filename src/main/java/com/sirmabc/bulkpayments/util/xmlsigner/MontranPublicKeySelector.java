@@ -16,7 +16,7 @@ import java.security.cert.X509Certificate;
 public class MontranPublicKeySelector extends KeySelector {
 
     @Autowired
-    Properties properties;
+    private Properties properties;
 
     public KeySelectorResult select(KeyInfo keyInfo, Purpose purpose, AlgorithmMethod method, XMLCryptoContext context)
           throws KeySelectorException {
@@ -24,8 +24,8 @@ public class MontranPublicKeySelector extends KeySelector {
       try {
         KeyStore ks = KeyStore.getInstance("JKS");
 
-        ks.load(new FileInputStream(properties.getKeyStorePath()), properties.getKeyStorePassword().toCharArray());
-        X509Certificate cert = (X509Certificate) ks.getCertificate("sirmabcxml");//, new KeyStore.PasswordProtection("sla6945".toCharArray()));
+        ks.load(new FileInputStream(properties.getBoricaKeyStorePath()), properties.getBoricaKeyStorePassword().toCharArray());
+        X509Certificate cert = (X509Certificate) ks.getCertificate(properties.getBoricaKeyStoreAlias());
 
 
         final PublicKey key = cert.getPublicKey();

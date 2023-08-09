@@ -114,9 +114,9 @@ public class MessageWrapper {
         Document document = xmlSigner.string2XML(XMLHelper.serializeXml(message));
 
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(properties.getKeyStorePath()), properties.getKeyStorePassword().toCharArray());
-        KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(properties.getKeyStorePassword().toCharArray());
-        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(properties.getKeyStoreAlias(), passwordProtection);
+        ks.load(new FileInputStream(properties.getSbcKeyStorePath()), properties.getSbcKeyStorePassword().toCharArray());
+        KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(properties.getSbcKeyPassword().toCharArray());
+        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(properties.getSbcKeyStoreAlias(), passwordProtection);
 
         document = xmlSigner.sign(document, keyEntry);
         String signedXml = xmlSigner.xml2String(document);
@@ -171,7 +171,7 @@ public class MessageWrapper {
         Transformer transformer = transformerFactory.newTransformer();
         DOMSource source = new DOMSource(doc);
 
-        StreamResult result =  new StreamResult(new File(properties.getIncmgBulkMsgsDirPath() + "\\" + fileName + ".xml"));
+        StreamResult result =  new StreamResult(new File(getXmlFilePath() + "\\" + fileName + ".xml"));
         transformer.transform(source, result);
     }
 
@@ -213,6 +213,19 @@ public class MessageWrapper {
         entity.setMessageSeq(messageSeq);
 
         return entity;
+    }
+
+    private String getXmlFilePath() {
+        String filePath = "";
+
+        // pacs.008
+        if (message.getFIToFICstmrCdtTrf() != null) filePath = properties.getIncmgBulkPacs008Path();
+        else {
+            // pacs.002
+            if (message.getFIToFIPmtStsRpt() != null) filePath = properties.getIncmgBulkPacs002Path();
+        }
+
+        return filePath;
     }
 
     public Message getMessage() {

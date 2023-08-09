@@ -81,12 +81,13 @@ public class BorikaMessageService {
 
         try {
             // Move the xml file to the "in progress" directory
-            xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsInProgressDirPath());
+            xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkInProgressPath());
             // Create a MessageWrapper object for the outgoing message
             MessageWrapper outgngMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlFile, Message.class), null);
 
             // Build application header for the message
             outgngMsgWrapper.buildAppHdr();
+            logger.debug("Message after building application header: " + XMLHelper.serializeXml(outgngMsgWrapper.getMessage()));
 
             // Save the message to the database
             // TODO: Uncomment

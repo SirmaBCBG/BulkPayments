@@ -897,12 +897,12 @@ class BulkPaymentsApplicationTests {
         try {
             for (String path : properties.getAllOutgngBulkMsgsDirPaths()) {
                 File[] files = FileHelper.getFilesFromPath(path, ".xml");
-                for (File file : files) FileHelper.moveFile(file, properties.getOutgngBulkMsgsInProgressDirPath());
+                for (File file : files) FileHelper.moveFile(file, properties.getOutgngBulkInProgressPath());
             }
 
             TimeUnit.SECONDS.sleep(5);
 
-            File[] inProgressDir = FileHelper.getFilesFromPath(properties.getOutgngBulkMsgsInProgressDirPath(), ".xml");
+            File[] inProgressDir = FileHelper.getFilesFromPath(properties.getOutgngBulkInProgressPath(), ".xml");
             for (File file : inProgressDir) file.delete();
         } catch (Exception e) {
             logger.error("testFileMoving() error: " + e.getMessage(), e);

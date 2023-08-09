@@ -3,7 +3,6 @@ package com.sirmabc.bulkpayments.util;
 import com.sirmabc.bulkpayments.exceptions.AppException;
 import com.sirmabc.bulkpayments.persistance.entities.PropertiesEntity;
 import com.sirmabc.bulkpayments.persistance.repositories.PropertiesRepository;
-import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Scope("singleton")
@@ -36,17 +36,31 @@ public class Properties {
 
     private PropertiesEntity bizMsgIdr;
 
-    private PropertiesEntity keyStorePath;
+    private PropertiesEntity boricaKeyStorePath;
 
-    private PropertiesEntity keyStorePassword;
+    private PropertiesEntity boricaKeyStorePassword;
 
-    private PropertiesEntity keyStoreAlias;
+    private PropertiesEntity boricaKeyStoreAlias;
 
-    private PropertiesEntity incmgBulkMsgsDirPath;
+    private PropertiesEntity boricaKeyPassword;
 
-    private PropertiesEntity outgngBulkMsgsDirPath;
+    private PropertiesEntity sbcKeyStorePath;
 
-    private PropertiesEntity outgngBulkMsgsInProgressDirPath;
+    private PropertiesEntity sbcKeyStorePassword;
+
+    private PropertiesEntity sbcKeyStoreAlias;
+
+    private PropertiesEntity sbcKeyPassword;
+
+    private PropertiesEntity incmgBulkPacs008Path;
+
+    private PropertiesEntity incmgBulkPacs002Path;
+
+    private PropertiesEntity outgngBulkPacs008Path;
+
+    private PropertiesEntity outgngBulkPacs002Path;
+
+    private PropertiesEntity outgngBulkInProgressPath;
 
     private final PropertiesRepository repository;
 
@@ -92,23 +106,44 @@ public class Properties {
             bizMsgIdr = repository.findByName("bizMsgIdr");
             logger.info("Flex cube bizMsgIdr url: " + bizMsgIdr.getValue());
 
-            keyStorePath = repository.findByName("keyStorePath");
-            logger.info("JKS file path: " + keyStorePath.getValue());
+            boricaKeyStorePath = repository.findByName("boricaKeyStorePath");
+            logger.info("JKS borica keystore file path: " + boricaKeyStorePath.getValue());
 
-            keyStorePassword = repository.findByName("keyStorePassword");
-            logger.info("JKS password: " + keyStorePassword.getValue());
+            boricaKeyStorePassword = repository.findByName("boricaKeyStorePassword");
+            logger.info("JKS borica password: " + boricaKeyStorePassword.getValue());
 
-            keyStoreAlias = repository.findByName("keyStoreAlias");
-            logger.info("JKS alias: " + keyStoreAlias.getValue());
+            boricaKeyStoreAlias = repository.findByName("boricaKeyStoreAlias");
+            logger.info("JKS borica alias: " + boricaKeyStoreAlias.getValue());
 
-            incmgBulkMsgsDirPath = repository.findByName("incmgBulkMsgsDirPath");
-            logger.info("Incoming bulk messages directory path: " + incmgBulkMsgsDirPath.getValue());
+            boricaKeyPassword = repository.findByName("boricaKeyPassword");
+            logger.info("JKS borica key password: " + boricaKeyPassword.getValue());
 
-            outgngBulkMsgsDirPath = repository.findByName("outgngBulkMsgsDirPath");
-            logger.info("Outgoing bulk messages directory path: " + outgngBulkMsgsDirPath.getValue());
+            sbcKeyStorePath = repository.findByName("sbcKeyStorePath");
+            logger.info("JKS sbc keystore file path: " + sbcKeyStorePath.getValue());
 
-            outgngBulkMsgsInProgressDirPath = repository.findByName("outgngBulkMsgsInProgressDirPath");
-            logger.info("Outgoing bulk messages in progress directory path: " + outgngBulkMsgsInProgressDirPath.getValue());
+            sbcKeyStorePassword = repository.findByName("sbcKeyStorePassword");
+            logger.info("JKS sbc password: " + sbcKeyStorePassword.getValue());
+
+            sbcKeyStoreAlias = repository.findByName("sbcKeyStoreAlias");
+            logger.info("JKS sbc alias: " + sbcKeyStoreAlias.getValue());
+
+            sbcKeyPassword = repository.findByName("sbcKeyPassword");
+            logger.info("JKS sbc key password: " + sbcKeyPassword.getValue());
+
+            incmgBulkPacs008Path = repository.findByName("incmgBulkPacs008Path");
+            logger.info("Incoming pacs.008 bulk messages directory path: " + incmgBulkPacs008Path.getValue());
+
+            incmgBulkPacs002Path = repository.findByName("incmgBulkPacs002Path");
+            logger.info("Incoming pacs.002 bulk messages directory path: " + incmgBulkPacs002Path.getValue());
+
+            outgngBulkPacs008Path = repository.findByName("outgngBulkPacs008Path");
+            logger.info("Outgoing pacs.008 bulk messages directory path: " + outgngBulkPacs008Path.getValue());
+
+            outgngBulkPacs002Path = repository.findByName("outgngBulkPacs002Path");
+            logger.info("Outgoing pacs.002 bulk messages directory path: " + outgngBulkPacs002Path.getValue());
+
+            outgngBulkInProgressPath = repository.findByName("outgngBulkInProgressPath");
+            logger.info("Outgoing bulk messages in progress directory path: " + outgngBulkInProgressPath.getValue());
         } catch (Exception e) {
             throw new AppException(e.getMessage(), e);
         }
@@ -196,63 +231,115 @@ public class Properties {
         this.bizMsgIdr = bizMsgIdr;
     }
 
-    public String getKeyStorePath() {
-        return keyStorePath.getValue();
+    public String getBoricaKeyStorePath() {
+        return boricaKeyStorePath.getValue();
     }
 
-    public void setKeyStorePath(PropertiesEntity keyStorePath) {
-        this.keyStorePath = keyStorePath;
+    public void setBoricaKeyStorePath(PropertiesEntity boricaKeyStorePath) {
+        this.boricaKeyStorePath = boricaKeyStorePath;
     }
 
-    public String getKeyStorePassword() {
-        return keyStorePassword.getValue();
+    public String getBoricaKeyStorePassword() {
+        return boricaKeyStorePassword.getValue();
     }
 
-    public void setKeyStorePassword(PropertiesEntity keyStorePassword) {
-        this.keyStorePassword = keyStorePassword;
+    public void setBoricaKeyStorePassword(PropertiesEntity boricaKeyStorePassword) {
+        this.boricaKeyStorePassword = boricaKeyStorePassword;
     }
 
-    public String getKeyStoreAlias() {
-        return keyStoreAlias.getValue();
+    public String getBoricaKeyStoreAlias() {
+        return boricaKeyStoreAlias.getValue();
     }
 
-    public void setKeyStoreAlias(PropertiesEntity keyStoreAlias) {
-        this.keyStoreAlias = keyStoreAlias;
+    public void setBoricaKeyStoreAlias(PropertiesEntity boricaKeyStoreAlias) {
+        this.boricaKeyStoreAlias = boricaKeyStoreAlias;
     }
 
-    public String getIncmgBulkMsgsDirPath() {
-        return incmgBulkMsgsDirPath.getValue();
+    public String getBoricaKeyPassword() {
+        return boricaKeyPassword.getValue();
     }
 
-    public void setIncmgBulkMsgsDirPath(PropertiesEntity incmgBulkMsgsDirPath) {
-        this.incmgBulkMsgsDirPath = incmgBulkMsgsDirPath;
+    public void setBoricaKeyPassword(PropertiesEntity boricaKeyPassword) {
+        this.boricaKeyPassword = boricaKeyPassword;
     }
 
-    public String getOutgngBulkMsgsDirPath() {
-        return outgngBulkMsgsDirPath.getValue();
+    public String getSbcKeyStorePath() {
+        return sbcKeyStorePath.getValue();
     }
 
-    public void setOutgngBulkMsgsDirPath(PropertiesEntity outgngBulkMsgsDirPath) {
-        this.outgngBulkMsgsDirPath = outgngBulkMsgsDirPath;
+    public void setSbcKeyStorePath(PropertiesEntity sbcKeyStorePath) {
+        this.sbcKeyStorePath = sbcKeyStorePath;
     }
 
-    public String getOutgngBulkMsgsInProgressDirPath() {
-        return outgngBulkMsgsInProgressDirPath.getValue();
+    public String getSbcKeyStorePassword() {
+        return sbcKeyStorePassword.getValue();
     }
 
-    public void setOutgngBulkMsgsInProgressDirPath(PropertiesEntity outgngBulkMsgsInProgressDirPath) {
-        this.outgngBulkMsgsInProgressDirPath = outgngBulkMsgsInProgressDirPath;
+    public void setSbcKeyStorePassword(PropertiesEntity sbcKeyStorePassword) {
+        this.sbcKeyStorePassword = sbcKeyStorePassword;
     }
 
-    /* TODO: Decide if there are going to be different PropertiesEntity fields for all outgoing messages directories
-    *   or a single PropertiesEntity field for a directory that contains all outgoing messages directories!
-    *   Currently the latter is implemented. */
-    public String[] getAllOutgngBulkMsgsDirPaths() {
-        File[] outgngBulkMsgsDir = FileHelper.getFilesFromPath(outgngBulkMsgsDirPath.getValue(), null);
-        String[] dirPaths = new String[outgngBulkMsgsDir.length];
+    public String getSbcKeyStoreAlias() {
+        return sbcKeyStoreAlias.getValue();
+    }
 
-        for (int i = 0; i < outgngBulkMsgsDir.length; i++) dirPaths[i] = outgngBulkMsgsDir[i].getPath();
+    public void setSbcKeyStoreAlias(PropertiesEntity sbcKeyStoreAlias) {
+        this.sbcKeyStoreAlias = sbcKeyStoreAlias;
+    }
 
-        return dirPaths;
+    public String getSbcKeyPassword() {
+        return sbcKeyPassword.getValue();
+    }
+
+    public void setSbcKeyPassword(PropertiesEntity sbcKeyPassword) {
+        this.sbcKeyPassword = sbcKeyPassword;
+    }
+
+    public String getIncmgBulkPacs008Path() {
+        return incmgBulkPacs008Path.getValue();
+    }
+
+    public void setIncmgBulkPacs008Path(PropertiesEntity incmgBulkPacs008Path) {
+        this.incmgBulkPacs008Path = incmgBulkPacs008Path;
+    }
+
+    public String getIncmgBulkPacs002Path() {
+        return incmgBulkPacs002Path.getValue();
+    }
+
+    public void setIncmgBulkPacs002Path(PropertiesEntity incmgBulkPacs002Path) {
+        this.incmgBulkPacs002Path = incmgBulkPacs002Path;
+    }
+
+    public String getOutgngBulkPacs008Path() {
+        return outgngBulkPacs008Path.getValue();
+    }
+
+    public void setOutgngBulkPacs008Path(PropertiesEntity outgngBulkPacs008Path) {
+        this.outgngBulkPacs008Path = outgngBulkPacs008Path;
+    }
+
+    public String getOutgngBulkPacs002Path() {
+        return outgngBulkPacs002Path.getValue();
+    }
+
+    public void setOutgngBulkPacs002Path(PropertiesEntity outgngBulkPacs002Path) {
+        this.outgngBulkPacs002Path = outgngBulkPacs002Path;
+    }
+
+    public String getOutgngBulkInProgressPath() {
+        return outgngBulkInProgressPath.getValue();
+    }
+
+    public void setOutgngBulkInProgressPath(PropertiesEntity outgngBulkInProgressPath) {
+        this.outgngBulkInProgressPath = outgngBulkInProgressPath;
+    }
+
+    public List<String> getAllOutgngBulkMsgsDirPaths() {
+        List<String> outgngBulkPaths = new ArrayList<>();
+        outgngBulkPaths.add(getOutgngBulkPacs008Path());
+        outgngBulkPaths.add(getOutgngBulkPacs002Path());
+
+        return outgngBulkPaths;
     }
 }

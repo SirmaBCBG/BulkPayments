@@ -126,17 +126,17 @@ public class XMLSigner {
           result = signature.validate(valContext);
         } catch (Exception e) {
           logger.info(e.getMessage(), e);
-          return false;
+          //return false;
         }
       }
 
       // try with external keystore
-  //    if (!result) {
-  //      DOMValidateContext valContext = new DOMValidateContext(new MontranPublicKeySelector(), nl.item(0));
-  //      XMLSignature signature = fac.unmarshalXMLSignature(valContext);
-  //
-  //      result = signature.validate(valContext);
-  //    }
+      if (!result) {
+        DOMValidateContext valContext = new DOMValidateContext(new MontranPublicKeySelector(), nl.item(0));
+        XMLSignature signature = fac.unmarshalXMLSignature(valContext);
+
+        result = signature.validate(valContext);
+      }
 
       return result;
     }
