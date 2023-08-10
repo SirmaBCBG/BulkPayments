@@ -32,7 +32,7 @@ public class BorikaClientScheduler {
 
     @Scheduled(fixedDelay = 60000)
     public void getMessage() {
-        logger.info("Getting message from Borika");
+        logger.info("getMessage() execution started");
 
         try {
             // Build http client
@@ -53,18 +53,20 @@ public class BorikaClientScheduler {
 
     @Scheduled(fixedDelay = 60000)
     public void sendMessage() {
-        logger.info("Sending message to Borika");
+        logger.info("sendMessage() execution started");
 
-        try {
-            // Get the paths for all outgoing messages
-            for (String path : properties.getAllOutgngBulkMsgsDirPaths()) {
-                // Get all xml files from each directory
-                File[] files = FileHelper.getFilesFromPath(path, ".xml");
-                // Process the files simultaneously
-                for (File file : files) borikaMessageService.asyncProcessOutgoingMessage(file, path);
+        // Get the paths for all outgoing messages
+        for (String path : properties.getAllOutgngBulkMsgsDirPaths()) {
+            // Get all xml files from each directory
+            File[] files = FileHelper.getFilesFromPath(path, ".xml");
+            // Process the files simultaneously
+            for (File file : files) {
+                try {
+                    borikaMessageService.asyncProcessOutgoingMessage(file, path);
+                } catch (Exception e) {
+                    logger.error("sendMessage() error: " + e.getMessage(), e);
+                }
             }
-        } catch (Exception e) {
-            logger.error("sendMessage() error: " + e.getMessage(), e);
         }
     }
 

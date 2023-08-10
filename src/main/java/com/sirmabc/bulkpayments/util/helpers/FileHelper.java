@@ -9,10 +9,10 @@ import java.nio.file.StandardCopyOption;
 public class FileHelper {
 
     public static File moveFile(File file, String targetPath) throws IOException {
-        Path source = Path.of(file.getPath());
-        Path target = Path.of(targetPath);
+        Path sourcePath = Path.of(file.getPath());
+        Path destinationPath = Path.of(targetPath, file.getName());
 
-        return Files.move(source, target.resolve(source.getFileName()), StandardCopyOption.REPLACE_EXISTING).toFile();
+        return Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING).toFile();
     }
 
     // Gets all files that are directly inside the given directory
