@@ -2,6 +2,7 @@ package com.sirmabc.bulkpayments.services;
 
 import com.sirmabc.bulkpayments.communicators.BorikaClient;
 import com.sirmabc.bulkpayments.exceptions.AppException;
+import com.sirmabc.bulkpayments.exceptions.PostMessageException;
 import com.sirmabc.bulkpayments.message.MessageWrapper;
 import com.sirmabc.bulkpayments.message.MessageWrapperBuilder;
 import com.sirmabc.bulkpayments.util.CodesPacs002;
@@ -116,8 +117,17 @@ public class BorikaMessageService {
             } else {
                 // TODO: Decide what to do if the validation wasn't successful
             }
+        } catch (PostMessageException e) {
+            logger.error("Sending message to borika failed with error: " + e.getMessage(), e);
+
+            try {
+                xmlFile = FileHelper.moveFile(xmlFile, parentDirPath);
+            } catch (IOException ex) {
+                logger.error("Moving xml file back to the original location failed with error: " + ex.getMessage(), ex);
+            }
+
+            throw new AppException(e.getMessage(), e);
         } catch (Exception e) {
-            // TODO: Decide what to do with the file if an error occurs
             logger.error(Thread.currentThread().getName() + " threw an error: " + e.getMessage(), e);
             throw new AppException(e.getMessage(), e);
         }
