@@ -1,5 +1,6 @@
 package com.sirmabc.bulkpayments.communicators;
 
+import com.sirmabc.bulkpayments.exceptions.PostMessageException;
 import com.sirmabc.bulkpayments.util.Header;
 import com.sirmabc.bulkpayments.util.Properties;
 import org.slf4j.Logger;
@@ -22,16 +23,20 @@ public class BorikaClient {
     @Autowired
     Properties properties;
 
-    public HttpResponse<String> postMessage(String requestBody) throws IOException, InterruptedException {
+    public HttpResponse<String> postMessage(String requestBody) throws PostMessageException {
         logger.info("Posting message to Borika");
 
-        HttpClient client = buildClient(20);
-        HttpRequest request = buildPostRequest(requestBody);
+        try {
+            HttpClient client = buildClient(20);
+            HttpRequest request = buildPostRequest(requestBody);
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        logger.info("Post request response: " + response.body());
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            logger.info("Post request response: " + response.body());
 
-        return response;
+            return response;
+        } catch (Exception e) {
+            throw new PostMessageException(e.getMessage(), e);
+        }
     }
 
     public void postAcknowledge(String msgSeq) throws IOException, InterruptedException {
