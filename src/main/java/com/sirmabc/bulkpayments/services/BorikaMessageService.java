@@ -67,10 +67,9 @@ public class BorikaMessageService {
                 // Save the message to an xml file
                 incmgMsgWrapper.saveMessageToXmlFile(UUID.randomUUID().toString());
             } else {
-                // TODO: Decide what to do if the validation wasn't successful
+                logger.error("The message was not validated successfully");
             }
         } catch (Exception e) {
-            // TODO: Decide what to do if an error occurs
             logger.error(Thread.currentThread().getName() + " threw an error: " + e.getMessage(), e);
             throw new AppException(e.getMessage(), e);
         }
@@ -115,7 +114,7 @@ public class BorikaMessageService {
                 // Save the message to an xml file
                 incmgMsgWrapper.saveMessageToXmlFile(UUID.randomUUID().toString());
             } else {
-                // TODO: Decide what to do if the validation wasn't successful
+                logger.error("The message was not validated successfully");
             }
         } catch (PostMessageException e) {
             logger.error("Sending message to borika failed with error: " + e.getMessage(), e);
