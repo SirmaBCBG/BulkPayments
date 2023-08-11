@@ -11,8 +11,6 @@ import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
 import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
 import jakarta.xml.bind.JAXBException;
 import montranMessage.iso.std.iso._20022.tech.xsd.head_001_001.*;
-import montranMessage.iso.std.iso._20022.tech.xsd.pacs_002_001.GroupHeader37;
-import montranMessage.iso.std.iso._20022.tech.xsd.pacs_008_001.GroupHeader33;
 import montranMessage.montran.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,23 +66,36 @@ public class MessageWrapper {
 
             // pacs.008
             if (message.getFIToFICstmrCdtTrf() != null) {
-                GroupHeader33 grpHdr = message.getFIToFICstmrCdtTrf().getGrpHdr();
-
-                appHdr.setFr(generateParty9Choice(grpHdr.getInstgAgt().getFinInstnId().getBIC()));
+                //appHdr.setTo(...);
                 appHdr.setMsgDefIdr(MsgDefIdrs.PACS008.idr);
-                appHdr.setCreDt(grpHdr.getCreDtTm());
+                appHdr.setCreDt(message.getFIToFICstmrCdtTrf().getGrpHdr().getCreDtTm());
             } else {
                 // pacs.002
                 if (message.getFIToFIPmtStsRpt() != null) {
-                    GroupHeader37 grpHdr = message.getFIToFIPmtStsRpt().getGrpHdr();
-
-                    appHdr.setFr(generateParty9Choice(grpHdr.getInstgAgt().getFinInstnId().getBIC()));
+                    //appHdr.setTo(...);
                     appHdr.setMsgDefIdr(MsgDefIdrs.PACS002.idr);
-                    appHdr.setCreDt(grpHdr.getCreDtTm());
+                    appHdr.setCreDt(message.getFIToFIPmtStsRpt().getGrpHdr().getCreDtTm());
+                } else {
+                    // pacs.004
+                    if (message.getPmtRtr() != null) {
+                        //appHdr.setTo(...);
+                        appHdr.setMsgDefIdr(MsgDefIdrs.PACS004.idr);
+                        appHdr.setCreDt(message.getPmtRtr().getGrpHdr().getCreDtTm());
+                    } else {
+                        // camt.056
+                        if (message.getFIToFIPmtCxlReq() != null) {
+                            //appHdr.setTo(...);
+                            appHdr.setMsgDefIdr(MsgDefIdrs.CAMT056.idr);
+                            appHdr.setCreDt(message.getFIToFIPmtCxlReq().getAssgnmt().getCreDtTm());
+                        }
+                    }
                 }
             }
 
-            appHdr.setTo(generateParty9Choice(properties.getRtpChannel()));
+            // TODO: Fix setTo()
+            // TODO: Finish for the rest of the messages
+
+            appHdr.setFr(generateParty9Choice(properties.getRtpChannel()));
             appHdr.setBizMsgIdr(properties.getBizMsgIdr());
             appHdr.setSgntr(new SignatureEnvelope());
 
@@ -223,7 +234,17 @@ public class MessageWrapper {
         else {
             // pacs.002
             if (message.getFIToFIPmtStsRpt() != null) filePath = properties.getIncmgBulkPacs002Path();
+            else {
+                // pacs.004
+                if (message.getPmtRtr() != null) filePath = properties.getIncmgBulkPacs004Path();
+                else {
+                    // camt.056
+                    if (message.getFIToFIPmtCxlReq() != null) filePath = properties.getIncmgBulkCamt056Path();
+                }
+            }
         }
+
+        // TODO: Finish for the rest of the messages
 
         return filePath;
     }
