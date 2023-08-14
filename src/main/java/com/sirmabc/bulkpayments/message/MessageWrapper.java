@@ -33,7 +33,6 @@ import java.io.StringReader;
 import java.net.http.HttpResponse;
 import java.security.KeyStore;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 
@@ -206,15 +205,14 @@ public class MessageWrapper {
     // TODO: Refine name generation
     private synchronized static String generateUniqueFileName(String msgDefIdr) {
         String shortMessageType = msgDefIdr.substring(msgDefIdr.indexOf('.'), msgDefIdr.indexOf('.', msgDefIdr.indexOf('.') + 1));
-        LocalDateTime localDateTime = LocalDateTime.now();
-        LocalTime localTime = localDateTime.toLocalTime();
+        LocalDateTime dateTime = LocalDateTime.now();
 
         return "IN_"
                 + shortMessageType
                 + "_"
-                + localDateTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"))
+                + dateTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"))
                 + "_"
-                + localTime.get(ChronoField.MILLI_OF_DAY);
+                + dateTime.get(ChronoField.MILLI_OF_DAY);
     }
 
     private Party9Choice generateParty9Choice(String bicfi) {
