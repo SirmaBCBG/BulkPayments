@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
@@ -884,7 +883,7 @@ class BulkPaymentsApplicationTests {
 
         try {
             MessageWrapper messageWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlString, Message.class), null);
-            messageWrapper.saveMessageToXmlFile(UUID.randomUUID().toString());
+            messageWrapper.saveMessageToXmlFile();
         } catch (Exception e) {
             logger.error("testObjectToXMLFile() error: " + e.getMessage(), e);
         }
@@ -895,15 +894,13 @@ class BulkPaymentsApplicationTests {
         // !!! Before starting this test comment out the code inside the sendMessage() method inside the scheduler class !!!
 
         try {
-            for (String path : properties.getAllOutgngBulkMsgsDirPaths()) {
-                File[] files = FileHelper.getFilesFromPath(path, ".xml");
-                for (File file : files) FileHelper.moveFile(file, properties.getOutgngBulkInProgressPath());
-            }
+            File[] files = FileHelper.getFilesFromPath(properties.getOutgngBulkMsgsPath(), ".xml");
+            for (File file : files) FileHelper.moveFile(file, properties.getOutgngBulkMsgsInProgressPath());
 
             TimeUnit.SECONDS.sleep(5);
 
-            File[] inProgressDir = FileHelper.getFilesFromPath(properties.getOutgngBulkInProgressPath(), ".xml");
-            for (File file : inProgressDir) FileHelper.moveFile(file, properties.getOutgngBulkProcessedPath());
+            File[] inProgressDir = FileHelper.getFilesFromPath(properties.getOutgngBulkMsgsInProgressPath(), ".xml");
+            for (File file : inProgressDir) FileHelper.moveFile(file, properties.getOutgngBulkMsgsProcessedPath());
         } catch (Exception e) {
             logger.error("testFileMoving() error: " + e.getMessage(), e);
         }

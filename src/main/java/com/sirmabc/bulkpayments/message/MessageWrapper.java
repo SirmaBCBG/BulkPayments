@@ -32,6 +32,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.http.HttpResponse;
 import java.security.KeyStore;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 
 public class MessageWrapper {
 
@@ -66,25 +70,21 @@ public class MessageWrapper {
 
             // pacs.008
             if (message.getFIToFICstmrCdtTrf() != null) {
-                //appHdr.setTo(...);
                 appHdr.setMsgDefIdr(MsgDefIdrs.PACS008.idr);
                 appHdr.setCreDt(message.getFIToFICstmrCdtTrf().getGrpHdr().getCreDtTm());
             } else {
                 // pacs.002
                 if (message.getFIToFIPmtStsRpt() != null) {
-                    //appHdr.setTo(...);
                     appHdr.setMsgDefIdr(MsgDefIdrs.PACS002.idr);
                     appHdr.setCreDt(message.getFIToFIPmtStsRpt().getGrpHdr().getCreDtTm());
                 } else {
                     // pacs.004
                     if (message.getPmtRtr() != null) {
-                        //appHdr.setTo(...);
                         appHdr.setMsgDefIdr(MsgDefIdrs.PACS004.idr);
                         appHdr.setCreDt(message.getPmtRtr().getGrpHdr().getCreDtTm());
                     } else {
                         // camt.056
                         if (message.getFIToFIPmtCxlReq() != null) {
-                            //appHdr.setTo(...);
                             appHdr.setMsgDefIdr(MsgDefIdrs.CAMT056.idr);
                             appHdr.setCreDt(message.getFIToFIPmtCxlReq().getAssgnmt().getCreDtTm());
                         }
@@ -96,6 +96,7 @@ public class MessageWrapper {
             // TODO: Finish for the rest of the messages
 
             appHdr.setFr(generateParty9Choice(properties.getRtpChannel()));
+            //appHdr.setTo(...);
             appHdr.setBizMsgIdr(properties.getBizMsgIdr());
             appHdr.setSgntr(new SignatureEnvelope());
 
@@ -167,7 +168,7 @@ public class MessageWrapper {
         bulkMessagesRepository.save(entity);
     }
 
-    public void saveMessageToXmlFile(String fileName) throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
+    public void saveMessageToXmlFile() throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
         logger.info("Saving message to an xml file");
 
         String xmlString = XMLHelper.serializeXml(message);
@@ -182,7 +183,7 @@ public class MessageWrapper {
         Transformer transformer = transformerFactory.newTransformer();
         DOMSource source = new DOMSource(doc);
 
-        StreamResult result =  new StreamResult(new File(getXmlFilePath() + "\\" + fileName + ".xml"));
+        StreamResult result =  new StreamResult(new File(properties.getIncmgBulkMsgsPath() + "\\" + generateUniqueFileName(message.getAppHdr().getMsgDefIdr()) + ".xml"));
         transformer.transform(source, result);
     }
 
@@ -200,6 +201,20 @@ public class MessageWrapper {
         }
 
         return CodesPacs002.OK01;
+    }
+
+    // TODO: Refine name generation
+    private synchronized static String generateUniqueFileName(String msgDefIdr) {
+        String shortMessageType = msgDefIdr.substring(msgDefIdr.indexOf('.'), msgDefIdr.indexOf('.', msgDefIdr.indexOf('.') + 1));
+        LocalDateTime localDateTime = LocalDateTime.now();
+        LocalTime localTime = localDateTime.toLocalTime();
+
+        return "IN_"
+                + shortMessageType
+                + "_"
+                + localDateTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"))
+                + "_"
+                + localTime.get(ChronoField.MILLI_OF_DAY);
     }
 
     private Party9Choice generateParty9Choice(String bicfi) {
@@ -224,29 +239,6 @@ public class MessageWrapper {
         entity.setMessageSeq(messageSeq);
 
         return entity;
-    }
-
-    private String getXmlFilePath() {
-        String filePath = "";
-
-        // pacs.008
-        if (message.getFIToFICstmrCdtTrf() != null) filePath = properties.getIncmgBulkPacs008Path();
-        else {
-            // pacs.002
-            if (message.getFIToFIPmtStsRpt() != null) filePath = properties.getIncmgBulkPacs002Path();
-            else {
-                // pacs.004
-                if (message.getPmtRtr() != null) filePath = properties.getIncmgBulkPacs004Path();
-                else {
-                    // camt.056
-                    if (message.getFIToFIPmtCxlReq() != null) filePath = properties.getIncmgBulkCamt056Path();
-                }
-            }
-        }
-
-        // TODO: Finish for the rest of the messages
-
-        return filePath;
     }
 
     public Message getMessage() {

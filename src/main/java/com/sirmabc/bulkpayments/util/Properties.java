@@ -10,9 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 @Scope("singleton")
 public class Properties {
@@ -52,25 +49,13 @@ public class Properties {
 
     private PropertiesEntity sbcKeyPassword;
 
-    private PropertiesEntity incmgBulkPacs008Path;
+    private PropertiesEntity outgngBulkMsgsPath;
 
-    private PropertiesEntity outgngBulkPacs008Path;
+    private PropertiesEntity outgngBulkMsgsInProgressPath;
 
-    private PropertiesEntity incmgBulkPacs002Path;
+    private PropertiesEntity outgngBulkMsgsProcessedPath;
 
-    private PropertiesEntity outgngBulkPacs002Path;
-
-    private PropertiesEntity outgngBulkInProgressPath;
-
-    private PropertiesEntity outgngBulkProcessedPath;
-
-    private PropertiesEntity incmgBulkPacs004Path;
-
-    private PropertiesEntity outgngBulkPacs004Path;
-
-    private PropertiesEntity incmgBulkCamt056Path;
-
-    private PropertiesEntity outgngBulkCamt056Path;
+    private PropertiesEntity incmgBulkMsgsPath;
 
     private final PropertiesRepository repository;
 
@@ -140,35 +125,17 @@ public class Properties {
             sbcKeyPassword = repository.findByName("sbcKeyPassword");
             logger.info("JKS sbc key password: " + sbcKeyPassword.getValue());
 
-            incmgBulkPacs008Path = repository.findByName("incmgBulkPacs008Path");
-            logger.info("Incoming pacs.008 bulk messages directory path: " + incmgBulkPacs008Path.getValue());
+            outgngBulkMsgsPath = repository.findByName("outgngBulkMsgsPath");
+            logger.info("JKS sbc key password: " + outgngBulkMsgsPath.getValue());
 
-            outgngBulkPacs008Path = repository.findByName("outgngBulkPacs008Path");
-            logger.info("Outgoing pacs.008 bulk messages directory path: " + outgngBulkPacs008Path.getValue());
+            outgngBulkMsgsInProgressPath = repository.findByName("outgngBulkMsgsInProgressPath");
+            logger.info("Outgoing bulk messages in progress directory path: " + outgngBulkMsgsInProgressPath.getValue());
 
-            incmgBulkPacs002Path = repository.findByName("incmgBulkPacs002Path");
-            logger.info("Incoming pacs.002 bulk messages directory path: " + incmgBulkPacs002Path.getValue());
+            outgngBulkMsgsProcessedPath = repository.findByName("outgngBulkMsgsProcessedPath");
+            logger.info("Outgoing processed bulk messages directory path: " + outgngBulkMsgsProcessedPath.getValue());
 
-            outgngBulkPacs002Path = repository.findByName("outgngBulkPacs002Path");
-            logger.info("Outgoing pacs.002 bulk messages directory path: " + outgngBulkPacs002Path.getValue());
-
-            outgngBulkInProgressPath = repository.findByName("outgngBulkInProgressPath");
-            logger.info("Outgoing bulk messages in progress directory path: " + outgngBulkInProgressPath.getValue());
-
-            outgngBulkProcessedPath = repository.findByName("outgngBulkProcessedPath");
-            logger.info("Outgoing processed bulk messages directory path: " + outgngBulkProcessedPath.getValue());
-
-            incmgBulkPacs004Path = repository.findByName("incmgBulkPacs004Path");
-            logger.info("Outgoing processed bulk messages directory path: " + incmgBulkPacs004Path.getValue());
-
-            outgngBulkPacs004Path = repository.findByName("outgngBulkPacs004Path");
-            logger.info("Outgoing processed bulk messages directory path: " + outgngBulkPacs004Path.getValue());
-
-            incmgBulkCamt056Path = repository.findByName("incmgBulkCamt056Path");
-            logger.info("Outgoing processed bulk messages directory path: " + incmgBulkCamt056Path.getValue());
-
-            outgngBulkCamt056Path = repository.findByName("outgngBulkCamt056Path");
-            logger.info("Outgoing processed bulk messages directory path: " + outgngBulkCamt056Path.getValue());
+            incmgBulkMsgsPath = repository.findByName("incmgBulkMsgsPath");
+            logger.info("Outgoing processed bulk messages directory path: " + incmgBulkMsgsPath.getValue());
         } catch (Exception e) {
             throw new AppException(e.getMessage(), e);
         }
@@ -320,95 +287,35 @@ public class Properties {
         this.sbcKeyPassword = sbcKeyPassword;
     }
 
-    public String getIncmgBulkPacs008Path() {
-        return incmgBulkPacs008Path.getValue();
+    public String getOutgngBulkMsgsPath() {
+        return outgngBulkMsgsPath.getValue();
     }
 
-    public void setIncmgBulkPacs008Path(PropertiesEntity incmgBulkPacs008Path) {
-        this.incmgBulkPacs008Path = incmgBulkPacs008Path;
+    public void setOutgngBulkMsgsPath(PropertiesEntity outgngBulkMsgsPath) {
+        this.outgngBulkMsgsPath = outgngBulkMsgsPath;
     }
 
-    public String getOutgngBulkPacs008Path() {
-        return outgngBulkPacs008Path.getValue();
+    public String getOutgngBulkMsgsInProgressPath() {
+        return outgngBulkMsgsInProgressPath.getValue();
     }
 
-    public void setOutgngBulkPacs008Path(PropertiesEntity outgngBulkPacs008Path) {
-        this.outgngBulkPacs008Path = outgngBulkPacs008Path;
+    public void setOutgngBulkMsgsInProgressPath(PropertiesEntity outgngBulkMsgsInProgressPath) {
+        this.outgngBulkMsgsInProgressPath = outgngBulkMsgsInProgressPath;
     }
 
-    public String getIncmgBulkPacs002Path() {
-        return incmgBulkPacs002Path.getValue();
+    public String getOutgngBulkMsgsProcessedPath() {
+        return outgngBulkMsgsProcessedPath.getValue();
     }
 
-    public void setIncmgBulkPacs002Path(PropertiesEntity incmgBulkPacs002Path) {
-        this.incmgBulkPacs002Path = incmgBulkPacs002Path;
+    public void setOutgngBulkMsgsProcessedPath(PropertiesEntity outgngBulkMsgsProcessedPath) {
+        this.outgngBulkMsgsProcessedPath = outgngBulkMsgsProcessedPath;
     }
 
-    public String getOutgngBulkPacs002Path() {
-        return outgngBulkPacs002Path.getValue();
+    public String getIncmgBulkMsgsPath() {
+        return incmgBulkMsgsPath.getValue();
     }
 
-    public void setOutgngBulkPacs002Path(PropertiesEntity outgngBulkPacs002Path) {
-        this.outgngBulkPacs002Path = outgngBulkPacs002Path;
-    }
-
-    public String getOutgngBulkInProgressPath() {
-        return outgngBulkInProgressPath.getValue();
-    }
-
-    public void setOutgngBulkInProgressPath(PropertiesEntity outgngBulkInProgressPath) {
-        this.outgngBulkInProgressPath = outgngBulkInProgressPath;
-    }
-
-    public String getOutgngBulkProcessedPath() {
-        return outgngBulkProcessedPath.getValue();
-    }
-
-    public void setOutgngBulkProcessedPath(PropertiesEntity outgngBulkProcessedPath) {
-        this.outgngBulkProcessedPath = outgngBulkProcessedPath;
-    }
-
-    public String getIncmgBulkPacs004Path() {
-        return incmgBulkPacs004Path.getValue();
-    }
-
-    public void setIncmgBulkPacs004Path(PropertiesEntity incmgBulkPacs004Path) {
-        this.incmgBulkPacs004Path = incmgBulkPacs004Path;
-    }
-
-    public String getOutgngBulkPacs004Path() {
-        return outgngBulkPacs004Path.getValue();
-    }
-
-    public void setOutgngBulkPacs004Path(PropertiesEntity outgngBulkPacs004Path) {
-        this.outgngBulkPacs004Path = outgngBulkPacs004Path;
-    }
-
-    public String getIncmgBulkCamt056Path() {
-        return incmgBulkCamt056Path.getValue();
-    }
-
-    public void setIncmgBulkCamt056Path(PropertiesEntity incmgBulkCamt056Path) {
-        this.incmgBulkCamt056Path = incmgBulkCamt056Path;
-    }
-
-    public String getOutgngBulkCamt056Path() {
-        return outgngBulkCamt056Path.getValue();
-    }
-
-    public void setOutgngBulkCamt056Path(PropertiesEntity outgngBulkCamt056Path) {
-        this.outgngBulkCamt056Path = outgngBulkCamt056Path;
-    }
-
-    public List<String> getAllOutgngBulkMsgsDirPaths() {
-        List<String> outgngBulkPaths = new ArrayList<>();
-        outgngBulkPaths.add(getOutgngBulkPacs008Path());
-        outgngBulkPaths.add(getOutgngBulkPacs002Path());
-        outgngBulkPaths.add(getOutgngBulkPacs004Path());
-        outgngBulkPaths.add(getOutgngBulkCamt056Path());
-
-        // TODO: Finish for the rest of the messages
-
-        return outgngBulkPaths;
+    public void setIncmgBulkMsgsPath(PropertiesEntity incmgBulkMsgsPath) {
+        this.incmgBulkMsgsPath = incmgBulkMsgsPath;
     }
 }

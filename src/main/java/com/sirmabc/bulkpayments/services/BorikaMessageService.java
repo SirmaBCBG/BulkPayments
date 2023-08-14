@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class BorikaMessageService {
@@ -65,7 +64,7 @@ public class BorikaMessageService {
             // TODO: Change the name generation of the .xml file
             if (codesPacs002 == CodesPacs002.OK01) {
                 // Save the message to an xml file
-                incmgMsgWrapper.saveMessageToXmlFile(UUID.randomUUID().toString());
+                incmgMsgWrapper.saveMessageToXmlFile();
             } else {
                 logger.error("The message was not validated successfully");
             }
@@ -76,12 +75,12 @@ public class BorikaMessageService {
     }
 
     @Async
-    public void asyncProcessOutgoingMessage(File xmlFile, String parentDirPath) throws AppException {
+    public void asyncProcessOutgoingMessage(File xmlFile) throws AppException {
         logger.info("Asynchronously building the outgoing message " + Thread.currentThread().getName());
 
         try {
             // Move the xml file to the "in progress" directory
-            xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkInProgressPath());
+            xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsInProgressPath());
             // Create a MessageWrapper object for the outgoing message
             MessageWrapper outgngMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlFile, Message.class), null);
 
@@ -96,7 +95,7 @@ public class BorikaMessageService {
             HttpResponse<String> response = sendMessageToBorika(outgngMsgWrapper);
 
             // Delete the xml file from the "in progress" directory
-            xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkProcessedPath());
+            xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsProcessedPath());
 
             // Create a MessageWrapper object for the incoming message
             MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
@@ -112,15 +111,16 @@ public class BorikaMessageService {
             // TODO: Change the name generation of the .xml file
             if (codesPacs002 == CodesPacs002.OK01) {
                 // Save the message to an xml file
-                incmgMsgWrapper.saveMessageToXmlFile(UUID.randomUUID().toString());
+                incmgMsgWrapper.saveMessageToXmlFile();
             } else {
                 logger.error("The message was not validated successfully");
             }
         } catch (PostMessageException e) {
             logger.error("Sending message to borika failed with error: " + e.getMessage(), e);
 
+            // If the connection to Borika times out, move the xml file back to its original location
             try {
-                xmlFile = FileHelper.moveFile(xmlFile, parentDirPath);
+                xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsPath());
             } catch (IOException ex) {
                 logger.error("Moving xml file back to the original location failed with error: " + ex.getMessage(), ex);
             }

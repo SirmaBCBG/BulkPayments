@@ -1,34 +1,343 @@
-2023-08-11 17:26:01,721 INFO o.s.b.StartupInfoLogger [Test worker] Starting BulkPaymentsApplicationTests using Java 17.0.6 with PID 11844 (started by veselin.zinkov in C:\develop\BulkPayments)
-2023-08-11 17:26:01,730 DEBUG o.s.b.StartupInfoLogger [Test worker] Running with Spring Boot v3.1.1, Spring v6.0.10
-2023-08-11 17:26:01,732 INFO o.s.b.SpringApplication [Test worker] No active profile set, falling back to 1 default profile: "default"
-2023-08-11 17:26:06,750 INFO c.s.b.u.Properties [Test worker] Getting properties from the database
-2023-08-11 17:26:07,024 INFO c.s.b.u.Properties [Test worker] Borica url: http://localhost:8082/certservice/api/borica
-2023-08-11 17:26:07,031 INFO c.s.b.u.Properties [Test worker] Account validation service url: 10.21.139.11:7203
-2023-08-11 17:26:07,037 INFO c.s.b.u.Properties [Test worker] Account validation service branch: CHO
-2023-08-11 17:26:07,042 INFO c.s.b.u.Properties [Test worker] Account validation service userId: INSTANTU
-2023-08-11 17:26:07,047 INFO c.s.b.u.Properties [Test worker] Account validation service entity: ENTITY_ID1
-2023-08-11 17:26:07,052 INFO c.s.b.u.Properties [Test worker] Borica rtp channel (BIC) of institution: BIC
-2023-08-11 17:26:07,056 INFO c.s.b.u.Properties [Test worker] Borica rtp version: 1
-2023-08-11 17:26:07,062 INFO c.s.b.u.Properties [Test worker] Flex cube service url: http://localhost:8082/IL
-2023-08-11 17:26:07,069 INFO c.s.b.u.Properties [Test worker] Flex cube bizMsgIdr url: 10n
-2023-08-11 17:26:07,075 INFO c.s.b.u.Properties [Test worker] JKS borica keystore file path: ./ip_certs/ks.jks
-2023-08-11 17:26:07,081 INFO c.s.b.u.Properties [Test worker] JKS borica password: 1234
-2023-08-11 17:26:07,086 INFO c.s.b.u.Properties [Test worker] JKS borica alias: borica_pubkey
-2023-08-11 17:26:07,092 INFO c.s.b.u.Properties [Test worker] JKS borica key password: 1234
-2023-08-11 17:26:07,097 INFO c.s.b.u.Properties [Test worker] JKS sbc keystore file path: ./ip_certs/ks.jks
-2023-08-11 17:26:07,102 INFO c.s.b.u.Properties [Test worker] JKS sbc password: 1234
-2023-08-11 17:26:07,107 INFO c.s.b.u.Properties [Test worker] JKS sbc alias: sbc
-2023-08-11 17:26:07,112 INFO c.s.b.u.Properties [Test worker] JKS sbc key password: 1234
-2023-08-11 17:26:07,121 INFO c.s.b.u.Properties [Test worker] Incoming pacs.008 bulk messages directory path: C:\\Users\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\incoming_messages\\pacs008
-2023-08-11 17:26:07,126 INFO c.s.b.u.Properties [Test worker] Outgoing pacs.008 bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\pacs008
-2023-08-11 17:26:07,131 INFO c.s.b.u.Properties [Test worker] Incoming pacs.002 bulk messages directory path: C:\\Users\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\incoming_messages\\pacs002
-2023-08-11 17:26:07,137 INFO c.s.b.u.Properties [Test worker] Outgoing pacs.002 bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\pacs002
-2023-08-11 17:26:07,143 INFO c.s.b.u.Properties [Test worker] Outgoing bulk messages in progress directory path: C:\\Users\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\in_progress
-2023-08-11 17:26:07,148 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\processed
-2023-08-11 17:26:07,154 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\incoming_messages\\pacs004
-2023-08-11 17:26:07,159 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\pacs004
-2023-08-11 17:26:07,174 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\incoming_messages\\camt056
-2023-08-11 17:26:07,180 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\camt056
-2023-08-11 17:26:08,130 INFO c.s.b.c.BorikaClientScheduler [scheduling-1] getMessage() execution started
-2023-08-11 17:26:08,130 INFO c.s.b.c.BorikaClientScheduler [scheduling-1] sendMessage() execution started
-2023-08-11 17:26:08,132 INFO o.s.b.StartupInfoLogger [Test worker] Started BulkPaymentsApplicationTests in 6.625 seconds (process running for 8.212)
+2023-08-14 12:58:42,551 INFO o.s.b.StartupInfoLogger [Test worker] Starting BulkPaymentsApplicationTests using Java 17.0.6 with PID 10280 (started by veselin.zinkov in C:\develop\BulkPayments)
+2023-08-14 12:58:42,565 DEBUG o.s.b.StartupInfoLogger [Test worker] Running with Spring Boot v3.1.1, Spring v6.0.10
+2023-08-14 12:58:42,568 INFO o.s.b.SpringApplication [Test worker] No active profile set, falling back to 1 default profile: "default"
+2023-08-14 13:00:21,409 INFO o.s.b.StartupInfoLogger [Test worker] Starting BulkPaymentsApplicationTests using Java 17.0.6 with PID 11188 (started by veselin.zinkov in C:\develop\BulkPayments)
+2023-08-14 13:00:21,411 DEBUG o.s.b.StartupInfoLogger [Test worker] Running with Spring Boot v3.1.1, Spring v6.0.10
+2023-08-14 13:00:21,412 INFO o.s.b.SpringApplication [Test worker] No active profile set, falling back to 1 default profile: "default"
+2023-08-14 13:00:26,891 INFO c.s.b.u.Properties [Test worker] Getting properties from the database
+2023-08-14 13:00:27,282 INFO c.s.b.u.Properties [Test worker] Borica url: http://localhost:8082/certservice/api/borica
+2023-08-14 13:00:27,300 INFO c.s.b.u.Properties [Test worker] Account validation service url: 10.21.139.11:7203
+2023-08-14 13:00:27,309 INFO c.s.b.u.Properties [Test worker] Account validation service branch: CHO
+2023-08-14 13:00:27,317 INFO c.s.b.u.Properties [Test worker] Account validation service userId: INSTANTU
+2023-08-14 13:00:27,339 INFO c.s.b.u.Properties [Test worker] Account validation service entity: ENTITY_ID1
+2023-08-14 13:00:27,348 INFO c.s.b.u.Properties [Test worker] Borica rtp channel (BIC) of institution: BIC
+2023-08-14 13:00:27,358 INFO c.s.b.u.Properties [Test worker] Borica rtp version: 1
+2023-08-14 13:00:27,368 INFO c.s.b.u.Properties [Test worker] Flex cube service url: http://localhost:8082/IL
+2023-08-14 13:00:27,376 INFO c.s.b.u.Properties [Test worker] Flex cube bizMsgIdr url: 10n
+2023-08-14 13:00:27,391 INFO c.s.b.u.Properties [Test worker] JKS borica keystore file path: ./ip_certs/ks.jks
+2023-08-14 13:00:27,407 INFO c.s.b.u.Properties [Test worker] JKS borica password: 1234
+2023-08-14 13:00:27,418 INFO c.s.b.u.Properties [Test worker] JKS borica alias: borica_pubkey
+2023-08-14 13:00:27,426 INFO c.s.b.u.Properties [Test worker] JKS borica key password: 1234
+2023-08-14 13:00:27,435 INFO c.s.b.u.Properties [Test worker] JKS sbc keystore file path: ./ip_certs/ks.jks
+2023-08-14 13:00:27,445 INFO c.s.b.u.Properties [Test worker] JKS sbc password: 1234
+2023-08-14 13:00:27,454 INFO c.s.b.u.Properties [Test worker] JKS sbc alias: sbc
+2023-08-14 13:00:27,469 INFO c.s.b.u.Properties [Test worker] JKS sbc key password: 1234
+2023-08-14 13:00:27,494 INFO c.s.b.u.Properties [Test worker] JKS sbc key password: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\messages
+2023-08-14 13:00:27,510 INFO c.s.b.u.Properties [Test worker] Outgoing bulk messages in progress directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\in_progress
+2023-08-14 13:00:27,523 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\processed
+2023-08-14 13:00:27,562 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\incoming_messages
+2023-08-14 13:00:28,800 INFO c.s.b.c.BorikaClientScheduler [scheduling-1] getMessage() execution started
+2023-08-14 13:00:28,801 INFO c.s.b.c.BorikaClientScheduler [scheduling-1] sendMessage() execution started
+2023-08-14 13:00:28,804 INFO o.s.b.StartupInfoLogger [Test worker] Started BulkPaymentsApplicationTests in 7.687 seconds (process running for 9.571)
+2023-08-14 13:04:33,735 INFO o.s.b.StartupInfoLogger [Test worker] Starting BulkPaymentsApplicationTests using Java 17.0.6 with PID 11620 (started by veselin.zinkov in C:\develop\BulkPayments)
+2023-08-14 13:04:33,735 DEBUG o.s.b.StartupInfoLogger [Test worker] Running with Spring Boot v3.1.1, Spring v6.0.10
+2023-08-14 13:04:33,735 INFO o.s.b.SpringApplication [Test worker] No active profile set, falling back to 1 default profile: "default"
+2023-08-14 13:04:39,020 INFO c.s.b.u.Properties [Test worker] Getting properties from the database
+2023-08-14 13:04:39,392 INFO c.s.b.u.Properties [Test worker] Borica url: http://localhost:8082/certservice/api/borica
+2023-08-14 13:04:39,400 INFO c.s.b.u.Properties [Test worker] Account validation service url: 10.21.139.11:7203
+2023-08-14 13:04:39,406 INFO c.s.b.u.Properties [Test worker] Account validation service branch: CHO
+2023-08-14 13:04:39,414 INFO c.s.b.u.Properties [Test worker] Account validation service userId: INSTANTU
+2023-08-14 13:04:39,421 INFO c.s.b.u.Properties [Test worker] Account validation service entity: ENTITY_ID1
+2023-08-14 13:04:39,451 INFO c.s.b.u.Properties [Test worker] Borica rtp channel (BIC) of institution: BIC
+2023-08-14 13:04:39,465 INFO c.s.b.u.Properties [Test worker] Borica rtp version: 1
+2023-08-14 13:04:39,472 INFO c.s.b.u.Properties [Test worker] Flex cube service url: http://localhost:8082/IL
+2023-08-14 13:04:39,480 INFO c.s.b.u.Properties [Test worker] Flex cube bizMsgIdr url: 10n
+2023-08-14 13:04:39,488 INFO c.s.b.u.Properties [Test worker] JKS borica keystore file path: ./ip_certs/ks.jks
+2023-08-14 13:04:39,495 INFO c.s.b.u.Properties [Test worker] JKS borica password: 1234
+2023-08-14 13:04:39,502 INFO c.s.b.u.Properties [Test worker] JKS borica alias: borica_pubkey
+2023-08-14 13:04:39,507 INFO c.s.b.u.Properties [Test worker] JKS borica key password: 1234
+2023-08-14 13:04:39,513 INFO c.s.b.u.Properties [Test worker] JKS sbc keystore file path: ./ip_certs/ks.jks
+2023-08-14 13:04:39,517 INFO c.s.b.u.Properties [Test worker] JKS sbc password: 1234
+2023-08-14 13:04:39,523 INFO c.s.b.u.Properties [Test worker] JKS sbc alias: sbc
+2023-08-14 13:04:39,529 INFO c.s.b.u.Properties [Test worker] JKS sbc key password: 1234
+2023-08-14 13:04:39,541 INFO c.s.b.u.Properties [Test worker] JKS sbc key password: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\messages
+2023-08-14 13:04:39,546 INFO c.s.b.u.Properties [Test worker] Outgoing bulk messages in progress directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\in_progress
+2023-08-14 13:04:39,552 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\processed
+2023-08-14 13:04:39,557 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\incoming_messages
+2023-08-14 13:04:40,536 INFO c.s.b.c.BorikaClientScheduler [scheduling-1] getMessage() execution started
+2023-08-14 13:04:40,539 INFO o.s.b.StartupInfoLogger [Test worker] Started BulkPaymentsApplicationTests in 7.069 seconds (process running for 8.811)
+2023-08-14 13:04:42,369 INFO c.s.b.m.MessageWrapper [Test worker] Saving message to an xml file
+2023-08-14 13:04:42,581 ERROR c.s.b.BulkPaymentsApplicationTests [Test worker] testObjectToXMLFile() error: java.io.FileNotFoundException: C:\develop\BulkPayments\com.sirmabc.bulkpayments.persistance.entities.PropertiesEntity@e76c68ea\d44011ed-2a2f-4817-9e48-d24e72da16f3.xml (The system cannot find the path specified)
+javax.xml.transform.TransformerException: java.io.FileNotFoundException: C:\develop\BulkPayments\com.sirmabc.bulkpayments.persistance.entities.PropertiesEntity@e76c68ea\d44011ed-2a2f-4817-9e48-d24e72da16f3.xml (The system cannot find the path specified)
+	at java.xml/com.sun.org.apache.xalan.internal.xsltc.trax.TransformerImpl.getOutputHandler(TransformerImpl.java:520)
+	at java.xml/com.sun.org.apache.xalan.internal.xsltc.trax.TransformerImpl.transform(TransformerImpl.java:379)
+	at com.sirmabc.bulkpayments.message.MessageWrapper.saveMessageToXmlFile(MessageWrapper.java:186)
+	at com.sirmabc.bulkpayments.BulkPaymentsApplicationTests.testObjectToXMLFile(BulkPaymentsApplicationTests.java:887)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:727)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:217)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:213)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:138)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:68)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:107)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:88)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:67)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:52)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:114)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:86)
+	at org.junit.platform.launcher.core.DefaultLauncherSession$DelegatingLauncher.execute(DefaultLauncherSession.java:86)
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor$CollectAllTestClassesExecutor.processAllTestClasses(JUnitPlatformTestClassProcessor.java:110)
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor$CollectAllTestClassesExecutor.access$000(JUnitPlatformTestClassProcessor.java:90)
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor.stop(JUnitPlatformTestClassProcessor.java:85)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.stop(SuiteTestClassProcessor.java:62)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at jdk.proxy1/jdk.proxy1.$Proxy2.stop(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$3.run(TestWorker.java:193)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:129)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:100)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:60)
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:113)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:65)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+Caused by: java.io.FileNotFoundException: C:\develop\BulkPayments\com.sirmabc.bulkpayments.persistance.entities.PropertiesEntity@e76c68ea\d44011ed-2a2f-4817-9e48-d24e72da16f3.xml (The system cannot find the path specified)
+	at java.base/java.io.FileOutputStream.open0(Native Method)
+	at java.base/java.io.FileOutputStream.open(FileOutputStream.java:293)
+	at java.base/java.io.FileOutputStream.<init>(FileOutputStream.java:235)
+	at java.base/java.io.FileOutputStream.<init>(FileOutputStream.java:184)
+	at java.xml/com.sun.org.apache.xalan.internal.xsltc.trax.TransformerImpl.getOutputHandler(TransformerImpl.java:515)
+	... 87 common frames omitted
+2023-08-14 13:04:45,887 ERROR c.s.b.c.BorikaClientScheduler [scheduling-1] getMessage() error: HTTP connect timed out
+java.net.http.HttpConnectTimeoutException: HTTP connect timed out
+	at java.net.http/jdk.internal.net.http.HttpClientImpl.send(HttpClientImpl.java:567)
+	at java.net.http/jdk.internal.net.http.HttpClientFacade.send(HttpClientFacade.java:123)
+	at com.sirmabc.bulkpayments.communicators.BorikaClientScheduler.getMessage(BorikaClientScheduler.java:44)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:84)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Caused by: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
+	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:580)
+	at java.net.http/jdk.internal.net.http.MultiExchange.getExceptionalCF(MultiExchange.java:527)
+	at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(MultiExchange.java:447)
+	at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:934)
+	at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:911)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:510)
+	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2162)
+	at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:483)
+	... 3 common frames omitted
+Caused by: java.net.ConnectException: HTTP connect timed out
+	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:581)
+	... 10 common frames omitted
+2023-08-14 13:04:45,888 INFO c.s.b.c.BorikaClientScheduler [scheduling-1] sendMessage() execution started
+2023-08-14 13:26:12,578 INFO o.s.b.StartupInfoLogger [Test worker] Starting BulkPaymentsApplicationTests using Java 17.0.6 with PID 9688 (started by veselin.zinkov in C:\develop\BulkPayments)
+2023-08-14 13:26:12,580 DEBUG o.s.b.StartupInfoLogger [Test worker] Running with Spring Boot v3.1.1, Spring v6.0.10
+2023-08-14 13:26:12,581 INFO o.s.b.SpringApplication [Test worker] No active profile set, falling back to 1 default profile: "default"
+2023-08-14 13:26:20,811 INFO c.s.b.u.Properties [Test worker] Getting properties from the database
+2023-08-14 13:26:21,543 INFO c.s.b.u.Properties [Test worker] Borica url: http://localhost:8082/certservice/api/borica
+2023-08-14 13:26:21,552 INFO c.s.b.u.Properties [Test worker] Account validation service url: 10.21.139.11:7203
+2023-08-14 13:26:21,560 INFO c.s.b.u.Properties [Test worker] Account validation service branch: CHO
+2023-08-14 13:26:21,568 INFO c.s.b.u.Properties [Test worker] Account validation service userId: INSTANTU
+2023-08-14 13:26:21,576 INFO c.s.b.u.Properties [Test worker] Account validation service entity: ENTITY_ID1
+2023-08-14 13:26:21,584 INFO c.s.b.u.Properties [Test worker] Borica rtp channel (BIC) of institution: BIC
+2023-08-14 13:26:21,594 INFO c.s.b.u.Properties [Test worker] Borica rtp version: 1
+2023-08-14 13:26:21,601 INFO c.s.b.u.Properties [Test worker] Flex cube service url: http://localhost:8082/IL
+2023-08-14 13:26:21,609 INFO c.s.b.u.Properties [Test worker] Flex cube bizMsgIdr url: 10n
+2023-08-14 13:26:21,617 INFO c.s.b.u.Properties [Test worker] JKS borica keystore file path: ./ip_certs/ks.jks
+2023-08-14 13:26:21,627 INFO c.s.b.u.Properties [Test worker] JKS borica password: 1234
+2023-08-14 13:26:21,633 INFO c.s.b.u.Properties [Test worker] JKS borica alias: borica_pubkey
+2023-08-14 13:26:21,642 INFO c.s.b.u.Properties [Test worker] JKS borica key password: 1234
+2023-08-14 13:26:21,651 INFO c.s.b.u.Properties [Test worker] JKS sbc keystore file path: ./ip_certs/ks.jks
+2023-08-14 13:26:21,661 INFO c.s.b.u.Properties [Test worker] JKS sbc password: 1234
+2023-08-14 13:26:21,672 INFO c.s.b.u.Properties [Test worker] JKS sbc alias: sbc
+2023-08-14 13:26:21,681 INFO c.s.b.u.Properties [Test worker] JKS sbc key password: 1234
+2023-08-14 13:26:21,683 INFO c.s.b.u.Properties [Test worker] JKS sbc key password: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\messages
+2023-08-14 13:26:21,698 INFO c.s.b.u.Properties [Test worker] Outgoing bulk messages in progress directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\in_progress
+2023-08-14 13:26:21,708 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\processed
+2023-08-14 13:26:21,715 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\incoming_messages
+2023-08-14 13:26:26,084 INFO o.s.b.StartupInfoLogger [Test worker] Started BulkPaymentsApplicationTests in 13.796 seconds (process running for 15.579)
+2023-08-14 13:26:26,159 INFO c.s.b.c.BorikaClientScheduler [scheduling-1] getMessage() execution started
+2023-08-14 13:26:30,499 INFO c.s.b.m.MessageWrapper [Test worker] Saving message to an xml file
+2023-08-14 13:26:31,338 ERROR c.s.b.BulkPaymentsApplicationTests [Test worker] testObjectToXMLFile() error: java.io.FileNotFoundException: C:\develop\BulkPayments\com.sirmabc.bulkpayments.persistance.entities.PropertiesEntity@e76c68ea\d6512c8e-45ab-43e7-ae04-2f5131acfa00.xml (The system cannot find the path specified)
+javax.xml.transform.TransformerException: java.io.FileNotFoundException: C:\develop\BulkPayments\com.sirmabc.bulkpayments.persistance.entities.PropertiesEntity@e76c68ea\d6512c8e-45ab-43e7-ae04-2f5131acfa00.xml (The system cannot find the path specified)
+	at java.xml/com.sun.org.apache.xalan.internal.xsltc.trax.TransformerImpl.getOutputHandler(TransformerImpl.java:520)
+	at java.xml/com.sun.org.apache.xalan.internal.xsltc.trax.TransformerImpl.transform(TransformerImpl.java:379)
+	at com.sirmabc.bulkpayments.message.MessageWrapper.saveMessageToXmlFile(MessageWrapper.java:186)
+	at com.sirmabc.bulkpayments.BulkPaymentsApplicationTests.testObjectToXMLFile(BulkPaymentsApplicationTests.java:887)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:727)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:217)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:213)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:138)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:68)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:107)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:88)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:67)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:52)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:114)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:86)
+	at org.junit.platform.launcher.core.DefaultLauncherSession$DelegatingLauncher.execute(DefaultLauncherSession.java:86)
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor$CollectAllTestClassesExecutor.processAllTestClasses(JUnitPlatformTestClassProcessor.java:110)
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor$CollectAllTestClassesExecutor.access$000(JUnitPlatformTestClassProcessor.java:90)
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor.stop(JUnitPlatformTestClassProcessor.java:85)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.stop(SuiteTestClassProcessor.java:62)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at jdk.proxy1/jdk.proxy1.$Proxy2.stop(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$3.run(TestWorker.java:193)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:129)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:100)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:60)
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:113)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:65)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+Caused by: java.io.FileNotFoundException: C:\develop\BulkPayments\com.sirmabc.bulkpayments.persistance.entities.PropertiesEntity@e76c68ea\d6512c8e-45ab-43e7-ae04-2f5131acfa00.xml (The system cannot find the path specified)
+	at java.base/java.io.FileOutputStream.open0(Native Method)
+	at java.base/java.io.FileOutputStream.open(FileOutputStream.java:293)
+	at java.base/java.io.FileOutputStream.<init>(FileOutputStream.java:235)
+	at java.base/java.io.FileOutputStream.<init>(FileOutputStream.java:184)
+	at java.xml/com.sun.org.apache.xalan.internal.xsltc.trax.TransformerImpl.getOutputHandler(TransformerImpl.java:515)
+	... 87 common frames omitted
+2023-08-14 13:26:32,003 ERROR c.s.b.c.BorikaClientScheduler [scheduling-1] getMessage() error: HTTP connect timed out
+java.net.http.HttpConnectTimeoutException: HTTP connect timed out
+	at java.net.http/jdk.internal.net.http.HttpClientImpl.send(HttpClientImpl.java:567)
+	at java.net.http/jdk.internal.net.http.HttpClientFacade.send(HttpClientFacade.java:123)
+	at com.sirmabc.bulkpayments.communicators.BorikaClientScheduler.getMessage(BorikaClientScheduler.java:44)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:84)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Caused by: java.net.http.HttpConnectTimeoutException: HTTP connect timed out
+	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:580)
+	at java.net.http/jdk.internal.net.http.MultiExchange.getExceptionalCF(MultiExchange.java:527)
+	at java.net.http/jdk.internal.net.http.MultiExchange.lambda$responseAsyncImpl$7(MultiExchange.java:447)
+	at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:934)
+	at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:911)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:510)
+	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2162)
+	at java.net.http/jdk.internal.net.http.Http1Exchange.lambda$cancelImpl$9(Http1Exchange.java:483)
+	... 3 common frames omitted
+Caused by: java.net.ConnectException: HTTP connect timed out
+	at java.net.http/jdk.internal.net.http.MultiExchange.toTimeoutException(MultiExchange.java:581)
+	... 10 common frames omitted
+2023-08-14 13:26:32,005 INFO c.s.b.c.BorikaClientScheduler [scheduling-1] sendMessage() execution started

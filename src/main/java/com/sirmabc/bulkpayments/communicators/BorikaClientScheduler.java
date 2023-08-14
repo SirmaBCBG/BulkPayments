@@ -55,17 +55,14 @@ public class BorikaClientScheduler {
     public void sendMessage() {
         logger.info("sendMessage() execution started");
 
-        // Get the paths for all outgoing messages
-        for (String path : properties.getAllOutgngBulkMsgsDirPaths()) {
-            // Get all xml files from each directory
-            File[] files = FileHelper.getFilesFromPath(path, ".xml");
-            // Process the files simultaneously
-            for (File file : files) {
-                try {
-                    borikaMessageService.asyncProcessOutgoingMessage(file, path);
-                } catch (Exception e) {
-                    logger.error("sendMessage() error: " + e.getMessage(), e);
-                }
+        // Get all xml files from the directory
+        File[] files = FileHelper.getFilesFromPath(properties.getOutgngBulkMsgsPath(), ".xml");
+        // Process the files simultaneously
+        for (File file : files) {
+            try {
+                borikaMessageService.asyncProcessOutgoingMessage(file);
+            } catch (Exception e) {
+                logger.error("sendMessage() error: " + e.getMessage(), e);
             }
         }
     }
