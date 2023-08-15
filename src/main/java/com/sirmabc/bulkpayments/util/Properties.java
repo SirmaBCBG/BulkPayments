@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 public class Properties {
     private PropertiesEntity borikaUrl;
 
+    private PropertiesEntity borikaBic;
+
     private PropertiesEntity accValidUrl;
 
     private PropertiesEntity accValidBranch;
@@ -60,19 +62,22 @@ public class Properties {
     private final PropertiesRepository repository;
 
     @Autowired
-    public Properties(PropertiesRepository repository){
+    public Properties(PropertiesRepository repository) {
         this.repository = repository;
     }
 
     private static final Logger logger = LoggerFactory.getLogger(Properties.class);
 
     @PostConstruct
-    public void postConstruct () throws AppException {
+    public void postConstruct() throws AppException {
         logger.info("Getting properties from the database");
 
         try {
             borikaUrl = repository.findByName("borikaUrl");
             logger.info("Borica url: " + borikaUrl.getValue());
+
+            borikaBic = repository.findByName("borikaBic");
+            logger.info("Borica BIC: " + borikaBic.getValue());
 
             accValidUrl = repository.findByName("accValidUrl");
             logger.info("Account validation service url: " + accValidUrl.getValue());
@@ -126,7 +131,7 @@ public class Properties {
             logger.info("JKS sbc key password: " + sbcKeyPassword.getValue());
 
             outgngBulkMsgsPath = repository.findByName("outgngBulkMsgsPath");
-            logger.info("JKS sbc key password: " + outgngBulkMsgsPath.getValue());
+            logger.info("Outgoing bulk messages directory path: " + outgngBulkMsgsPath.getValue());
 
             outgngBulkMsgsInProgressPath = repository.findByName("outgngBulkMsgsInProgressPath");
             logger.info("Outgoing bulk messages in progress directory path: " + outgngBulkMsgsInProgressPath.getValue());
@@ -135,7 +140,7 @@ public class Properties {
             logger.info("Outgoing processed bulk messages directory path: " + outgngBulkMsgsProcessedPath.getValue());
 
             incmgBulkMsgsPath = repository.findByName("incmgBulkMsgsPath");
-            logger.info("Outgoing processed bulk messages directory path: " + incmgBulkMsgsPath.getValue());
+            logger.info("Incoming bulk messages directory path: " + incmgBulkMsgsPath.getValue());
         } catch (Exception e) {
             throw new AppException(e.getMessage(), e);
         }
@@ -149,6 +154,14 @@ public class Properties {
 
     public void setBorikaUrl(PropertiesEntity borikaUrl) {
         this.borikaUrl = borikaUrl;
+    }
+
+    public String getBorikaBic() {
+        return borikaBic.getValue();
+    }
+
+    public void setBorikaBic(PropertiesEntity borikaBic) {
+        this.borikaBic = borikaBic;
     }
 
     public String getAccValidUrl() {
