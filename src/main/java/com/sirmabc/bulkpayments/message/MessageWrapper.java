@@ -34,7 +34,6 @@ import java.net.http.HttpResponse;
 import java.security.KeyStore;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 
 public class MessageWrapper {
 
@@ -43,6 +42,8 @@ public class MessageWrapper {
     private Message message;
 
     private HttpResponse<String> response;
+
+    private static LocalDateTime prevSavedMsgDateTime;
 
     private final BulkMessagesRepository bulkMessagesRepository;
 
@@ -61,6 +62,10 @@ public class MessageWrapper {
         this.xmlSigner = xmlSigner;
     }
 
+    static {
+        prevSavedMsgDateTime = LocalDateTime.now();
+    }
+
     public void buildAppHdr() {
         if (message.getAppHdr() == null) {
             logger.info("Building application header");
@@ -71,36 +76,49 @@ public class MessageWrapper {
             if (message.getFIToFICstmrCdtTrf() != null) {
                 appHdr.setMsgDefIdr(MsgDefIdrs.PACS008.idr);
                 appHdr.setCreDt(message.getFIToFICstmrCdtTrf().getGrpHdr().getCreDtTm());
-            } else {
+            } else if (message.getPmtRtr() != null) {
+                // pacs.004
+                appHdr.setMsgDefIdr(MsgDefIdrs.PACS004.idr);
+                appHdr.setCreDt(message.getPmtRtr().getGrpHdr().getCreDtTm());
+            } else if (message.getFIToFIPmtCxlReq() != null) {
+                // camt.056
+                appHdr.setMsgDefIdr(MsgDefIdrs.CAMT056.idr);
+                appHdr.setCreDt(message.getFIToFIPmtCxlReq().getAssgnmt().getCreDtTm());
+            } else if (message.getRsltnOfInvstgtn() != null) {
+                // camt.029.001.03
+                appHdr.setMsgDefIdr(MsgDefIdrs.CAMT029_03.idr);
+                appHdr.setCreDt(message.getRsltnOfInvstgtn().getAssgnmt().getCreDtTm());
+            } else if (message.getFIToFIPmtStsReq() != null) {
+                // pacs.028
+                appHdr.setMsgDefIdr(MsgDefIdrs.PACS028.idr);
+                appHdr.setCreDt(message.getFIToFIPmtStsReq().getGrpHdr().getCreDtTm());
+            } else if (message.getFIToFIPmtStsRpt() != null) {
                 // pacs.002
-                if (message.getFIToFIPmtStsRpt() != null) {
-                    appHdr.setMsgDefIdr(MsgDefIdrs.PACS002.idr);
-                    appHdr.setCreDt(message.getFIToFIPmtStsRpt().getGrpHdr().getCreDtTm());
-                } else {
-                    // pacs.004
-                    if (message.getPmtRtr() != null) {
-                        appHdr.setMsgDefIdr(MsgDefIdrs.PACS004.idr);
-                        appHdr.setCreDt(message.getPmtRtr().getGrpHdr().getCreDtTm());
-                    } else {
-                        // camt.056
-                        if (message.getFIToFIPmtCxlReq() != null) {
-                            appHdr.setMsgDefIdr(MsgDefIdrs.CAMT056.idr);
-                            appHdr.setCreDt(message.getFIToFIPmtCxlReq().getAssgnmt().getCreDtTm());
-                        }
-                    }
-                }
+                appHdr.setMsgDefIdr(MsgDefIdrs.PACS002.idr);
+                appHdr.setCreDt(message.getFIToFIPmtStsRpt().getGrpHdr().getCreDtTm());
+            } else if (message.getCdtrPmtActvtnReq() != null) {
+                // pain.013
+                appHdr.setMsgDefIdr(MsgDefIdrs.PAIN013.idr);
+                appHdr.setCreDt(message.getCdtrPmtActvtnReq().getGrpHdr().getCreDtTm());
+            } else if (message.getCdtrPmtActvtnReqStsRpt() != null) {
+                // pain.014
+                appHdr.setMsgDefIdr(MsgDefIdrs.PAIN014.idr);
+                appHdr.setCreDt(message.getCdtrPmtActvtnReqStsRpt().getGrpHdr().getCreDtTm());
+            } else if (message.getBkToCstmrStmt() != null) {
+                // camt.053
+                appHdr.setMsgDefIdr(MsgDefIdrs.CAMT053.idr);
+                appHdr.setCreDt(message.getBkToCstmrStmt().getGrpHdr().getCreDtTm());
             }
 
-            // TODO: Fix setTo()
-            // TODO: Finish for the rest of the messages
-
             appHdr.setFr(generateParty9Choice(properties.getRtpChannel()));
-            //appHdr.setTo(...);
+            appHdr.setTo(generateParty9Choice(properties.getBorikaBic()));
             appHdr.setBizMsgIdr(properties.getBizMsgIdr());
             appHdr.setSgntr(new SignatureEnvelope());
 
             message.setAppHdr(appHdr);
-        } else { logger.error("Application header already exists"); }
+        } else {
+            logger.error("Application header already exists");
+        }
     }
 
     public CodesPacs002 validate() throws Exception {
@@ -150,7 +168,7 @@ public class MessageWrapper {
         String bic = properties.getRtpChannel();
 
         // Check if sender bic is valid and check if receiver bic is the same as the institution bic.
-        if(result == 0 || !receiverBic.equals(bic)) {
+        if (result == 0 || !receiverBic.equals(bic)) {
             return CodesPacs002.RC01;
         }
 
@@ -182,7 +200,9 @@ public class MessageWrapper {
         Transformer transformer = transformerFactory.newTransformer();
         DOMSource source = new DOMSource(doc);
 
-        StreamResult result =  new StreamResult(new File(properties.getIncmgBulkMsgsPath() + "\\" + generateUniqueFileName(message.getAppHdr().getMsgDefIdr()) + ".xml"));
+        String xmlFilePath = properties.getIncmgBulkMsgsPath() + "\\" + generateUniqueFileName(message.getAppHdr().getMsgDefIdr()) + ".xml";
+
+        StreamResult result = new StreamResult(new File(xmlFilePath));
         transformer.transform(source, result);
     }
 
@@ -202,17 +222,19 @@ public class MessageWrapper {
         return CodesPacs002.OK01;
     }
 
-    // TODO: Refine name generation
     private synchronized static String generateUniqueFileName(String msgDefIdr) {
-        String shortMessageType = msgDefIdr.substring(msgDefIdr.indexOf('.'), msgDefIdr.indexOf('.', msgDefIdr.indexOf('.') + 1));
-        LocalDateTime dateTime = LocalDateTime.now();
+        String shortMessageType = msgDefIdr.substring(msgDefIdr.indexOf('.') + 1, msgDefIdr.indexOf('.', msgDefIdr.indexOf('.') + 1));
+        LocalDateTime currentMsgDateTime = LocalDateTime.now();
+
+        while (currentMsgDateTime.equals(prevSavedMsgDateTime)) currentMsgDateTime = LocalDateTime.now();
+        prevSavedMsgDateTime = currentMsgDateTime;
 
         return "IN_"
                 + shortMessageType
                 + "_"
-                + dateTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"))
+                + currentMsgDateTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"))
                 + "_"
-                + dateTime.get(ChronoField.MILLI_OF_DAY);
+                + currentMsgDateTime.getNano();
     }
 
     private Party9Choice generateParty9Choice(String bicfi) {
