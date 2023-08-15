@@ -141,9 +141,6 @@ public class XMLSigner {
       return result;
     }
 
-
-
-
     public Document sign(Document doc, KeyStore.PrivateKeyEntry keyEntry) throws Exception {
       XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
       Transform exc14nTranform = fac.newTransform("http://www.w3.org/TR/2001/REC-xml-c14n-20010315", (TransformParameterSpec) null);
@@ -182,8 +179,6 @@ public class XMLSigner {
 
       return doc;
     }
-
-
 
     public static void main(String[] args) {
   //    try {

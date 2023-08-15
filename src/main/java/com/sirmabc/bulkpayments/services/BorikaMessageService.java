@@ -61,7 +61,6 @@ public class BorikaMessageService {
             CodesPacs002 codesPacs002 = incmgMsgWrapper.validate();
 
             // Check if the validation was successful
-            // TODO: Change the name generation of the .xml file
             if (codesPacs002 == CodesPacs002.OK01) {
                 // Save the message to an xml file
                 incmgMsgWrapper.saveMessageToXmlFile();
@@ -108,7 +107,6 @@ public class BorikaMessageService {
             CodesPacs002 codesPacs002 = incmgMsgWrapper.validate();
 
             // Check if the validation was successful
-            // TODO: Change the name generation of the .xml file
             if (codesPacs002 == CodesPacs002.OK01) {
                 // Save the message to an xml file
                 incmgMsgWrapper.saveMessageToXmlFile();
