@@ -41,9 +41,9 @@ public class MessageWrapper {
 
     private Message message;
 
-    private HttpResponse<String> response;
-
     private static LocalDateTime prevSavedMsgDateTime;
+
+    private final HttpResponse<String> response;
 
     private final BulkMessagesRepository bulkMessagesRepository;
 
