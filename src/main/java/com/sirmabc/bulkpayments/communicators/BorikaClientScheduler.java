@@ -52,7 +52,7 @@ public class BorikaClientScheduler {
     }
 
     @Scheduled(fixedDelay = 60000)
-    public void sendMessage() {
+    public void sendMessages() {
         logger.info("sendMessage() execution started");
 
         // Get all xml files from the directory
@@ -67,20 +67,24 @@ public class BorikaClientScheduler {
         }
     }
 
-    /*@Scheduled(cron = "0 1 00 * * ?")
+    @Scheduled(cron = "0 1 00 * * ?")
     public void getParticipantsMessage() {
-        logger.info("Get participants message from Borika...");
+        logger.info("getParticipantsMessage() execution started");
 
         try {
+            // Build http client
             HttpClient client = borikaClient.buildClient(5);
+            // Build GET participants request
             HttpRequest request = borikaClient.buildGETParticipantsRequest();
+
+            // Send the GET request
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            logger.info("GET request response: " + response.body());
 
-            logger.debug("Borika server response: " + response.body());
-
-            borikaMessageService.asyncStartProcessingParticipantsMessage(response);
+            // Process the incoming message
+            borikaMessageService.asyncProcessParticipantsMessage(response);
         } catch (Exception e) {
             logger.error("getMessage error: " + e.getMessage(), e);
         }
-    }*/
+    }
 }

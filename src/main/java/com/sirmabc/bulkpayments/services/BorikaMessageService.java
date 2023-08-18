@@ -5,12 +5,17 @@ import com.sirmabc.bulkpayments.exceptions.AppException;
 import com.sirmabc.bulkpayments.exceptions.PostMessageException;
 import com.sirmabc.bulkpayments.message.MessageWrapper;
 import com.sirmabc.bulkpayments.message.MessageWrapperBuilder;
+import com.sirmabc.bulkpayments.persistance.entities.ParticipantsEntity;
+import com.sirmabc.bulkpayments.persistance.repositories.ParticipantsRepository;
 import com.sirmabc.bulkpayments.util.CodesPacs002;
 import com.sirmabc.bulkpayments.util.Header;
 import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
+import com.sirmabc.bulkpayments.util.xmlsigner.Util;
 import montranMessage.montran.message.Message;
+import montranMessage.montran.participants.ParticipantInfo;
+import montranMessage.montran.participants.ParticipantsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +35,16 @@ public class BorikaMessageService {
 
     private final BorikaClient borikaClient;
 
+    private ParticipantsRepository participantsRepository;
+
     private final Properties properties;
 
     private final MessageWrapperBuilder messageWrapperBuilder;
 
     @Autowired
-    public BorikaMessageService(Properties properties, BorikaClient borikaClient, MessageWrapperBuilder messageWrapperBuilder) {
+    public BorikaMessageService(BorikaClient borikaClient, ParticipantsRepository participantsRepository, Properties properties, MessageWrapperBuilder messageWrapperBuilder) {
         this.borikaClient = borikaClient;
+        this.participantsRepository = participantsRepository;
         this.properties = properties;
         this.messageWrapperBuilder = messageWrapperBuilder;
     }
@@ -130,24 +138,32 @@ public class BorikaMessageService {
         }
     }
 
-    /*@Async()
-    public void asyncStartProcessingParticipantsMessage(HttpResponse<String> response) throws AppException {
+    @Async()
+    public void asyncProcessParticipantsMessage(HttpResponse<String> response) throws AppException {
         logger.info("asyncStartProcessingParticipantsMessage..." + Thread.currentThread().getName());
 
         try {
-            Map<String, List<String>> headers = response.headers().map();
-            Message message = XMLFileHelper.deserializeXml(response.body(), Message.class);
-            DefinedMessage definedMessage = definedMessageService.define(headers, message, response.body());
+            // Create a MessageWrapper object for the incoming message
+            MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
 
-            definedMessage.saveMessage();
-            CodesPacs002 pacs002Code = definedMessage.isValidAppHdr();
+            // Save the message to the database
+            // TODO: Uncomment
+            // incmgMsgWrapper.saveMessageToDatabase();
 
-            definedMessage.processMessage(pacs002Code);
+            // Validate the message's application header
+            CodesPacs002 pacs002Code = incmgMsgWrapper.isValidAppHdr();
+
+            if (pacs002Code == CodesPacs002.OK01) {
+                // Update the participants inside the database
+                updateParticipants(incmgMsgWrapper);
+            } else {
+                logger.error("The message's application header was not validated successfully");
+            }
         } catch (Exception e) {
             logger.error(Thread.currentThread().getName() + "threw an error: " + e.getMessage(), e);
             throw new AppException(e.getMessage(), e);
         }
-    }*/
+    }
 
     private void acknowledge(Map<String, List<String>> headers) throws IOException, InterruptedException {
         logger.info("Acknowledging headers");
@@ -164,5 +180,27 @@ public class BorikaMessageService {
         HttpResponse<String> response = borikaClient.postMessage(signedRequestMessageXML);
 
         return response;
+    }
+
+    private void updateParticipants(MessageWrapper incmgMsgWrapper) {
+        logger.info("Updating the participants");
+        ParticipantsType participantsType = incmgMsgWrapper.getMessage().getParticipants();
+
+        if (participantsType != null) {
+            participantsRepository.archive();
+            ParticipantsEntity entity = new ParticipantsEntity();
+
+            for (ParticipantInfo info : participantsType.getParticipant()) {
+                entity.setBic(info.getBic());
+                entity.setpType(info.getType().toString());
+                entity.setValidFrom(Util.toSQLDate(info.getValidFrom()));
+                entity.setValidTo(Util.toSQLDate(info.getValidTo()));
+                entity.setpStatus(info.getStatus().toString());
+                entity.setpOnline(Boolean.toString(info.isOnline()));
+                entity.setDirectAgent(info.getDirectAgent());
+
+                participantsRepository.save(entity);
+            }
+        }
     }
 }
