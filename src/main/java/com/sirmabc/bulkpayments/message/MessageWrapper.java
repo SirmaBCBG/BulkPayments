@@ -161,7 +161,7 @@ public class MessageWrapper {
             return CodesPacs002.FF01;
         }
 
-        // TODO: Add additional checks if the sender BIC is not present in all messages
+        // TODO: Add additional checks if the sender BIC is not present in all message types
         String senderBic = message.getAppHdr().getFr().getFIId().getFinInstnId().getBICFI();
         String receiverBic = message.getAppHdr().getTo().getFIId().getFinInstnId().getBICFI();
 
