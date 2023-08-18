@@ -155,7 +155,7 @@ public class BorikaMessageService {
 
             if (pacs002Code == CodesPacs002.OK01) {
                 // Update the participants inside the database
-                updateParticipants(incmgMsgWrapper);
+                updateParticipants(incmgMsgWrapper.getMessage().getParticipants());
             } else {
                 logger.error("The message's application header was not validated successfully");
             }
@@ -182,9 +182,8 @@ public class BorikaMessageService {
         return response;
     }
 
-    private void updateParticipants(MessageWrapper incmgMsgWrapper) {
+    private void updateParticipants(ParticipantsType participantsType) {
         logger.info("Updating the participants");
-        ParticipantsType participantsType = incmgMsgWrapper.getMessage().getParticipants();
 
         if (participantsType != null) {
             participantsRepository.archive();
