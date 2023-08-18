@@ -39,7 +39,7 @@ public class MessageWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageWrapper.class);
 
-    private Message message;
+    private final Message message;
 
     private static LocalDateTime prevSavedMsgDateTime;
 
@@ -161,6 +161,7 @@ public class MessageWrapper {
             return CodesPacs002.FF01;
         }
 
+        // TODO: Add additional checks if the sender BIC is not present in all messages
         String senderBic = message.getAppHdr().getFr().getFIId().getFinInstnId().getBICFI();
         String receiverBic = message.getAppHdr().getTo().getFIId().getFinInstnId().getBICFI();
 
@@ -263,9 +264,5 @@ public class MessageWrapper {
 
     public Message getMessage() {
         return message;
-    }
-
-    public void setMessage(Message message) {
-        this.message = message;
     }
 }

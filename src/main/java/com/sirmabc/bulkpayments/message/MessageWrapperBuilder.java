@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.net.http.HttpResponse;
 
 @Component
-public class MessageWrapperBuilder {
+public final class MessageWrapperBuilder {
 
     private final BulkMessagesRepository bulkMessagesRepository;
 

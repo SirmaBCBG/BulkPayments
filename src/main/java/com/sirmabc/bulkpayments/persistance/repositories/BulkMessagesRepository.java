@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BulkMessagesRepository extends CrudRepository<BulkMessagesEntity, Integer> {
 
-    public BulkMessagesEntity findByMessageId(String messageId);
+    BulkMessagesEntity findByMessageId(String messageId);
 
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ParticipantsRepository extends CrudRepository<ParticipantsEntity, Integer> {
 
-    public ParticipantsEntity findByBic (String bic);
+    ParticipantsEntity findByBic(String bic);
 
     @Procedure(procedureName = "ubxip.CHECKPARTICIPANT", outputParameterName = "p_count")
     int checkParticipant(@Param("p_bic") String bic);
