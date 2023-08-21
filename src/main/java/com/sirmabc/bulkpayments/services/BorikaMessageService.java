@@ -35,7 +35,7 @@ public class BorikaMessageService {
 
     private final BorikaClient borikaClient;
 
-    private ParticipantsRepository participantsRepository;
+    private final ParticipantsRepository participantsRepository;
 
     private final Properties properties;
 
