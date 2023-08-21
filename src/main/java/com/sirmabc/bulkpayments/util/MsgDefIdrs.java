@@ -22,7 +22,7 @@ public enum MsgDefIdrs {
 
     public final String idr;
 
-    private MsgDefIdrs(String idr) {
+    MsgDefIdrs(String idr) {
         this.idr = idr;
     }
 

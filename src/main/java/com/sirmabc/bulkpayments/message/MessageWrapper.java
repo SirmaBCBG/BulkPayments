@@ -122,19 +122,17 @@ public class MessageWrapper {
     }
 
     public CodesPacs002 validate() throws Exception {
-        // TODO: Uncomment
-        /*CodesPacs002 pacs002Code = isValidAppHdr();
+        CodesPacs002 pacs002Code = isValidAppHdr();
         if (!pacs002Code.equals(CodesPacs002.OK01)) {
             logger.error("An error occurred while validating the application header. Error code: " + pacs002Code.errorCode);
             return pacs002Code;
-        }*/
+        }
 
-        // TODO: Uncomment
-        /*pacs002Code = isDuplicate();
+        pacs002Code = isDuplicate();
         if (!pacs002Code.equals(CodesPacs002.OK01)) {
             logger.error("The message is duplicate. Error code: " + pacs002Code.errorCode);
             return pacs002Code;
-        }*/
+        }
 
         return CodesPacs002.OK01;
     }
@@ -161,7 +159,6 @@ public class MessageWrapper {
             return CodesPacs002.FF01;
         }
 
-        // TODO: Add additional checks if the sender BIC is not present in all message types
         String senderBic = message.getAppHdr().getFr().getFIId().getFinInstnId().getBICFI();
         String receiverBic = message.getAppHdr().getTo().getFIId().getFinInstnId().getBICFI();
 

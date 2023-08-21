@@ -55,15 +55,13 @@ public class BorikaMessageService {
 
         try {
             // Acknowledge the headers
-            // TODO: Uncomment
-            // acknowledge(response.headers().map());
+            acknowledge(response.headers().map());
 
             // Create a MessageWrapper object for the incoming message
             MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
 
             // Save the message to the database
-            // TODO: Uncomment
-            // incmgMsgWrapper.saveMessageToDatabase();
+            incmgMsgWrapper.saveMessageToDatabase();
 
             // Validate the message
             CodesPacs002 codesPacs002 = incmgMsgWrapper.validate();
@@ -95,8 +93,7 @@ public class BorikaMessageService {
             outgngMsgWrapper.buildAppHdr();
 
             // Save the message to the database
-            // TODO: Uncomment
-            // outgngMsgWrapper.saveMessageToDatabase();
+            outgngMsgWrapper.saveMessageToDatabase();
 
             // Send the message to Borika and get the response
             HttpResponse<String> response = sendMessageToBorika(outgngMsgWrapper);
@@ -108,8 +105,7 @@ public class BorikaMessageService {
             MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
 
             // Save the message to the database
-            // TODO: Uncomment
-            // incmgMsgWrapper.saveMessageToDatabase();
+            incmgMsgWrapper.saveMessageToDatabase();
 
             // Validate the message
             CodesPacs002 codesPacs002 = incmgMsgWrapper.validate();
@@ -147,8 +143,7 @@ public class BorikaMessageService {
             MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
 
             // Save the message to the database
-            // TODO: Uncomment
-            // incmgMsgWrapper.saveMessageToDatabase();
+            incmgMsgWrapper.saveMessageToDatabase();
 
             // Validate the message's application header
             CodesPacs002 pacs002Code = incmgMsgWrapper.isValidAppHdr();
