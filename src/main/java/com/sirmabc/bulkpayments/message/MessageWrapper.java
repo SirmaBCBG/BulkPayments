@@ -163,7 +163,7 @@ public class MessageWrapper {
         return CodesPacs002.OK01;
     }
 
-    public void saveMessageToDatabase() throws JAXBException {
+    public void saveToDatabase() throws JAXBException {
         logger.info("Saving message to the database");
 
         BulkMessagesEntity entity = buildBulkMessagesEntity(message.getAppHdr(),
@@ -173,7 +173,7 @@ public class MessageWrapper {
         bulkMessagesRepository.save(entity);
     }
 
-    public void saveMessageToXmlFile() throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
+    public void saveToXmlFile() throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
         logger.info("Saving message to an xml file");
 
         String xmlString = XMLHelper.serializeXml(message);
@@ -194,7 +194,7 @@ public class MessageWrapper {
         transformer.transform(source, result);
     }
 
-    public HttpResponse<String> sendMessageToBorika() throws Exception {
+    public HttpResponse<String> sendToBorika() throws Exception {
         logger.info("Sending message to Borika");
 
         String signedRequestMessageXML = getSignedMessage();

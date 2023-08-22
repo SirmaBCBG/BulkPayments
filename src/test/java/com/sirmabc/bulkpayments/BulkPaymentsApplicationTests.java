@@ -883,7 +883,7 @@ class BulkPaymentsApplicationTests {
 
         try {
             MessageWrapper messageWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlString, Message.class), null);
-            messageWrapper.saveMessageToXmlFile();
+            messageWrapper.saveToXmlFile();
         } catch (Exception e) {
             logger.error("testObjectToXMLFile() error: " + e.getMessage(), e);
         }

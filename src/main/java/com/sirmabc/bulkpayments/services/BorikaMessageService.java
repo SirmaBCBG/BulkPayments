@@ -58,18 +58,18 @@ public class BorikaMessageService {
             acknowledge(response.headers().map());
 
             // Create a MessageWrapper object for the incoming message
-            MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
+            MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
 
             // Save the message to the database
-            incmgMsgWrapper.saveMessageToDatabase();
+            incmgMsg.saveToDatabase();
 
             // Validate the message
-            CodesPacs002 codesPacs002 = incmgMsgWrapper.validate();
+            CodesPacs002 codesPacs002 = incmgMsg.validate();
 
             // Check if the validation was successful
             if (codesPacs002 == CodesPacs002.OK01) {
                 // Save the message to an xml file
-                incmgMsgWrapper.saveMessageToXmlFile();
+                incmgMsg.saveToXmlFile();
             } else {
                 logger.error("The message was not validated successfully");
             }
@@ -87,33 +87,33 @@ public class BorikaMessageService {
             // Move the xml file to the "in progress" directory
             xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsInProgressPath());
             // Create a MessageWrapper object for the outgoing message
-            MessageWrapper outgngMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlFile, Message.class), null);
+            MessageWrapper outgngMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlFile, Message.class), null);
 
             // Build application header for the message
-            outgngMsgWrapper.buildAppHdr();
+            outgngMsg.buildAppHdr();
 
             // Save the message to the database
-            outgngMsgWrapper.saveMessageToDatabase();
+            outgngMsg.saveToDatabase();
 
             // Send the message to Borika and get the response
-            HttpResponse<String> response = outgngMsgWrapper.sendMessageToBorika();
+            HttpResponse<String> response = outgngMsg.sendToBorika();
 
             // Delete the xml file from the "in progress" directory
             xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsProcessedPath());
 
             // Create a MessageWrapper object for the incoming message
-            MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
+            MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
 
             // Save the message to the database
-            incmgMsgWrapper.saveMessageToDatabase();
+            incmgMsg.saveToDatabase();
 
             // Validate the message
-            CodesPacs002 codesPacs002 = incmgMsgWrapper.validate();
+            CodesPacs002 codesPacs002 = incmgMsg.validate();
 
             // Check if the validation was successful
             if (codesPacs002 == CodesPacs002.OK01) {
                 // Save the message to an xml file
-                incmgMsgWrapper.saveMessageToXmlFile();
+                incmgMsg.saveToXmlFile();
             } else {
                 logger.error("The message was not validated successfully");
             }
@@ -140,17 +140,17 @@ public class BorikaMessageService {
 
         try {
             // Create a MessageWrapper object for the incoming message
-            MessageWrapper incmgMsgWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
+            MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
 
             // Save the message to the database
-            incmgMsgWrapper.saveMessageToDatabase();
+            incmgMsg.saveToDatabase();
 
             // Validate the message's application header
-            CodesPacs002 pacs002Code = incmgMsgWrapper.isValidAppHdr();
+            CodesPacs002 pacs002Code = incmgMsg.isValidAppHdr();
 
             if (pacs002Code == CodesPacs002.OK01) {
                 // Update the participants inside the database
-                updateParticipants(incmgMsgWrapper.getMessage().getParticipants());
+                updateParticipants(incmgMsg.getMessage().getParticipants());
             } else {
                 logger.error("The message's application header was not validated successfully");
             }
