@@ -1,0 +1,18 @@
+<Context docBase="CeGate">
+
+<!--    <Resource name="jdbc/DIGIWALLET" auth="Container" type="javax.sql.DataSource"-->
+<!--              factory="org.apache.tomcat.jdbc.pool.DataSourceFactory" defaultAutoCommit="false" rollbackOnReturn="true" defaultTransactionIsolation="READ_COMMITTED" maxAge="600000" maxActive="10" maxIdle="10" maxWait="10000"-->
+<!--              username="DIGIWALLET" password="Dig-123Wallet" driverClassName="oracle.jdbc.driver.OracleDriver"-->
+<!--              url="jdbc:oracle:thin:@10.56.113.10:1521:FLEXLIVE"/>-->
+
+<!--  Test env  -->
+    <Resource name="jdbc/UBXIP" auth="Container" type="javax.sql.DataSource"
+              factory="org.apache.tomcat.jdbc.pool.DataSourceFactory" defaultAutoCommit="false" rollbackOnReturn="true" defaultTransactionIsolation="READ_COMMITTED" maxAge="600000" maxActive="10" maxIdle="10" maxWait="10000"
+              username="UBXIP" password="ubxip" driverClassName="oracle.jdbc.driver.OracleDriver"
+              url="jdbc:oracle:thin:@172.16.52.101:1521:FLEXLIVE"/>
+<!-- Prod env   -->
+<!--    <Resource name="jdbc/UBXIP" auth="Container" type="javax.sql.DataSource"-->
+<!--              factory="org.apache.tomcat.jdbc.pool.DataSourceFactory" defaultAutoCommit="false" rollbackOnReturn="true" defaultTransactionIsolation="READ_COMMITTED" maxAge="600000" maxActive="10" maxIdle="10" maxWait="10000"-->
+<!--              username="UBXIP" password="K2$qs_L2s21q$#1_#0L" driverClassName="oracle.jdbc.driver.OracleDriver"-->
+<!--              url="jdbc:oracle:thin:@10.21.139.10:1521:fcpdb1"/>-->
+</Context>

@@ -8,6 +8,11 @@ plugins {
 group = 'com.sirmabc'
 version = '0.0.1-SNAPSHOT'
 
+war {
+
+    archiveBaseName = 'xconnectorbulk'
+}
+
 java {
     sourceCompatibility = '17'
 }
