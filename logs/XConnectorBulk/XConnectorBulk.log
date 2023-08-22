@@ -123,3 +123,68 @@ Caused by: java.nio.channels.ClosedChannelException: null
 	... 9 common frames omitted
 2023-08-21 16:18:54,195 INFO c.s.b.c.BorikaClientScheduler [scheduling-1] sendMessage() execution started
 2023-08-21 16:18:55,153 INFO c.s.b.m.MessageWrapper [Test worker] Saving message to an xml file
+2023-08-21 17:30:38,473 INFO o.s.b.StartupInfoLogger [Test worker] Starting BulkPaymentsApplicationTests using Java 17.0.6 with PID 3000 (started by veselin.zinkov in C:\develop\BulkPayments)
+2023-08-21 17:30:38,474 DEBUG o.s.b.StartupInfoLogger [Test worker] Running with Spring Boot v3.1.1, Spring v6.0.10
+2023-08-21 17:30:38,475 INFO o.s.b.SpringApplication [Test worker] No active profile set, falling back to 1 default profile: "default"
+2023-08-21 17:30:41,794 INFO c.s.b.u.Properties [Test worker] Getting properties from the database
+2023-08-21 17:30:42,010 INFO c.s.b.u.Properties [Test worker] Borica url: http://localhost:8082/certservice/api/borica
+2023-08-21 17:30:42,026 INFO c.s.b.u.Properties [Test worker] Borica BIC: BIC
+2023-08-21 17:30:42,033 INFO c.s.b.u.Properties [Test worker] Account validation service url: 10.21.139.11:7203
+2023-08-21 17:30:42,039 INFO c.s.b.u.Properties [Test worker] Account validation service branch: CHO
+2023-08-21 17:30:42,043 INFO c.s.b.u.Properties [Test worker] Account validation service userId: INSTANTU
+2023-08-21 17:30:42,048 INFO c.s.b.u.Properties [Test worker] Account validation service entity: ENTITY_ID1
+2023-08-21 17:30:42,052 INFO c.s.b.u.Properties [Test worker] Borica rtp channel (BIC) of institution: BIC
+2023-08-21 17:30:42,057 INFO c.s.b.u.Properties [Test worker] Borica rtp version: 1
+2023-08-21 17:30:42,062 INFO c.s.b.u.Properties [Test worker] Flex cube service url: http://localhost:8082/IL
+2023-08-21 17:30:42,067 INFO c.s.b.u.Properties [Test worker] Flex cube bizMsgIdr url: 10n
+2023-08-21 17:30:42,073 INFO c.s.b.u.Properties [Test worker] JKS borica keystore file path: ./ip_certs/ks.jks
+2023-08-21 17:30:42,079 INFO c.s.b.u.Properties [Test worker] JKS borica password: 1234
+2023-08-21 17:30:42,085 INFO c.s.b.u.Properties [Test worker] JKS borica alias: borica_pubkey
+2023-08-21 17:30:42,091 INFO c.s.b.u.Properties [Test worker] JKS borica key password: 1234
+2023-08-21 17:30:42,097 INFO c.s.b.u.Properties [Test worker] JKS sbc keystore file path: ./ip_certs/ks.jks
+2023-08-21 17:30:42,102 INFO c.s.b.u.Properties [Test worker] JKS sbc password: 1234
+2023-08-21 17:30:42,107 INFO c.s.b.u.Properties [Test worker] JKS sbc alias: sbc
+2023-08-21 17:30:42,112 INFO c.s.b.u.Properties [Test worker] JKS sbc key password: 1234
+2023-08-21 17:30:42,118 INFO c.s.b.u.Properties [Test worker] Outgoing bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\messages
+2023-08-21 17:30:42,123 INFO c.s.b.u.Properties [Test worker] Outgoing bulk messages in progress directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\in_progress
+2023-08-21 17:30:42,130 INFO c.s.b.u.Properties [Test worker] Outgoing processed bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\outgoing_messages\\processed
+2023-08-21 17:30:42,136 INFO c.s.b.u.Properties [Test worker] Incoming bulk messages directory path: C:\\Users\\veselin.zinkov\\OneDrive - Sirma Business Consulting\\Desktop\\incoming_messages
+2023-08-21 17:30:42,767 INFO c.s.b.c.BorikaClientScheduler [scheduling-1] getMessage() execution started
+2023-08-21 17:30:42,769 INFO o.s.b.StartupInfoLogger [Test worker] Started BulkPaymentsApplicationTests in 4.463 seconds (process running for 5.608)
+2023-08-21 17:30:42,971 ERROR c.s.b.c.BorikaClientScheduler [scheduling-1] getMessage() error: null
+java.net.ConnectException: null
+	at java.net.http/jdk.internal.net.http.HttpClientImpl.send(HttpClientImpl.java:573)
+	at java.net.http/jdk.internal.net.http.HttpClientFacade.send(HttpClientFacade.java:123)
+	at com.sirmabc.bulkpayments.communicators.BorikaClientScheduler.getMessage(BorikaClientScheduler.java:44)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:84)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Caused by: java.net.ConnectException: null
+	at java.net.http/jdk.internal.net.http.common.Utils.toConnectException(Utils.java:1047)
+	at java.net.http/jdk.internal.net.http.PlainHttpConnection.connectAsync(PlainHttpConnection.java:198)
+	at java.net.http/jdk.internal.net.http.PlainHttpConnection.checkRetryConnect(PlainHttpConnection.java:230)
+	at java.net.http/jdk.internal.net.http.PlainHttpConnection.lambda$connectAsync$1(PlainHttpConnection.java:206)
+	at java.base/java.util.concurrent.CompletableFuture.uniHandle(CompletableFuture.java:934)
+	at java.base/java.util.concurrent.CompletableFuture$UniHandle.tryFire(CompletableFuture.java:911)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:510)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1773)
+	... 3 common frames omitted
+Caused by: java.nio.channels.ClosedChannelException: null
+	at java.base/sun.nio.ch.SocketChannelImpl.ensureOpen(SocketChannelImpl.java:195)
+	at java.base/sun.nio.ch.SocketChannelImpl.beginConnect(SocketChannelImpl.java:760)
+	at java.base/sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:848)
+	at java.net.http/jdk.internal.net.http.PlainHttpConnection.lambda$connectAsync$0(PlainHttpConnection.java:183)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:569)
+	at java.net.http/jdk.internal.net.http.PlainHttpConnection.connectAsync(PlainHttpConnection.java:185)
+	... 9 common frames omitted
+2023-08-21 17:30:42,975 INFO c.s.b.c.BorikaClientScheduler [scheduling-1] sendMessage() execution started
+2023-08-21 17:30:43,937 INFO c.s.b.m.MessageWrapper [Test worker] Saving message to an xml file

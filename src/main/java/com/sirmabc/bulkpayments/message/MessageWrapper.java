@@ -1,5 +1,6 @@
 package com.sirmabc.bulkpayments.message;
 
+import com.sirmabc.bulkpayments.communicators.BorikaClient;
 import com.sirmabc.bulkpayments.persistance.entities.BulkMessagesEntity;
 import com.sirmabc.bulkpayments.persistance.repositories.BulkMessagesRepository;
 import com.sirmabc.bulkpayments.persistance.repositories.ParticipantsRepository;
@@ -45,6 +46,8 @@ public class MessageWrapper {
 
     private final HttpResponse<String> response;
 
+    private final BorikaClient borikaClient;
+
     private final BulkMessagesRepository bulkMessagesRepository;
 
     private final ParticipantsRepository participantsRepository;
@@ -53,9 +56,10 @@ public class MessageWrapper {
 
     private final XMLSigner xmlSigner;
 
-    public MessageWrapper(Message message, HttpResponse<String> response, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, XMLSigner xmlSigner) {
+    public MessageWrapper(Message message, HttpResponse<String> response, BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, XMLSigner xmlSigner) {
         this.message = message;
         this.response = response;
+        this.borikaClient = borikaClient;
         this.bulkMessagesRepository = bulkMessagesRepository;
         this.participantsRepository = participantsRepository;
         this.properties = properties;
@@ -137,20 +141,6 @@ public class MessageWrapper {
         return CodesPacs002.OK01;
     }
 
-    public String getSignedMessage() throws Exception {
-        Document document = xmlSigner.string2XML(XMLHelper.serializeXml(message));
-
-        KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(properties.getSbcKeyStorePath()), properties.getSbcKeyStorePassword().toCharArray());
-        KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(properties.getSbcKeyPassword().toCharArray());
-        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(properties.getSbcKeyStoreAlias(), passwordProtection);
-
-        document = xmlSigner.sign(document, keyEntry);
-        String signedXml = xmlSigner.xml2String(document);
-
-        return signedXml;
-    }
-
     public CodesPacs002 isValidAppHdr() throws Exception {
         logger.info("Validating the application header");
 
@@ -204,6 +194,16 @@ public class MessageWrapper {
         transformer.transform(source, result);
     }
 
+    public HttpResponse<String> sendMessageToBorika() throws Exception {
+        logger.info("Sending message to Borika");
+
+        String signedRequestMessageXML = getSignedMessage();
+        logger.debug("Message after building application header: " + signedRequestMessageXML);
+        HttpResponse<String> response = borikaClient.postMessage(signedRequestMessageXML);
+
+        return response;
+    }
+
     private CodesPacs002 isDuplicate() {
         logger.info("Checking if the message is duplicate");
 
@@ -233,6 +233,20 @@ public class MessageWrapper {
                 + currentMsgDateTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"))
                 + "_"
                 + currentMsgDateTime.getNano();
+    }
+
+    private String getSignedMessage() throws Exception {
+        Document document = xmlSigner.string2XML(XMLHelper.serializeXml(message));
+
+        KeyStore ks = KeyStore.getInstance("JKS");
+        ks.load(new FileInputStream(properties.getSbcKeyStorePath()), properties.getSbcKeyStorePassword().toCharArray());
+        KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(properties.getSbcKeyPassword().toCharArray());
+        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(properties.getSbcKeyStoreAlias(), passwordProtection);
+
+        document = xmlSigner.sign(document, keyEntry);
+        String signedXml = xmlSigner.xml2String(document);
+
+        return signedXml;
     }
 
     private Party9Choice generateParty9Choice(String bicfi) {

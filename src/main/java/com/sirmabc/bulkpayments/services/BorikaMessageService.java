@@ -96,7 +96,7 @@ public class BorikaMessageService {
             outgngMsgWrapper.saveMessageToDatabase();
 
             // Send the message to Borika and get the response
-            HttpResponse<String> response = sendMessageToBorika(outgngMsgWrapper);
+            HttpResponse<String> response = outgngMsgWrapper.sendMessageToBorika();
 
             // Delete the xml file from the "in progress" directory
             xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsProcessedPath());
@@ -165,16 +165,6 @@ public class BorikaMessageService {
 
         String msgSeq = headers.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0);
         borikaClient.postAcknowledge(msgSeq);
-    }
-
-    private HttpResponse<String> sendMessageToBorika(MessageWrapper outgngMsgWrapper) throws Exception {
-        logger.info("Sending message to Borika");
-
-        String signedRequestMessageXML = outgngMsgWrapper.getSignedMessage();
-        logger.debug("Message after building application header: " + signedRequestMessageXML);
-        HttpResponse<String> response = borikaClient.postMessage(signedRequestMessageXML);
-
-        return response;
     }
 
     private void updateParticipants(ParticipantsType participantsType) {
