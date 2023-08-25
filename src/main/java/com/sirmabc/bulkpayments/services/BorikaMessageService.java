@@ -53,9 +53,15 @@ public class BorikaMessageService {
     public void asyncProcessIncomingMessage(HttpResponse<String> response) throws AppException {
         logger.info("Asynchronously processing the incoming message " + Thread.currentThread().getName());
 
+        // Get the headers from the response
+        Map<String, List<String>> headers = response.headers().map();
+
+        // Don't proceed with the method if there is no message present
+        if (headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0).equals("EMPTY")) return;
+
         try {
             // Acknowledge the headers
-            acknowledge(response.headers().map());
+            acknowledge(headers);
 
             // Create a MessageWrapper object for the incoming message
             MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);

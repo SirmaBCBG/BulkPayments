@@ -12,7 +12,9 @@ public enum Header {
     X_MONTRAN_RTP_CHANNEL("X-MONTRAN-RTP-Channel"),
     X_MONTRAN_RTP_VERSION("X-MONTRAN-RTP-Version"),
     X_MONTRAN_RTP_MESSAGE_SEQ("X-MONTRAN-RTP-MessageSeq"),
-    X_MONTRAN_RTP_MESSAGE_TYPE("X-MONTRAN-RTP-MessageType");
+    X_MONTRAN_RTP_MESSAGE_TYPE("X-MONTRAN-RTP-MessageType"),
+
+    X_MONTRAN_RTP_REQSTS("X-MONTRAN-RTP-ReqSts");
 
     public final String header;
 
