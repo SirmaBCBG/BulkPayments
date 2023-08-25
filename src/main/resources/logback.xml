@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="LOGS_DIR" value="./logs/XConnectorBulk" />
+    <property name="LOGS_DIR" value="/opt/tomcat/logs/XConnectorBulk" />
     <property name="FILE_NAME" value="XConnectorBulk" />
 
     <appender name="Console"

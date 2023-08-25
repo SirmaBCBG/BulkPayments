@@ -2,6 +2,7 @@ package com.sirmabc.bulkpayments.resources;
 
 import com.sirmabc.bulkpayments.exceptions.AppException;
 import com.sirmabc.bulkpayments.persistance.repositories.PropertiesRepository;
+import com.sirmabc.bulkpayments.util.HttpClientTest;
 import com.sirmabc.bulkpayments.util.Properties;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -30,6 +31,18 @@ public class PropertiesResource {
 
         return "Properties update, check logs for values.";
 
+    }
+
+    @GET
+    @Path("test")
+    public String test() throws AppException {
+
+        try {
+            return HttpClientTest.sendData();
+        }catch (Exception e) {
+            e.printStackTrace();
+            return e.getMessage();
+        }
     }
 
 }

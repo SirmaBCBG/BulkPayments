@@ -35,21 +35,20 @@ public class Properties {
 
     private PropertiesEntity bizMsgIdr;
 
-    private PropertiesEntity boricaKeyStorePath;
+    private PropertiesEntity signBoricaKeyStorePath;
 
-    private PropertiesEntity boricaKeyStorePassword;
+    private PropertiesEntity signBoricaKeyStorePassword;
 
-    private PropertiesEntity boricaKeyStoreAlias;
+    private PropertiesEntity signBoricaCertAlias;
 
-    private PropertiesEntity boricaKeyPassword;
+    private PropertiesEntity signSBCKeyStorePath;
 
-    private PropertiesEntity sbcKeyStorePath;
+    private PropertiesEntity signSBCKeyStorePassword;
 
-    private PropertiesEntity sbcKeyStorePassword;
+    private PropertiesEntity signSBCKeyStoreAlias;
 
-    private PropertiesEntity sbcKeyStoreAlias;
+    private PropertiesEntity signSBCPrivateKeyPassword;
 
-    private PropertiesEntity sbcKeyPassword;
 
     private PropertiesEntity outgngBulkMsgsPath;
 
@@ -58,6 +57,14 @@ public class Properties {
     private PropertiesEntity outgngBulkMsgsProcessedPath;
 
     private PropertiesEntity incmgBulkMsgsPath;
+    private PropertiesEntity sslSBCKeyStorePath;
+
+    private PropertiesEntity sslSBCKeyStorePassword;
+
+    private PropertiesEntity sslSBCKeyStoreAlias;
+
+    private PropertiesEntity sslSBCPrivateKeyPassword;
+
 
     private final PropertiesRepository repository;
 
@@ -106,29 +113,26 @@ public class Properties {
             bizMsgIdr = repository.findByName("bizMsgIdr");
             logger.info("Flex cube bizMsgIdr url: " + bizMsgIdr.getValue());
 
-            boricaKeyStorePath = repository.findByName("boricaKeyStorePath");
-            logger.info("JKS borica keystore file path: " + boricaKeyStorePath.getValue());
+            signBoricaKeyStorePath = repository.findByName("signBoricaKeyStorePath");
+            logger.info("JKS signing borica keystore file path: " + signBoricaKeyStorePath.getValue());
 
-            boricaKeyStorePassword = repository.findByName("boricaKeyStorePassword");
-            logger.info("JKS borica password: " + boricaKeyStorePassword.getValue());
+            signBoricaKeyStorePassword = repository.findByName("signBoricaKeyStorePassword");
+            logger.info("JKS signing borica password: " + signBoricaKeyStorePassword.getValue());
 
-            boricaKeyStoreAlias = repository.findByName("boricaKeyStoreAlias");
-            logger.info("JKS borica alias: " + boricaKeyStoreAlias.getValue());
+            signBoricaCertAlias = repository.findByName("signBoricaCertAlias");
+            logger.info("JKS sign borica cert alias: " + signBoricaCertAlias.getValue());
 
-            boricaKeyPassword = repository.findByName("boricaKeyPassword");
-            logger.info("JKS borica key password: " + boricaKeyPassword.getValue());
+            signSBCKeyStorePath = repository.findByName("signSBCKeyStorePath");
+            logger.info("JKS sbc signing keystore file path: " + signSBCKeyStorePath.getValue());
 
-            sbcKeyStorePath = repository.findByName("sbcKeyStorePath");
-            logger.info("JKS sbc keystore file path: " + sbcKeyStorePath.getValue());
+            signSBCKeyStorePassword = repository.findByName("signSBCKeyStorePassword");
+            logger.info("JKS sbc signing password: " + signSBCKeyStorePassword.getValue());
 
-            sbcKeyStorePassword = repository.findByName("sbcKeyStorePassword");
-            logger.info("JKS sbc password: " + sbcKeyStorePassword.getValue());
+            signSBCKeyStoreAlias = repository.findByName("signSBCKeyStoreAlias");
+            logger.info("JKS sbc signing alias: " + signSBCKeyStoreAlias.getValue());
 
-            sbcKeyStoreAlias = repository.findByName("sbcKeyStoreAlias");
-            logger.info("JKS sbc alias: " + sbcKeyStoreAlias.getValue());
-
-            sbcKeyPassword = repository.findByName("sbcKeyPassword");
-            logger.info("JKS sbc key password: " + sbcKeyPassword.getValue());
+            signSBCPrivateKeyPassword = repository.findByName("signSBCPrivateKeyPassword");
+            logger.info("JKS sbc signing private key password: " + signSBCPrivateKeyPassword.getValue());
 
             outgngBulkMsgsPath = repository.findByName("outgngBulkMsgsPath");
             logger.info("Outgoing bulk messages directory path: " + outgngBulkMsgsPath.getValue());
@@ -141,6 +145,18 @@ public class Properties {
 
             incmgBulkMsgsPath = repository.findByName("incmgBulkMsgsPath");
             logger.info("Incoming bulk messages directory path: " + incmgBulkMsgsPath.getValue());
+
+            sslSBCKeyStorePath = repository.findByName("sslSBCKeyStorePath");
+            logger.info("JKS sbc SSL key store path: " + sslSBCKeyStorePath.getValue());
+
+            sslSBCKeyStorePassword = repository.findByName("sslSBCKeyStorePassword");
+            logger.info("JKS sbc SSL key store password: " + sslSBCKeyStorePassword.getValue());
+
+            sslSBCKeyStoreAlias = repository.findByName("sslSBCKeyStoreAlias");
+            logger.info("JKS sbc SSL key store alias: " + sslSBCKeyStoreAlias.getValue());
+
+            sslSBCPrivateKeyPassword = repository.findByName("sslSBCPrivateKeyPassword");
+            logger.info("JKS sbc SSL private key store password: " + sslSBCPrivateKeyPassword.getValue());
         } catch (Exception e) {
             throw new AppException(e.getMessage(), e);
         }
@@ -234,68 +250,60 @@ public class Properties {
         this.bizMsgIdr = bizMsgIdr;
     }
 
-    public String getBoricaKeyStorePath() {
-        return boricaKeyStorePath.getValue();
+    public String getSignBoricaKeyStorePath() {
+        return signBoricaKeyStorePath.getValue();
     }
 
-    public void setBoricaKeyStorePath(PropertiesEntity boricaKeyStorePath) {
-        this.boricaKeyStorePath = boricaKeyStorePath;
+    public void setSignBoricaKeyStorePath(PropertiesEntity signBoricaKeyStorePath) {
+        this.signBoricaKeyStorePath = signBoricaKeyStorePath;
     }
 
-    public String getBoricaKeyStorePassword() {
-        return boricaKeyStorePassword.getValue();
+    public String getSignBoricaKeyStorePassword() {
+        return signBoricaKeyStorePassword.getValue();
     }
 
-    public void setBoricaKeyStorePassword(PropertiesEntity boricaKeyStorePassword) {
-        this.boricaKeyStorePassword = boricaKeyStorePassword;
+    public void setSignBoricaKeyStorePassword(PropertiesEntity signBoricaKeyStorePassword) {
+        this.signBoricaKeyStorePassword = signBoricaKeyStorePassword;
     }
 
-    public String getBoricaKeyStoreAlias() {
-        return boricaKeyStoreAlias.getValue();
+    public String getSignBoricaCertAlias() {
+        return signBoricaCertAlias.getValue();
     }
 
-    public void setBoricaKeyStoreAlias(PropertiesEntity boricaKeyStoreAlias) {
-        this.boricaKeyStoreAlias = boricaKeyStoreAlias;
+    public void setSignBoricaCertAlias(PropertiesEntity signBoricaCertAlias) {
+        this.signBoricaCertAlias = signBoricaCertAlias;
     }
 
-    public String getBoricaKeyPassword() {
-        return boricaKeyPassword.getValue();
+    public String getSignSBCKeyStorePath() {
+        return signSBCKeyStorePath.getValue();
     }
 
-    public void setBoricaKeyPassword(PropertiesEntity boricaKeyPassword) {
-        this.boricaKeyPassword = boricaKeyPassword;
+    public void setSignSBCKeyStorePath(PropertiesEntity signSBCKeyStorePath) {
+        this.signSBCKeyStorePath = signSBCKeyStorePath;
     }
 
-    public String getSbcKeyStorePath() {
-        return sbcKeyStorePath.getValue();
+    public String getSignSBCKeyStorePassword() {
+        return signSBCKeyStorePassword.getValue();
     }
 
-    public void setSbcKeyStorePath(PropertiesEntity sbcKeyStorePath) {
-        this.sbcKeyStorePath = sbcKeyStorePath;
+    public void setSignSBCKeyStorePassword(PropertiesEntity signSBCKeyStorePassword) {
+        this.signSBCKeyStorePassword = signSBCKeyStorePassword;
     }
 
-    public String getSbcKeyStorePassword() {
-        return sbcKeyStorePassword.getValue();
+    public String getSignSBCKeyStoreAlias() {
+        return signSBCKeyStoreAlias.getValue();
     }
 
-    public void setSbcKeyStorePassword(PropertiesEntity sbcKeyStorePassword) {
-        this.sbcKeyStorePassword = sbcKeyStorePassword;
+    public void setSignSBCKeyStoreAlias(PropertiesEntity signSBCKeyStoreAlias) {
+        this.signSBCKeyStoreAlias = signSBCKeyStoreAlias;
     }
 
-    public String getSbcKeyStoreAlias() {
-        return sbcKeyStoreAlias.getValue();
+    public String getSignSBCPrivateKeyPassword() {
+        return signSBCPrivateKeyPassword.getValue();
     }
 
-    public void setSbcKeyStoreAlias(PropertiesEntity sbcKeyStoreAlias) {
-        this.sbcKeyStoreAlias = sbcKeyStoreAlias;
-    }
-
-    public String getSbcKeyPassword() {
-        return sbcKeyPassword.getValue();
-    }
-
-    public void setSbcKeyPassword(PropertiesEntity sbcKeyPassword) {
-        this.sbcKeyPassword = sbcKeyPassword;
+    public void setSignSBCPrivateKeyPassword(PropertiesEntity signSBCPrivateKeyPassword) {
+        this.signSBCPrivateKeyPassword = signSBCPrivateKeyPassword;
     }
 
     public String getOutgngBulkMsgsPath() {
@@ -328,5 +336,37 @@ public class Properties {
 
     public void setIncmgBulkMsgsPath(PropertiesEntity incmgBulkMsgsPath) {
         this.incmgBulkMsgsPath = incmgBulkMsgsPath;
+    }
+
+    public String getSslSBCKeyStorePath() {
+        return sslSBCKeyStorePath.getValue();
+    }
+
+    public void setSslSBCKeyStorePath(PropertiesEntity sslSBCKeyStorePath) {
+        this.sslSBCKeyStorePath = sslSBCKeyStorePath;
+    }
+
+    public String getSslSBCKeyStorePassword() {
+        return sslSBCKeyStorePassword.getValue();
+    }
+
+    public void setSslSBCKeyStorePassword(PropertiesEntity sslSBCKeyStorePassword) {
+        this.sslSBCKeyStorePassword = sslSBCKeyStorePassword;
+    }
+
+    public String getSslSBCKeyStoreAlias() {
+        return sslSBCKeyStoreAlias.getValue();
+    }
+
+    public void setSslSBCKeyStoreAlias(PropertiesEntity sslSBCKeyStoreAlias) {
+        this.sslSBCKeyStoreAlias = sslSBCKeyStoreAlias;
+    }
+
+    public String getSslSBCPrivateKeyPassword() {
+        return sslSBCPrivateKeyPassword.getValue();
+    }
+
+    public void setSslSBCPrivateKeyPassword(PropertiesEntity sslSBCPrivateKeyPassword) {
+        this.sslSBCPrivateKeyPassword = sslSBCPrivateKeyPassword;
     }
 }

@@ -201,6 +201,8 @@ public class MessageWrapper {
         logger.debug("Message after building application header: " + signedRequestMessageXML);
         HttpResponse<String> response = borikaClient.postMessage(signedRequestMessageXML);
 
+        logger.debug(response.body());
+
         return response;
     }
 
@@ -239,9 +241,9 @@ public class MessageWrapper {
         Document document = xmlSigner.string2XML(XMLHelper.serializeXml(message));
 
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(properties.getSbcKeyStorePath()), properties.getSbcKeyStorePassword().toCharArray());
-        KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(properties.getSbcKeyPassword().toCharArray());
-        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(properties.getSbcKeyStoreAlias(), passwordProtection);
+        ks.load(new FileInputStream(properties.getSignSBCKeyStorePath()), properties.getSignSBCKeyStorePassword().toCharArray());
+        KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(properties.getSignSBCKeyStorePassword().toCharArray());
+        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(properties.getSignSBCKeyStoreAlias(), passwordProtection);
 
         document = xmlSigner.sign(document, keyEntry);
         String signedXml = xmlSigner.xml2String(document);

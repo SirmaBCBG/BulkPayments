@@ -24,8 +24,8 @@ public class MontranPublicKeySelector extends KeySelector {
       try {
         KeyStore ks = KeyStore.getInstance("JKS");
 
-        ks.load(new FileInputStream(properties.getBoricaKeyStorePath()), properties.getBoricaKeyStorePassword().toCharArray());
-        X509Certificate cert = (X509Certificate) ks.getCertificate(properties.getBoricaKeyStoreAlias());
+        ks.load(new FileInputStream(properties.getSignBoricaKeyStorePath()), properties.getSignBoricaKeyStorePassword().toCharArray());
+        X509Certificate cert = (X509Certificate) ks.getCertificate(properties.getSignBoricaCertAlias());
 
 
         final PublicKey key = cert.getPublicKey();

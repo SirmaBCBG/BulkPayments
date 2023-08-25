@@ -26,6 +26,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-jersey'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.2.1'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

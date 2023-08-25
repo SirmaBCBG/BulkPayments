@@ -1,6 +1,7 @@
 package com.sirmabc.bulkpayments.communicators;
 
 import com.sirmabc.bulkpayments.exceptions.PostMessageException;
+import com.sirmabc.bulkpayments.ssl.CustomSSL;
 import com.sirmabc.bulkpayments.util.Header;
 import com.sirmabc.bulkpayments.util.Properties;
 import org.slf4j.Logger;
@@ -23,10 +24,17 @@ public class BorikaClient {
     @Autowired
     Properties properties;
 
+    @Autowired
+    CustomSSL customSSL;
+
     public HttpResponse<String> postMessage(String requestBody) throws PostMessageException {
         logger.info("Posting message to Borika");
 
         try {
+
+            java.util.Properties props = System.getProperties();
+            props.setProperty("jdk.internal.httpclient.disableHostnameVerification", Boolean.TRUE.toString());
+
             HttpClient client = buildClient(20);
             HttpRequest request = buildPostRequest(requestBody);
 
@@ -51,6 +59,7 @@ public class BorikaClient {
 
     public HttpClient buildClient(int connectionTimeout) {
         return HttpClient.newBuilder()
+                .sslContext(customSSL.getSslContext())
                 .version(HttpClient.Version.HTTP_1_1)
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .connectTimeout(Duration.ofSeconds(connectionTimeout))
