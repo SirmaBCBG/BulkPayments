@@ -57,7 +57,7 @@ public class BorikaMessageService {
         Map<String, List<String>> headers = response.headers().map();
 
         // Don't proceed with the method if there is no message present
-        if (headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0).equals("EMPTY")) return;
+        if (headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0).equalsIgnoreCase("EMPTY")) return;
 
         try {
             // Acknowledge the headers
