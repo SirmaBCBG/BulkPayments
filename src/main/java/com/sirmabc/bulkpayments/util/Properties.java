@@ -65,6 +65,12 @@ public class Properties {
 
     private PropertiesEntity sslSBCPrivateKeyPassword;
 
+    private PropertiesEntity sslBoricaKeyStorePath;
+    private PropertiesEntity sslBoricaKeyStorePassword;
+    private PropertiesEntity sslBoricaCertificate;
+
+
+
 
     private final PropertiesRepository repository;
 
@@ -157,6 +163,15 @@ public class Properties {
 
             sslSBCPrivateKeyPassword = repository.findByName("sslSBCPrivateKeyPassword");
             logger.info("JKS sbc SSL private key store password: " + sslSBCPrivateKeyPassword.getValue());
+
+            sslBoricaKeyStorePath = repository.findByName("sslBoricaKeyStorePath");
+            logger.info("JKS Borica SSL key store path: " + sslBoricaKeyStorePath.getValue());
+
+            sslBoricaCertificate = repository.findByName("sslBoricaCertificate");
+            logger.info("JKS Borica SSL key store cert: " + sslBoricaCertificate.getValue());
+
+            sslBoricaKeyStorePassword = repository.findByName("sslBoricaKeyStorePassword");
+            logger.info("JKS Borica SSL key store password: " + sslBoricaKeyStorePassword.getValue());
         } catch (Exception e) {
             throw new AppException(e.getMessage(), e);
         }
@@ -368,5 +383,29 @@ public class Properties {
 
     public void setSslSBCPrivateKeyPassword(PropertiesEntity sslSBCPrivateKeyPassword) {
         this.sslSBCPrivateKeyPassword = sslSBCPrivateKeyPassword;
+    }
+
+    public String getSslBoricaKeyStorePath() {
+        return sslBoricaKeyStorePath.getValue();
+    }
+
+    public void setSslBoricaKeyStorePath(PropertiesEntity sslBoricaKeyStorePath) {
+        this.sslBoricaKeyStorePath = sslBoricaKeyStorePath;
+    }
+
+    public String getSslBoricaKeyStorePassword() {
+        return sslBoricaKeyStorePassword.getValue();
+    }
+
+    public void setSslBoricaKeyStorePassword(PropertiesEntity sslBoricaKeyStorePassword) {
+        this.sslBoricaKeyStorePassword = sslBoricaKeyStorePassword;
+    }
+
+    public String getSslBoricaCertificate() {
+        return sslBoricaCertificate.getValue();
+    }
+
+    public void setSslBoricaCertificate(PropertiesEntity sslBoricaCertificate) {
+        this.sslBoricaCertificate = sslBoricaCertificate;
     }
 }

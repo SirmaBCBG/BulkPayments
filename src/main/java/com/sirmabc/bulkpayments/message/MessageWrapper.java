@@ -20,6 +20,9 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,8 +37,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.http.HttpResponse;
 import java.security.KeyStore;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.GregorianCalendar;
 
 public class MessageWrapper {
 
@@ -59,7 +64,12 @@ public class MessageWrapper {
 
     private final XMLSigner xmlSigner;
 
-    public MessageWrapper(Message message, InOut inOut, HttpResponse<String> response, BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, XMLSigner xmlSigner) {
+    public MessageWrapper(Message message, InOut inOut, HttpResponse<String> response,
+                          BorikaClient borikaClient,
+                          BulkMessagesRepository bulkMessagesRepository,
+                          ParticipantsRepository participantsRepository,
+                          Properties properties,
+                          XMLSigner xmlSigner) {
         this.message = message;
         this.inOut = inOut;
         this.response = response;
@@ -74,7 +84,7 @@ public class MessageWrapper {
         prevSavedMsgDateTime = LocalDateTime.now();
     }
 
-    public void buildAppHdr() {
+    public void buildAppHdr() throws DatatypeConfigurationException {
         if (message.getAppHdr() == null) {
             logger.info("Building application header");
 
@@ -83,41 +93,41 @@ public class MessageWrapper {
             // pacs.008
             if (message.getFIToFICstmrCdtTrf() != null) {
                 appHdr.setMsgDefIdr(MsgDefIdrs.PACS008.idr);
-                appHdr.setCreDt(message.getFIToFICstmrCdtTrf().getGrpHdr().getCreDtTm());
+
             } else if (message.getPmtRtr() != null) {
                 // pacs.004
                 appHdr.setMsgDefIdr(MsgDefIdrs.PACS004.idr);
-                appHdr.setCreDt(message.getPmtRtr().getGrpHdr().getCreDtTm());
             } else if (message.getFIToFIPmtCxlReq() != null) {
                 // camt.056
                 appHdr.setMsgDefIdr(MsgDefIdrs.CAMT056.idr);
-                appHdr.setCreDt(message.getFIToFIPmtCxlReq().getAssgnmt().getCreDtTm());
             } else if (message.getRsltnOfInvstgtn() != null) {
                 // camt.029.001.03
                 appHdr.setMsgDefIdr(MsgDefIdrs.CAMT029_03.idr);
-                appHdr.setCreDt(message.getRsltnOfInvstgtn().getAssgnmt().getCreDtTm());
             } else if (message.getFIToFIPmtStsReq() != null) {
                 // pacs.028
                 appHdr.setMsgDefIdr(MsgDefIdrs.PACS028.idr);
-                appHdr.setCreDt(message.getFIToFIPmtStsReq().getGrpHdr().getCreDtTm());
             } else if (message.getFIToFIPmtStsRpt() != null) {
                 // pacs.002
                 appHdr.setMsgDefIdr(MsgDefIdrs.PACS002.idr);
-                appHdr.setCreDt(message.getFIToFIPmtStsRpt().getGrpHdr().getCreDtTm());
             } else if (message.getCdtrPmtActvtnReq() != null) {
                 // pain.013
                 appHdr.setMsgDefIdr(MsgDefIdrs.PAIN013.idr);
-                appHdr.setCreDt(message.getCdtrPmtActvtnReq().getGrpHdr().getCreDtTm());
             } else if (message.getCdtrPmtActvtnReqStsRpt() != null) {
                 // pain.014
                 appHdr.setMsgDefIdr(MsgDefIdrs.PAIN014.idr);
-                appHdr.setCreDt(message.getCdtrPmtActvtnReqStsRpt().getGrpHdr().getCreDtTm());
             } else if (message.getBkToCstmrStmt() != null) {
                 // camt.053
                 appHdr.setMsgDefIdr(MsgDefIdrs.CAMT053.idr);
-                appHdr.setCreDt(message.getBkToCstmrStmt().getGrpHdr().getCreDtTm());
             }
 
+            Instant now = Instant.now();
+
+            GregorianCalendar cal1 = new GregorianCalendar();
+            cal1.setTimeInMillis(now.toEpochMilli());
+
+            XMLGregorianCalendar cal2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal1);
+
+            appHdr.setCreDt(cal2);
             appHdr.setFr(generateParty9Choice(properties.getRtpChannel()));
             appHdr.setTo(generateParty9Choice(properties.getBorikaBic()));
             appHdr.setBizMsgIdr(properties.getBizMsgIdr());
@@ -148,7 +158,7 @@ public class MessageWrapper {
     public CodesPacs002 isValidAppHdr() throws Exception {
         logger.info("Validating the application header");
 
-        Document document = xmlSigner.string2XML(XMLHelper.serializeXml(message));
+        Document document = xmlSigner.string2XML(response.body());
         if (!xmlSigner.verify(document)) {
             return CodesPacs002.FF01;
         }

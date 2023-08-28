@@ -40,9 +40,11 @@ public class BorikaClientScheduler {
             // Build GET request
             HttpRequest request = borikaClient.buildGETRequest();
 
+            logger.debug("Request headers: " + request.headers().toString());
+
             // Send the GET request
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            logger.info("GET request response: " + response.body());
+            logger.debug("GET request response: " + response.body());
 
             // Process the incoming message
             borikaMessageService.asyncProcessIncomingMessage(response);
@@ -79,7 +81,7 @@ public class BorikaClientScheduler {
 
             // Send the GET request
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            logger.info("GET request response: " + response.body());
+            logger.debug("GET request response: " + response.body());
 
             // Process the incoming message
             borikaMessageService.asyncProcessParticipantsMessage(response);

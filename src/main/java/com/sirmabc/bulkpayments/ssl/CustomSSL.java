@@ -20,6 +20,9 @@ public class CustomSSL {
     @Autowired
     AliasKeyManager aliasKeyManager;
 
+    @Autowired
+    SirmaTrustManager sirmaTrustManager;
+
     @PostConstruct
     public void init() {
         logger.info("Initiating SSl context...");
@@ -28,7 +31,7 @@ public class CustomSSL {
             KeyManager[] keyManagers = new KeyManager[] { aliasKeyManager };
 
             sslContext = SSLContext.getInstance("SSL"); // OR TLS
-            sslContext.init(keyManagers, new TrustManager[]{new SirmaTrustManager()}, new SecureRandom());
+            sslContext.init(keyManagers, new TrustManager[]{sirmaTrustManager}, new SecureRandom());
 
 
         }catch (Exception e) {

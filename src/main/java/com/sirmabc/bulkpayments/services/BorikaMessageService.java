@@ -64,11 +64,10 @@ public class BorikaMessageService {
             // Get the headers from the response
             Map<String, List<String>> headers = response.headers().map();
 
+            logger.debug("Incoming response headers: " + response.headers().toString());
+
             // Don't proceed with the method if there is no message present
             if (headers.get(Header.X_MONTRAN_RTP_REQSTS.header) != null && headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0).equalsIgnoreCase(ReqSts.EMPTY.sts)) return;
-
-            // Acknowledge the headers
-            acknowledge(headers);
 
             // Create a MessageWrapper object for the incoming message
             MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), InOut.IN, response);
@@ -83,9 +82,16 @@ public class BorikaMessageService {
             if (codesPacs002 == CodesPacs002.OK01) {
                 // Save the message to an xml file
                 incmgMsg.saveToXmlFile();
+
+                // Acknowledge the headers
+                acknowledge(headers);
+
             } else {
                 logger.error("The message was not validated successfully");
             }
+
+
+
         } catch (Exception e) {
             logger.error(Thread.currentThread().getName() + " threw an error: " + e.getMessage(), e);
             throw new AppException(e.getMessage(), e);
@@ -171,7 +177,7 @@ public class BorikaMessageService {
     }
 
     private void acknowledge(Map<String, List<String>> headers) throws IOException, InterruptedException {
-        logger.info("Acknowledging headers");
+        logger.info("acknowledge()... ");
 
         String msgSeq = headers.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0);
         borikaClient.postAcknowledge(msgSeq);

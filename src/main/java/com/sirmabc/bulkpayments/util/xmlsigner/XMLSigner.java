@@ -40,7 +40,10 @@ public class XMLSigner {
 
     private static final Logger logger = LoggerFactory.getLogger(BorikaClientScheduler.class);
 
+    @Autowired
     MontranPublicKeySelector montranPublicKeySelector;
+
+
     @Autowired
     public XMLSigner (MontranPublicKeySelector montranPublicKeySelector) {
       this.montranPublicKeySelector = montranPublicKeySelector;
@@ -132,7 +135,7 @@ public class XMLSigner {
 
       // try with external keystore
       if (!result) {
-        DOMValidateContext valContext = new DOMValidateContext(new MontranPublicKeySelector(), nl.item(0));
+        DOMValidateContext valContext = new DOMValidateContext(montranPublicKeySelector, nl.item(0));
         XMLSignature signature = fac.unmarshalXMLSignature(valContext);
 
         result = signature.validate(valContext);
