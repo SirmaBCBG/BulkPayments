@@ -3,6 +3,7 @@ package com.sirmabc.bulkpayments;
 import com.sirmabc.bulkpayments.message.MessageWrapper;
 import com.sirmabc.bulkpayments.message.MessageWrapperBuilder;
 import com.sirmabc.bulkpayments.util.Properties;
+import com.sirmabc.bulkpayments.util.enums.InOut;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
 import montranMessage.montran.message.Message;
@@ -882,7 +883,7 @@ class BulkPaymentsApplicationTests {
         //endregion
 
         try {
-            MessageWrapper messageWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlString, Message.class), null);
+            MessageWrapper messageWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlString, Message.class), InOut.IN, null);
             messageWrapper.saveToXmlFile();
         } catch (Exception e) {
             logger.error("testObjectToXMLFile() error: " + e.getMessage(), e);

@@ -5,11 +5,14 @@ import com.sirmabc.bulkpayments.exceptions.AppException;
 import com.sirmabc.bulkpayments.exceptions.PostMessageException;
 import com.sirmabc.bulkpayments.message.MessageWrapper;
 import com.sirmabc.bulkpayments.message.MessageWrapperBuilder;
+import com.sirmabc.bulkpayments.persistance.entities.BulkMessagesEntity;
 import com.sirmabc.bulkpayments.persistance.entities.ParticipantsEntity;
+import com.sirmabc.bulkpayments.persistance.repositories.BulkMessagesRepository;
 import com.sirmabc.bulkpayments.persistance.repositories.ParticipantsRepository;
+import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.enums.CodesPacs002;
 import com.sirmabc.bulkpayments.util.enums.Header;
-import com.sirmabc.bulkpayments.util.Properties;
+import com.sirmabc.bulkpayments.util.enums.InOut;
 import com.sirmabc.bulkpayments.util.enums.ReqSts;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
@@ -36,6 +39,8 @@ public class BorikaMessageService {
 
     private final BorikaClient borikaClient;
 
+    private final BulkMessagesRepository bulkMessagesRepository;
+
     private final ParticipantsRepository participantsRepository;
 
     private final Properties properties;
@@ -43,8 +48,9 @@ public class BorikaMessageService {
     private final MessageWrapperBuilder messageWrapperBuilder;
 
     @Autowired
-    public BorikaMessageService(BorikaClient borikaClient, ParticipantsRepository participantsRepository, Properties properties, MessageWrapperBuilder messageWrapperBuilder) {
+    public BorikaMessageService(BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, MessageWrapperBuilder messageWrapperBuilder) {
         this.borikaClient = borikaClient;
+        this.bulkMessagesRepository = bulkMessagesRepository;
         this.participantsRepository = participantsRepository;
         this.properties = properties;
         this.messageWrapperBuilder = messageWrapperBuilder;
@@ -54,21 +60,21 @@ public class BorikaMessageService {
     public void asyncProcessIncomingMessage(HttpResponse<String> response) throws AppException {
         logger.info("Asynchronously processing the incoming message " + Thread.currentThread().getName());
 
-        // Get the headers from the response
-        Map<String, List<String>> headers = response.headers().map();
-
-        // Don't proceed with the method if there is no message present
-        if (headers.get(Header.X_MONTRAN_RTP_REQSTS.header) != null && headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0).equalsIgnoreCase(ReqSts.EMPTY.sts)) return;
-
         try {
+            // Get the headers from the response
+            Map<String, List<String>> headers = response.headers().map();
+
+            // Don't proceed with the method if there is no message present
+            if (headers.get(Header.X_MONTRAN_RTP_REQSTS.header) != null && headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0).equalsIgnoreCase(ReqSts.EMPTY.sts)) return;
+
             // Acknowledge the headers
             acknowledge(headers);
 
             // Create a MessageWrapper object for the incoming message
-            MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
+            MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), InOut.IN, response);
 
             // Save the message to the database
-            incmgMsg.saveToDatabase();
+            BulkMessagesEntity entity = incmgMsg.saveToDatabase();
 
             // Validate the message
             CodesPacs002 codesPacs002 = incmgMsg.validate();
@@ -94,14 +100,15 @@ public class BorikaMessageService {
         try {
             // Move the xml file to the "in progress" directory
             xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsInProgressPath());
+
             // Create a MessageWrapper object for the outgoing message
-            MessageWrapper outgngMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlFile, Message.class), null);
+            MessageWrapper outgngMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlFile, Message.class), InOut.OUT, null);
 
             // Build application header for the message
             outgngMsg.buildAppHdr();
 
             // Save the message to the database
-            outgngMsg.saveToDatabase();
+            BulkMessagesEntity entity = outgngMsg.saveToDatabase();
 
             // Send the message to Borika and get the response
             HttpResponse<String> response = outgngMsg.sendToBorika();
@@ -109,10 +116,13 @@ public class BorikaMessageService {
             // Get the headers from the response
             Map<String, List<String>> headers = response.headers().map();
 
+            // Update the database entity with the received request status
+            updateRequestStatus(entity, headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0));
+
             // Delete the xml file from the "in progress" directory
             xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsProcessedPath());
 
-            logger.debug("Request status code: " + headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0));
+            logger.debug("Request status: " + headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0));
         } catch (PostMessageException e) {
             logger.error("Sending message to borika failed with error: " + e.getMessage(), e);
 
@@ -136,10 +146,10 @@ public class BorikaMessageService {
 
         try {
             // Create a MessageWrapper object for the incoming message
-            MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
+            MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), InOut.IN, response);
 
             // Save the message to the database
-            incmgMsg.saveToDatabase();
+            BulkMessagesEntity entity = incmgMsg.saveToDatabase();
 
             // Validate the message's application header
             CodesPacs002 pacs002Code = incmgMsg.isValidAppHdr();
@@ -182,5 +192,12 @@ public class BorikaMessageService {
                 participantsRepository.save(entity);
             }
         }
+    }
+
+    private void updateRequestStatus(BulkMessagesEntity entity, String reqSts) {
+        logger.info("Updating the request status");
+
+        entity.setReqSts(reqSts);
+        bulkMessagesRepository.save(entity);
     }
 }

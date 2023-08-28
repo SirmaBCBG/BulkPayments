@@ -4,6 +4,7 @@ import com.sirmabc.bulkpayments.communicators.BorikaClient;
 import com.sirmabc.bulkpayments.persistance.repositories.BulkMessagesRepository;
 import com.sirmabc.bulkpayments.persistance.repositories.ParticipantsRepository;
 import com.sirmabc.bulkpayments.util.Properties;
+import com.sirmabc.bulkpayments.util.enums.InOut;
 import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
 import montranMessage.montran.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public final class MessageWrapperBuilder {
         this.xmlSigner = xmlSigner;
     }
 
-    public MessageWrapper build(Message message, HttpResponse<String> response) {
-        return new MessageWrapper(message, response, borikaClient, bulkMessagesRepository, participantsRepository, properties, xmlSigner);
+    public MessageWrapper build(Message message, InOut inOut, HttpResponse<String> response) {
+        return new MessageWrapper(message, inOut, response, borikaClient, bulkMessagesRepository, participantsRepository, properties, xmlSigner);
     }
 }

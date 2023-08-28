@@ -6,6 +6,7 @@ import com.sirmabc.bulkpayments.persistance.repositories.BulkMessagesRepository;
 import com.sirmabc.bulkpayments.persistance.repositories.ParticipantsRepository;
 import com.sirmabc.bulkpayments.util.enums.CodesPacs002;
 import com.sirmabc.bulkpayments.util.enums.Header;
+import com.sirmabc.bulkpayments.util.enums.InOut;
 import com.sirmabc.bulkpayments.util.enums.MsgDefIdrs;
 import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
@@ -42,9 +43,11 @@ public class MessageWrapper {
 
     private final Message message;
 
-    private static LocalDateTime prevSavedMsgDateTime;
+    private final InOut inOut;
 
     private final HttpResponse<String> response;
+
+    private static LocalDateTime prevSavedMsgDateTime;
 
     private final BorikaClient borikaClient;
 
@@ -56,8 +59,9 @@ public class MessageWrapper {
 
     private final XMLSigner xmlSigner;
 
-    public MessageWrapper(Message message, HttpResponse<String> response, BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, XMLSigner xmlSigner) {
+    public MessageWrapper(Message message, InOut inOut, HttpResponse<String> response, BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, XMLSigner xmlSigner) {
         this.message = message;
+        this.inOut = inOut;
         this.response = response;
         this.borikaClient = borikaClient;
         this.bulkMessagesRepository = bulkMessagesRepository;
@@ -163,14 +167,11 @@ public class MessageWrapper {
         return CodesPacs002.OK01;
     }
 
-    public void saveToDatabase() throws JAXBException {
+    public BulkMessagesEntity saveToDatabase() throws JAXBException {
         logger.info("Saving message to the database");
 
-        BulkMessagesEntity entity = buildBulkMessagesEntity(message.getAppHdr(),
-                XMLHelper.serializeXml(message),
-                response != null ? response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0) : null);
-
-        bulkMessagesRepository.save(entity);
+        BulkMessagesEntity entity = buildBulkMessagesEntity();
+        return bulkMessagesRepository.save(entity);
     }
 
     public void saveToXmlFile() throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
@@ -264,13 +265,14 @@ public class MessageWrapper {
         return party9Choice;
     }
 
-    private BulkMessagesEntity buildBulkMessagesEntity(BusinessApplicationHeaderV01 appHdr, String xmlMessage, String messageSeq) {
+    private BulkMessagesEntity buildBulkMessagesEntity() throws JAXBException {
         BulkMessagesEntity entity = new BulkMessagesEntity();
 
-        entity.setMessageId(appHdr.getBizMsgIdr());
-        entity.setMessageXml(xmlMessage);
-        entity.setMessageType(appHdr.getMsgDefIdr());
-        entity.setMessageSeq(messageSeq);
+        entity.setMessageId(message.getAppHdr().getBizMsgIdr());
+        entity.setMessageXml(XMLHelper.serializeXml(message));
+        entity.setMessageType(message.getAppHdr().getMsgDefIdr());
+        entity.setMessageSeq(response != null ? response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0) : null);
+        entity.setInOut(inOut.value);
 
         return entity;
     }

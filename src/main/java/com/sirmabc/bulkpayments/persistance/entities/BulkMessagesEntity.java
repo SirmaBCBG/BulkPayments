@@ -34,6 +34,14 @@ public class BulkMessagesEntity {
     @Column(name = "ACKNOWLEDGED")
     private String acknowledged;
 
+    @Basic
+    @Column(name = "REQUEST_STATUS")
+    private String reqSts;
+
+    @Basic
+    @Column(name = "IN_OUT")
+    private String inOut;
+
     public BigInteger getId() {
         return id;
     }
@@ -88,6 +96,22 @@ public class BulkMessagesEntity {
 
     public void setAcknowledged(String acknowledged) {
         this.acknowledged = acknowledged;
+    }
+
+    public String getReqSts() {
+        return reqSts;
+    }
+
+    public void setReqSts(String reqSts) {
+        this.reqSts = reqSts;
+    }
+
+    public String getInOut() {
+        return inOut;
+    }
+
+    public void setInOut(String inOut) {
+        this.inOut = inOut;
     }
 
     @Override
