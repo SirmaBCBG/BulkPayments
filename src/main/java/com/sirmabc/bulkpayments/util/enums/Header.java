@@ -1,4 +1,4 @@
-package com.sirmabc.bulkpayments.util;
+package com.sirmabc.bulkpayments.util.enums;
 
 public enum Header {
 
@@ -18,7 +18,7 @@ public enum Header {
 
     public final String header;
 
-    private Header(String header) {
+    Header(String header) {
         this.header = header;
     }
 

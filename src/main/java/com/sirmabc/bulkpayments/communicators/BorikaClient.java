@@ -2,7 +2,7 @@ package com.sirmabc.bulkpayments.communicators;
 
 import com.sirmabc.bulkpayments.exceptions.PostMessageException;
 import com.sirmabc.bulkpayments.ssl.CustomSSL;
-import com.sirmabc.bulkpayments.util.Header;
+import com.sirmabc.bulkpayments.util.enums.Header;
 import com.sirmabc.bulkpayments.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

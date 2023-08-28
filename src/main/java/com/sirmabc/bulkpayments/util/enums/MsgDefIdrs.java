@@ -1,4 +1,4 @@
-package com.sirmabc.bulkpayments.util;
+package com.sirmabc.bulkpayments.util.enums;
 
 public enum MsgDefIdrs {
 

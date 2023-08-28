@@ -1,4 +1,4 @@
-package com.sirmabc.bulkpayments.util;
+package com.sirmabc.bulkpayments.util.enums;
 
 public enum CodesPacs002 {
 
@@ -46,7 +46,7 @@ public enum CodesPacs002 {
 
     public final String errorCode;
 
-    private CodesPacs002(String errorCode) {
+    CodesPacs002(String errorCode) {
         this.errorCode = errorCode;
     }
 

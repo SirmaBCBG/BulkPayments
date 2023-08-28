@@ -7,9 +7,10 @@ import com.sirmabc.bulkpayments.message.MessageWrapper;
 import com.sirmabc.bulkpayments.message.MessageWrapperBuilder;
 import com.sirmabc.bulkpayments.persistance.entities.ParticipantsEntity;
 import com.sirmabc.bulkpayments.persistance.repositories.ParticipantsRepository;
-import com.sirmabc.bulkpayments.util.CodesPacs002;
-import com.sirmabc.bulkpayments.util.Header;
+import com.sirmabc.bulkpayments.util.enums.CodesPacs002;
+import com.sirmabc.bulkpayments.util.enums.Header;
 import com.sirmabc.bulkpayments.util.Properties;
+import com.sirmabc.bulkpayments.util.enums.ReqSts;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
 import com.sirmabc.bulkpayments.util.xmlsigner.Util;
@@ -57,7 +58,7 @@ public class BorikaMessageService {
         Map<String, List<String>> headers = response.headers().map();
 
         // Don't proceed with the method if there is no message present
-        if (headers.get(Header.X_MONTRAN_RTP_REQSTS.header) != null && headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0).equalsIgnoreCase("EMPTY")) return;
+        if (headers.get(Header.X_MONTRAN_RTP_REQSTS.header) != null && headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0).equalsIgnoreCase(ReqSts.EMPTY.sts)) return;
 
         try {
             // Acknowledge the headers
@@ -105,25 +106,13 @@ public class BorikaMessageService {
             // Send the message to Borika and get the response
             HttpResponse<String> response = outgngMsg.sendToBorika();
 
+            // Get the headers from the response
+            Map<String, List<String>> headers = response.headers().map();
+
             // Delete the xml file from the "in progress" directory
             xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsProcessedPath());
 
-            // Create a MessageWrapper object for the incoming message
-            MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), response);
-
-            // Save the message to the database
-            incmgMsg.saveToDatabase();
-
-            // Validate the message
-            CodesPacs002 codesPacs002 = incmgMsg.validate();
-
-            // Check if the validation was successful
-            if (codesPacs002 == CodesPacs002.OK01) {
-                // Save the message to an xml file
-                incmgMsg.saveToXmlFile();
-            } else {
-                logger.error("The message was not validated successfully");
-            }
+            logger.debug("Request status code: " + headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0));
         } catch (PostMessageException e) {
             logger.error("Sending message to borika failed with error: " + e.getMessage(), e);
 
