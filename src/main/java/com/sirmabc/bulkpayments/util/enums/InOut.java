@@ -2,9 +2,9 @@ package com.sirmabc.bulkpayments.util.enums;
 
 public enum InOut {
 
-    IN("IN"),
+    IN("in"),
 
-    OUT("OUT");
+    OUT("out");
 
     public final String value;
 

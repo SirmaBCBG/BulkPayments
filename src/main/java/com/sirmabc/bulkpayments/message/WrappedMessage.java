@@ -316,12 +316,12 @@ public class WrappedMessage {
         entity.setMessageXml(XMLHelper.serializeXml(message));
         entity.setMessageType(message.getAppHdr().getMsgDefIdr());
 
-        String messageSeq = null;
         if (response != null && response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header) != null) {
-            messageSeq = response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0);
+            entity.setMessageSeq(response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0));
+        } else {
+            entity.setMessageSeq(null);
         }
 
-        entity.setMessageSeq(messageSeq);
         entity.setInOut(inOut.value);
 
         return entity;
@@ -336,12 +336,10 @@ public class WrappedMessage {
             return message.getPmtRtr().getGrpHdr().getMsgId();
         } else if (message.getFIToFIPmtCxlReq() != null) {
             // camt.056
-            // TODO: Check this
-            //return message.getFIToFIPmtCxlReq().getAssgnmt().getId();
+            return message.getFIToFIPmtCxlReq().getAssgnmt().getId();
         } else if (message.getRsltnOfInvstgtn() != null) {
             // camt.029.001.03
-            // TODO: Check this
-            //return message.getRsltnOfInvstgtn().getAssgnmt().getId();
+            return message.getRsltnOfInvstgtn().getAssgnmt().getId();
         } else if (message.getFIToFIPmtStsReq() != null) {
             // pacs.028
             return message.getFIToFIPmtStsReq().getGrpHdr().getMsgId();
