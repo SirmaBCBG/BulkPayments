@@ -31,7 +31,7 @@ public class BorikaClientScheduler {
     private Properties properties;
 
     @Scheduled(fixedDelay = 60000)
-    public void getMessage() {
+    public String getMessage() {
         logger.info("getMessage() execution started");
 
         try {
@@ -48,8 +48,11 @@ public class BorikaClientScheduler {
 
             // Process the incoming message
             borikaMessageService.asyncProcessIncomingMessage(response);
+
+            return response.body();
         } catch (Exception e) {
             logger.error("getMessage() error: " + e.getMessage(), e);
+            return e.getMessage();
         }
     }
 
@@ -70,7 +73,7 @@ public class BorikaClientScheduler {
     }
 
     @Scheduled(cron = "0 1 00 * * ?")
-    public void getParticipantsMessage() {
+    public String getParticipantsMessage() {
         logger.info("getParticipantsMessage() execution started");
 
         try {
@@ -85,8 +88,11 @@ public class BorikaClientScheduler {
 
             // Process the incoming message
             borikaMessageService.asyncProcessParticipantsMessage(response);
+
+            return response.body();
         } catch (Exception e) {
             logger.error("getMessage error: " + e.getMessage(), e);
+            return e.getMessage();
         }
     }
 }
