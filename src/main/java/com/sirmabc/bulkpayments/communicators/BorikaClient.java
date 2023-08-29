@@ -38,6 +38,8 @@ public class BorikaClient {
             HttpClient client = buildClient(20);
             HttpRequest request = buildPostRequest(requestBody);
 
+            logger.info("Post message headers: " + request.headers());
+
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             logger.info("Post request response: " + response.body());
 
@@ -52,6 +54,8 @@ public class BorikaClient {
 
         HttpClient client = buildClient(20);
         HttpRequest request = buildPostAcknowledgeRequest("", msgSeq);
+
+        logger.info("Acknowledge headers: " + request.headers());
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         logger.info("Post request response: " + response.body());

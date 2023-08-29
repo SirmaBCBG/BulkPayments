@@ -199,7 +199,6 @@ public class WrappedMessage {
 
         return CodesPacs002.OK01;
     }
-
     public CodesPacs002 isValidAppHdrParticipants() throws Exception {
         logger.info("Validating the application header");
 

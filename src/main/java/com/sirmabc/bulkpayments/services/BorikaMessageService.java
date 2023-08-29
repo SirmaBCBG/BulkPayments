@@ -6,7 +6,6 @@ import com.sirmabc.bulkpayments.exceptions.PostMessageException;
 import com.sirmabc.bulkpayments.message.WrappedMessage;
 import com.sirmabc.bulkpayments.message.WrappedMessageBuilder;
 import com.sirmabc.bulkpayments.persistance.entities.BulkMessagesEntity;
-import com.sirmabc.bulkpayments.persistance.entities.ParticipantsEntity;
 import com.sirmabc.bulkpayments.persistance.repositories.BulkMessagesRepository;
 import com.sirmabc.bulkpayments.persistance.repositories.ParticipantsRepository;
 import com.sirmabc.bulkpayments.util.Properties;
@@ -16,15 +15,13 @@ import com.sirmabc.bulkpayments.util.enums.InOut;
 import com.sirmabc.bulkpayments.util.enums.ReqSts;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
-import com.sirmabc.bulkpayments.util.xmlsigner.Util;
 import montranMessage.montran.message.Message;
-import montranMessage.montran.participants.ParticipantInfo;
-import montranMessage.montran.participants.ParticipantsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +43,10 @@ public class BorikaMessageService {
     private final Properties properties;
 
     private final WrappedMessageBuilder wrappedMessageBuilder;
+
+    @Autowired
+    ParticipantsService participantsService;
+
 
     @Autowired
     public BorikaMessageService(BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, WrappedMessageBuilder wrappedMessageBuilder) {
@@ -76,7 +77,14 @@ public class BorikaMessageService {
             BulkMessagesEntity entity = incmgMsg.saveToDatabase();
 
             // Validate the message
-            CodesPacs002 codesPacs002 = incmgMsg.validate();
+            //TODO: Check validation with Tceci about incoming bic
+            CodesPacs002 codesPacs002;
+            if(incmgMsg.getMessage().getAppHdr().getMsgDefIdr().equals("pacs.002.001.03")){
+                codesPacs002 = incmgMsg.isValidAppHdrParticipants();
+            }else {
+                codesPacs002 = incmgMsg.validate();
+            }
+
 
             // Check if the validation was successful
             if (codesPacs002 == CodesPacs002.OK01) {
@@ -170,7 +178,7 @@ public class BorikaMessageService {
 
             if (pacs002Code == CodesPacs002.OK01) {
                 // Update the participants inside the database
-                updateParticipants(incmgMsg.getMessage().getParticipants());
+                participantsService.updateParticipants(incmgMsg.getMessage().getParticipants());
             } else {
                 logger.error("The message's application header was not validated successfully");
             }
@@ -187,29 +195,7 @@ public class BorikaMessageService {
         borikaClient.postAcknowledge(msgSeq);
     }
 
-    private void updateParticipants(ParticipantsType participantsType) {
-        logger.info("Updating the participants");
 
-        if (participantsType != null) {
-            participantsRepository.archive();
-
-            for (ParticipantInfo info : participantsType.getParticipant()) {
-
-                ParticipantsEntity entity = new ParticipantsEntity();
-                entity.setBic(info.getBic());
-                entity.setpType(info.getType().toString());
-                entity.setValidFrom(Util.toSQLDate(info.getValidFrom()));
-                entity.setValidTo(Util.toSQLDate(info.getValidTo()));
-                entity.setpStatus(info.getStatus().toString());
-                entity.setpOnline(Boolean.toString(info.isOnline()));
-                entity.setDirectAgent(info.getDirectAgent());
-
-                logger.debug("Participant entity: " + entity);
-
-                participantsRepository.save(entity);
-            }
-        }
-    }
 
     private void updateRequestStatus(BulkMessagesEntity entity, String reqSts) {
         logger.info("Updating the database entity's request status");
