@@ -21,6 +21,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
@@ -37,20 +38,22 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.http.HttpResponse;
 import java.security.KeyStore;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.GregorianCalendar;
 
-public class MessageWrapper {
+public class WrappedMessage {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessageWrapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(WrappedMessage.class);
 
     private final Message message;
 
     private final InOut inOut;
 
     private final HttpResponse<String> response;
+
+    private final String messageId;
+
+    //private final String originalXmlMessage;
 
     private static LocalDateTime prevSavedMsgDateTime;
 
@@ -64,7 +67,7 @@ public class MessageWrapper {
 
     private final XMLSigner xmlSigner;
 
-    public MessageWrapper(Message message, InOut inOut, HttpResponse<String> response,
+    public WrappedMessage(Message message, InOut inOut, HttpResponse<String> response,
                           BorikaClient borikaClient,
                           BulkMessagesRepository bulkMessagesRepository,
                           ParticipantsRepository participantsRepository,
@@ -78,6 +81,8 @@ public class MessageWrapper {
         this.participantsRepository = participantsRepository;
         this.properties = properties;
         this.xmlSigner = xmlSigner;
+        messageId = getMessageId();
+        //originalXmlMessage = getOriginalXmlMessage();
     }
 
     static {
@@ -94,40 +99,58 @@ public class MessageWrapper {
             if (message.getFIToFICstmrCdtTrf() != null) {
                 appHdr.setMsgDefIdr(MsgDefIdrs.PACS008.idr);
 
+                XMLGregorianCalendar calendar = xmlGregorianCalendarToUTC(message.getFIToFICstmrCdtTrf().getGrpHdr().getCreDtTm());
+                appHdr.setCreDt(calendar);
             } else if (message.getPmtRtr() != null) {
                 // pacs.004
                 appHdr.setMsgDefIdr(MsgDefIdrs.PACS004.idr);
+
+                XMLGregorianCalendar calendar = xmlGregorianCalendarToUTC(message.getPmtRtr().getGrpHdr().getCreDtTm());
+                appHdr.setCreDt(calendar);
             } else if (message.getFIToFIPmtCxlReq() != null) {
                 // camt.056
                 appHdr.setMsgDefIdr(MsgDefIdrs.CAMT056.idr);
+
+                XMLGregorianCalendar calendar = xmlGregorianCalendarToUTC(message.getFIToFIPmtCxlReq().getAssgnmt().getCreDtTm());
+                appHdr.setCreDt(calendar);
             } else if (message.getRsltnOfInvstgtn() != null) {
                 // camt.029.001.03
                 appHdr.setMsgDefIdr(MsgDefIdrs.CAMT029_03.idr);
+
+                XMLGregorianCalendar calendar = xmlGregorianCalendarToUTC(message.getRsltnOfInvstgtn().getAssgnmt().getCreDtTm());
+                appHdr.setCreDt(calendar);
             } else if (message.getFIToFIPmtStsReq() != null) {
                 // pacs.028
                 appHdr.setMsgDefIdr(MsgDefIdrs.PACS028.idr);
+
+                XMLGregorianCalendar calendar = xmlGregorianCalendarToUTC(message.getFIToFIPmtStsReq().getGrpHdr().getCreDtTm());
+                appHdr.setCreDt(calendar);
             } else if (message.getFIToFIPmtStsRpt() != null) {
                 // pacs.002
                 appHdr.setMsgDefIdr(MsgDefIdrs.PACS002.idr);
+
+                XMLGregorianCalendar calendar = xmlGregorianCalendarToUTC(message.getFIToFIPmtStsRpt().getGrpHdr().getCreDtTm());
+                appHdr.setCreDt(calendar);
             } else if (message.getCdtrPmtActvtnReq() != null) {
                 // pain.013
                 appHdr.setMsgDefIdr(MsgDefIdrs.PAIN013.idr);
+
+                XMLGregorianCalendar calendar = xmlGregorianCalendarToUTC(message.getCdtrPmtActvtnReq().getGrpHdr().getCreDtTm());
+                appHdr.setCreDt(calendar);
             } else if (message.getCdtrPmtActvtnReqStsRpt() != null) {
                 // pain.014
                 appHdr.setMsgDefIdr(MsgDefIdrs.PAIN014.idr);
+
+                XMLGregorianCalendar calendar = xmlGregorianCalendarToUTC(message.getCdtrPmtActvtnReqStsRpt().getGrpHdr().getCreDtTm());
+                appHdr.setCreDt(calendar);
             } else if (message.getBkToCstmrStmt() != null) {
                 // camt.053
                 appHdr.setMsgDefIdr(MsgDefIdrs.CAMT053.idr);
+
+                XMLGregorianCalendar calendar = xmlGregorianCalendarToUTC(message.getBkToCstmrStmt().getGrpHdr().getCreDtTm());
+                appHdr.setCreDt(calendar);
             }
 
-            Instant now = Instant.now();
-
-            GregorianCalendar cal1 = new GregorianCalendar();
-            cal1.setTimeInMillis(now.toEpochMilli());
-
-            XMLGregorianCalendar cal2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal1);
-
-            appHdr.setCreDt(cal2);
             appHdr.setFr(generateParty9Choice(properties.getRtpChannel()));
             appHdr.setTo(generateParty9Choice(properties.getBorikaBic()));
             appHdr.setBizMsgIdr(properties.getBizMsgIdr());
@@ -212,18 +235,19 @@ public class MessageWrapper {
         logger.debug("Message after building application header: " + signedRequestMessageXML);
         HttpResponse<String> response = borikaClient.postMessage(signedRequestMessageXML);
 
-        logger.debug(response.body());
-
         return response;
     }
 
     private CodesPacs002 isDuplicate() {
         logger.info("Checking if the message is duplicate");
 
-        Boolean isDuplicateHeader = response != null ? response.headers().map().containsKey(Header.X_MONTRAN_RTP_POSSIBLE_DUPLICATE.header) : null;
+        Boolean isDuplicateHeader = null;
+        if (response != null) {
+            isDuplicateHeader = response.headers().map().containsKey(Header.X_MONTRAN_RTP_POSSIBLE_DUPLICATE.header);
+        }
 
         if (Boolean.TRUE.equals(isDuplicateHeader)) {
-            BulkMessagesEntity entity = bulkMessagesRepository.findByMessageId(message.getAppHdr().getBizMsgIdr());
+            BulkMessagesEntity entity = bulkMessagesRepository.findByMessageId(messageId);
 
             if (entity != null) {
                 return CodesPacs002.AM05;
@@ -262,6 +286,16 @@ public class MessageWrapper {
         return signedXml;
     }
 
+    private XMLGregorianCalendar xmlGregorianCalendarToUTC(XMLGregorianCalendar calendar) throws DatatypeConfigurationException {
+        int minuteOffset = calendar.getTimezone();
+        if (minuteOffset == DatatypeConstants.FIELD_UNDEFINED || minuteOffset == 0) return calendar;
+
+        calendar.add(DatatypeFactory.newInstance().newDurationDayTime(-minuteOffset * 60000L));
+        calendar.setTimezone(0);
+
+        return calendar;
+    }
+
     private Party9Choice generateParty9Choice(String bicfi) {
         FinancialInstitutionIdentification8 financialInstitutionIdentification8 = new FinancialInstitutionIdentification8();
         financialInstitutionIdentification8.setBICFI(bicfi);
@@ -278,14 +312,62 @@ public class MessageWrapper {
     private BulkMessagesEntity buildBulkMessagesEntity() throws JAXBException {
         BulkMessagesEntity entity = new BulkMessagesEntity();
 
-        entity.setMessageId(message.getAppHdr().getBizMsgIdr());
+        entity.setMessageId(messageId);
         entity.setMessageXml(XMLHelper.serializeXml(message));
         entity.setMessageType(message.getAppHdr().getMsgDefIdr());
-        entity.setMessageSeq(response != null ? response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0) : null);
+
+        String messageSeq = null;
+        if (response != null && response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header) != null) {
+            messageSeq = response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0);
+        }
+
+        entity.setMessageSeq(messageSeq);
         entity.setInOut(inOut.value);
 
         return entity;
     }
+
+    private String getMessageId() {
+        // pacs.008
+        if (message.getFIToFICstmrCdtTrf() != null) {
+            return message.getFIToFICstmrCdtTrf().getGrpHdr().getMsgId();
+        } else if (message.getPmtRtr() != null) {
+            // pacs.004
+            return message.getPmtRtr().getGrpHdr().getMsgId();
+        } else if (message.getFIToFIPmtCxlReq() != null) {
+            // camt.056
+            // TODO: Check this
+            //return message.getFIToFIPmtCxlReq().getAssgnmt().getId();
+        } else if (message.getRsltnOfInvstgtn() != null) {
+            // camt.029.001.03
+            // TODO: Check this
+            //return message.getRsltnOfInvstgtn().getAssgnmt().getId();
+        } else if (message.getFIToFIPmtStsReq() != null) {
+            // pacs.028
+            return message.getFIToFIPmtStsReq().getGrpHdr().getMsgId();
+        } else if (message.getFIToFIPmtStsRpt() != null) {
+            // pacs.002
+            return message.getFIToFIPmtStsRpt().getGrpHdr().getMsgId();
+        } else if (message.getCdtrPmtActvtnReq() != null) {
+            // pain.013
+            return message.getCdtrPmtActvtnReq().getGrpHdr().getMsgId();
+        } else if (message.getCdtrPmtActvtnReqStsRpt() != null) {
+            // pain.014
+            return message.getCdtrPmtActvtnReqStsRpt().getGrpHdr().getMsgId();
+        } else if (message.getBkToCstmrStmt() != null) {
+            // camt.053
+            return message.getBkToCstmrStmt().getGrpHdr().getMsgId();
+        }
+
+        return "";
+    }
+
+    /*private String getOriginalXmlMessage() {
+        if (response != null) return response.body();
+        else {
+            return XMLHelper.serializeXml(message);
+        }
+    }*/
 
     public Message getMessage() {
         return message;
