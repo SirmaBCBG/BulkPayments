@@ -31,7 +31,7 @@ public class BorikaClientScheduler {
     private Properties properties;
 
     @Scheduled(fixedDelay = 60000)
-    public String getMessage() {
+    public void getMessage() {
         logger.info("getMessage() execution started");
 
         try {
@@ -49,10 +49,8 @@ public class BorikaClientScheduler {
             // Process the incoming message
             borikaMessageService.asyncProcessIncomingMessage(response);
 
-            return response.body();
         } catch (Exception e) {
             logger.error("getMessage() error: " + e.getMessage(), e);
-            return e.getMessage();
         }
     }
 
@@ -73,7 +71,28 @@ public class BorikaClientScheduler {
     }
 
     @Scheduled(cron = "0 1 00 * * ?")
-    public String getParticipantsMessage() {
+    public void getParticipantsMessage() {
+        logger.info("getParticipantsMessage() execution started");
+
+        try {
+            // Build http client
+            HttpClient client = borikaClient.buildClient(5);
+            // Build GET participants request
+            HttpRequest request = borikaClient.buildGETParticipantsRequest();
+
+            // Send the GET request
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            logger.debug("GET request response: " + response.body());
+
+            // Process the incoming message
+            borikaMessageService.asyncProcessParticipantsMessage(response);
+
+        } catch (Exception e) {
+            logger.error("getMessage error: " + e.getMessage(), e);
+        }
+    }
+
+    public String getParticipantsMessageResource() {
         logger.info("getParticipantsMessage() execution started");
 
         try {

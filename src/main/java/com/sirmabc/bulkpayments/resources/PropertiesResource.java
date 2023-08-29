@@ -49,6 +49,8 @@ public class PropertiesResource {
     @GET
     @Path("update/participants")
     public String updateParticipants() {
-        return borikaClientScheduler.getParticipantsMessage();
+
+        return borikaClientScheduler.getParticipantsMessageResource();
+
     }
 }
