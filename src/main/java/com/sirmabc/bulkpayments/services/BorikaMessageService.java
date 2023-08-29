@@ -3,8 +3,8 @@ package com.sirmabc.bulkpayments.services;
 import com.sirmabc.bulkpayments.communicators.BorikaClient;
 import com.sirmabc.bulkpayments.exceptions.AppException;
 import com.sirmabc.bulkpayments.exceptions.PostMessageException;
-import com.sirmabc.bulkpayments.message.MessageWrapper;
-import com.sirmabc.bulkpayments.message.MessageWrapperBuilder;
+import com.sirmabc.bulkpayments.message.WrappedMessage;
+import com.sirmabc.bulkpayments.message.WrappedMessageBuilder;
 import com.sirmabc.bulkpayments.persistance.entities.BulkMessagesEntity;
 import com.sirmabc.bulkpayments.persistance.entities.ParticipantsEntity;
 import com.sirmabc.bulkpayments.persistance.repositories.BulkMessagesRepository;
@@ -45,15 +45,15 @@ public class BorikaMessageService {
 
     private final Properties properties;
 
-    private final MessageWrapperBuilder messageWrapperBuilder;
+    private final WrappedMessageBuilder wrappedMessageBuilder;
 
     @Autowired
-    public BorikaMessageService(BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, MessageWrapperBuilder messageWrapperBuilder) {
+    public BorikaMessageService(BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, WrappedMessageBuilder wrappedMessageBuilder) {
         this.borikaClient = borikaClient;
         this.bulkMessagesRepository = bulkMessagesRepository;
         this.participantsRepository = participantsRepository;
         this.properties = properties;
-        this.messageWrapperBuilder = messageWrapperBuilder;
+        this.wrappedMessageBuilder = wrappedMessageBuilder;
     }
 
     @Async
@@ -61,16 +61,16 @@ public class BorikaMessageService {
         logger.info("Asynchronously processing the incoming message " + Thread.currentThread().getName());
 
         try {
+            logger.debug("Incoming response headers: " + response.headers().toString());
+
             // Get the headers from the response
             Map<String, List<String>> headers = response.headers().map();
-
-            logger.debug("Incoming response headers: " + response.headers().toString());
 
             // Don't proceed with the method if there is no message present
             if (headers.get(Header.X_MONTRAN_RTP_REQSTS.header) != null && headers.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0).equalsIgnoreCase(ReqSts.EMPTY.sts)) return;
 
             // Create a MessageWrapper object for the incoming message
-            MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), InOut.IN, response);
+            WrappedMessage incmgMsg = wrappedMessageBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), InOut.IN, response);
 
             // Save the message to the database
             incmgMsg.saveToDatabase();
@@ -85,13 +85,9 @@ public class BorikaMessageService {
 
                 // Acknowledge the headers
                 acknowledge(headers);
-
             } else {
                 logger.error("The message was not validated successfully");
             }
-
-
-
         } catch (Exception e) {
             logger.error(Thread.currentThread().getName() + " threw an error: " + e.getMessage(), e);
             throw new AppException(e.getMessage(), e);
@@ -101,14 +97,15 @@ public class BorikaMessageService {
     @Async
     public void asyncProcessOutgoingMessage(File xmlFile) throws AppException {
         logger.info("Asynchronously building the outgoing message: " + Thread.currentThread().getName());
-        logger.info("Processing outgoing file:" + xmlFile.getAbsolutePath());
 
         try {
+            logger.info("Processing outgoing file:" + xmlFile.getAbsolutePath());
+
             // Move the xml file to the "in progress" directory
             xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsInProgressPath());
 
             // Create a MessageWrapper object for the outgoing message
-            MessageWrapper outgngMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlFile, Message.class), InOut.OUT, null);
+            WrappedMessage outgngMsg = wrappedMessageBuilder.build(XMLHelper.deserializeXml(xmlFile, Message.class), InOut.OUT, null);
 
             // Build application header for the message
             outgngMsg.buildAppHdr();
@@ -155,8 +152,10 @@ public class BorikaMessageService {
         logger.info("asyncStartProcessingParticipantsMessage..." + Thread.currentThread().getName());
 
         try {
+            logger.debug("Incoming response headers: " + response.headers().toString());
+
             // Create a MessageWrapper object for the incoming message
-            MessageWrapper incmgMsg = messageWrapperBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), InOut.IN, response);
+            WrappedMessage incmgMsg = wrappedMessageBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), InOut.IN, response);
 
             // Save the message to the database
             incmgMsg.saveToDatabase();
@@ -177,7 +176,7 @@ public class BorikaMessageService {
     }
 
     private void acknowledge(Map<String, List<String>> headers) throws IOException, InterruptedException {
-        logger.info("acknowledge()... ");
+        logger.info("Acknowledging the message");
 
         String msgSeq = headers.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0);
         borikaClient.postAcknowledge(msgSeq);

@@ -1,7 +1,7 @@
 package com.sirmabc.bulkpayments;
 
-import com.sirmabc.bulkpayments.message.MessageWrapper;
-import com.sirmabc.bulkpayments.message.MessageWrapperBuilder;
+import com.sirmabc.bulkpayments.message.WrappedMessage;
+import com.sirmabc.bulkpayments.message.WrappedMessageBuilder;
 import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.enums.InOut;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
@@ -25,7 +25,7 @@ class BulkPaymentsApplicationTests {
     private Properties properties;
 
     @Autowired
-    private MessageWrapperBuilder messageWrapperBuilder;
+    private WrappedMessageBuilder wrappedMessageBuilder;
 
     @Test
     void testObjectToXMLFile() {
@@ -883,8 +883,8 @@ class BulkPaymentsApplicationTests {
         //endregion
 
         try {
-            MessageWrapper messageWrapper = messageWrapperBuilder.build(XMLHelper.deserializeXml(xmlString, Message.class), InOut.IN, null);
-            messageWrapper.saveToXmlFile();
+            WrappedMessage wrappedMessage = wrappedMessageBuilder.build(XMLHelper.deserializeXml(xmlString, Message.class), InOut.IN, null);
+            wrappedMessage.saveToXmlFile();
         } catch (Exception e) {
             logger.error("testObjectToXMLFile() error: " + e.getMessage(), e);
         }
