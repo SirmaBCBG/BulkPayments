@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.net.http.HttpResponse;
 
 @Component
-public final class MessageWrapperBuilder {
+public final class WrappedMessageBuilder {
 
     private final BorikaClient borikaClient;
 
@@ -26,7 +26,7 @@ public final class MessageWrapperBuilder {
     private final XMLSigner xmlSigner;
 
     @Autowired
-    public MessageWrapperBuilder(BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, XMLSigner xmlSigner) {
+    public WrappedMessageBuilder(BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, XMLSigner xmlSigner) {
         this.borikaClient = borikaClient;
         this.bulkMessagesRepository = bulkMessagesRepository;
         this.participantsRepository = participantsRepository;
@@ -34,7 +34,7 @@ public final class MessageWrapperBuilder {
         this.xmlSigner = xmlSigner;
     }
 
-    public MessageWrapper build(Message message, InOut inOut, HttpResponse<String> response) {
-        return new MessageWrapper(message, inOut, response, borikaClient, bulkMessagesRepository, participantsRepository, properties, xmlSigner);
+    public WrappedMessage build(Message message, InOut inOut, HttpResponse<String> response) {
+        return new WrappedMessage(message, inOut, response, borikaClient, bulkMessagesRepository, participantsRepository, properties, xmlSigner);
     }
 }

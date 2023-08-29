@@ -43,7 +43,6 @@ public class XMLSigner {
     @Autowired
     MontranPublicKeySelector montranPublicKeySelector;
 
-
     @Autowired
     public XMLSigner (MontranPublicKeySelector montranPublicKeySelector) {
       this.montranPublicKeySelector = montranPublicKeySelector;
