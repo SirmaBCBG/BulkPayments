@@ -14,7 +14,7 @@ public interface ParticipantsRepository extends CrudRepository<ParticipantsEntit
     @Procedure(procedureName = "ubxip.CHECKPARTICIPANT", outputParameterName = "p_count")
     int checkParticipant(@Param("p_bic") String bic);
 
-    @Procedure("ubxip.archiveParticipant")
+    @Procedure("ubxip.archiveParticipants")
     void archive();
 
 }

@@ -1,6 +1,7 @@
 package com.sirmabc.bulkpayments.persistance.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigInteger;
 import java.sql.Date;
@@ -32,7 +33,8 @@ public class ParticipantsEntity {
     @Basic
     @Column(name = "P_ONLINE")
     private String pOnline;
-    @Basic
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreationTimestamp
     @Column(name = "CREATED_AT")
     private Timestamp createdAt;
     @Basic
@@ -122,5 +124,20 @@ public class ParticipantsEntity {
     @Override
     public int hashCode() {
         return Objects.hash(id, bic, pType, validFrom, validTo, pStatus, pOnline, createdAt, directAgent);
+    }
+
+    @Override
+    public String toString() {
+        return "ParticipantsEntity{" +
+                "id=" + id +
+                ", bic='" + bic + '\'' +
+                ", pType='" + pType + '\'' +
+                ", validFrom=" + validFrom +
+                ", validTo=" + validTo +
+                ", pStatus='" + pStatus + '\'' +
+                ", pOnline='" + pOnline + '\'' +
+                ", createdAt=" + createdAt +
+                ", directAgent='" + directAgent + '\'' +
+                '}';
     }
 }

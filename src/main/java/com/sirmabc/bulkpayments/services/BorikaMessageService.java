@@ -161,10 +161,12 @@ public class BorikaMessageService {
             WrappedMessage incmgMsg = wrappedMessageBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), InOut.IN, response);
 
             // Save the message to the database
-            incmgMsg.saveToDatabase();
+//            incmgMsg.saveToDatabase();
 
             // Validate the message's application header
-            CodesPacs002 pacs002Code = incmgMsg.isValidAppHdr();
+            CodesPacs002 pacs002Code = incmgMsg.isValidAppHdrParticipants();
+
+            logger.info("Validation returned code: " + pacs002Code);
 
             if (pacs002Code == CodesPacs002.OK01) {
                 // Update the participants inside the database
@@ -190,9 +192,10 @@ public class BorikaMessageService {
 
         if (participantsType != null) {
             participantsRepository.archive();
-            ParticipantsEntity entity = new ParticipantsEntity();
 
             for (ParticipantInfo info : participantsType.getParticipant()) {
+
+                ParticipantsEntity entity = new ParticipantsEntity();
                 entity.setBic(info.getBic());
                 entity.setpType(info.getType().toString());
                 entity.setValidFrom(Util.toSQLDate(info.getValidFrom()));
@@ -200,6 +203,8 @@ public class BorikaMessageService {
                 entity.setpStatus(info.getStatus().toString());
                 entity.setpOnline(Boolean.toString(info.isOnline()));
                 entity.setDirectAgent(info.getDirectAgent());
+
+                logger.debug("Participant entity: " + entity);
 
                 participantsRepository.save(entity);
             }

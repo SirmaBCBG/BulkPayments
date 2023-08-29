@@ -200,6 +200,30 @@ public class WrappedMessage {
         return CodesPacs002.OK01;
     }
 
+    public CodesPacs002 isValidAppHdrParticipants() throws Exception {
+        logger.info("Validating the application header");
+
+        Document document = xmlSigner.string2XML(response.body());
+        if (!xmlSigner.verify(document)) {
+            return CodesPacs002.FF01;
+        }
+
+        String senderBic = message.getAppHdr().getFr().getFIId().getFinInstnId().getBICFI();
+        String receiverBic = message.getAppHdr().getTo().getFIId().getFinInstnId().getBICFI();
+
+
+        String instBic = properties.getRtpChannel();
+        String boricaBic = properties.getBorikaBic();
+
+
+        // Check if sender bic is valid and check if receiver bic is the same as the institution bic.
+        if (!boricaBic.equals(senderBic) || !receiverBic.equals(instBic)) {
+            return CodesPacs002.RC01;
+        }
+
+        return CodesPacs002.OK01;
+    }
+
     public BulkMessagesEntity saveToDatabase() throws JAXBException {
         logger.info("Saving message to the database");
 
