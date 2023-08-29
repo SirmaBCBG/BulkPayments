@@ -73,7 +73,7 @@ public class BorikaMessageService {
             WrappedMessage incmgMsg = wrappedMessageBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), InOut.IN, response);
 
             // Save the message to the database
-            incmgMsg.saveToDatabase();
+            BulkMessagesEntity entity = incmgMsg.saveToDatabase();
 
             // Validate the message
             CodesPacs002 codesPacs002 = incmgMsg.validate();
@@ -83,8 +83,11 @@ public class BorikaMessageService {
                 // Save the message to an xml file
                 incmgMsg.saveToXmlFile();
 
-                // Acknowledge the headers
+                // Acknowledge the message
                 acknowledge(headers);
+
+                // Update the database entity after acknowledging the message
+                updateAcknowledged(entity, String.valueOf(true));
             } else {
                 logger.error("The message was not validated successfully");
             }
@@ -204,9 +207,16 @@ public class BorikaMessageService {
     }
 
     private void updateRequestStatus(BulkMessagesEntity entity, String reqSts) {
-        logger.info("Updating the request status");
+        logger.info("Updating the database entity's request status");
 
         entity.setReqSts(reqSts);
+        bulkMessagesRepository.save(entity);
+    }
+
+    private void updateAcknowledged(BulkMessagesEntity entity, String acknowledged) {
+        logger.info("Updating the database entity's acknowledged field");
+
+        entity.setAcknowledged(acknowledged);
         bulkMessagesRepository.save(entity);
     }
 }
