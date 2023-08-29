@@ -57,6 +57,7 @@ public class Properties {
     private PropertiesEntity outgngBulkMsgsProcessedPath;
 
     private PropertiesEntity incmgBulkMsgsPath;
+
     private PropertiesEntity sslSBCKeyStorePath;
 
     private PropertiesEntity sslSBCKeyStorePassword;
@@ -66,11 +67,10 @@ public class Properties {
     private PropertiesEntity sslSBCPrivateKeyPassword;
 
     private PropertiesEntity sslBoricaKeyStorePath;
+
     private PropertiesEntity sslBoricaKeyStorePassword;
+
     private PropertiesEntity sslBoricaCertificate;
-
-
-
 
     private final PropertiesRepository repository;
 
