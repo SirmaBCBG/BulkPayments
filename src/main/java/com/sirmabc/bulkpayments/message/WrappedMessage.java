@@ -285,7 +285,7 @@ public class WrappedMessage {
         while (currentMsgDateTime.equals(prevSavedMsgDateTime)) currentMsgDateTime = LocalDateTime.now();
         prevSavedMsgDateTime = currentMsgDateTime;
 
-        return "in_"
+        return "IN_"
                 + shortMessageType
                 + "_"
                 + currentMsgDateTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"))
