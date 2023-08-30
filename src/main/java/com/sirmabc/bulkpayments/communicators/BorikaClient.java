@@ -5,6 +5,7 @@ import com.sirmabc.bulkpayments.ssl.CustomSSL;
 import com.sirmabc.bulkpayments.util.enums.Header;
 import com.sirmabc.bulkpayments.util.Properties;
 import jakarta.annotation.PostConstruct;
+import org.apache.hc.core5.http.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +101,7 @@ public class BorikaClient {
                 .uri(URI.create(properties.getBorikaUrl() + "/api/participants"))
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
+                .header("Content-Type", "text/xml; charset=utf-8")
                 .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .GET()
                 .build();
@@ -110,6 +112,7 @@ public class BorikaClient {
                 .uri(URI.create(properties.getBorikaUrl() + "/bulk/Message"))
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
+                .header("Content-Type", "text/xml; charset=utf-8")
                 .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
@@ -121,6 +124,7 @@ public class BorikaClient {
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
                 .header(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header, msgSeq)
+                .header("Content-Type", "text/xml; charset=utf-8")
                 .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();

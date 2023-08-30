@@ -2,10 +2,12 @@ package com.sirmabc.bulkpayments;
 
 import com.sirmabc.bulkpayments.message.WrappedMessage;
 import com.sirmabc.bulkpayments.message.WrappedMessageBuilder;
+import com.sirmabc.bulkpayments.ssl.test.TestKeySelector;
 import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.enums.InOut;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
+import com.sirmabc.bulkpayments.util.xmlsigner.X509KeySelector;
 import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
 import montranMessage.iso.std.iso._20022.tech.xsd.head_001_001.BusinessApplicationHeaderV01;
 import montranMessage.iso.std.iso._20022.tech.xsd.head_001_001.SignatureEnvelope;
@@ -16,8 +18,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
+import javax.xml.crypto.dsig.XMLSignature;
+import javax.xml.crypto.dsig.XMLSignatureFactory;
+import javax.xml.crypto.dsig.dom.DOMValidateContext;
 import java.io.File;
+import java.io.FileInputStream;
+import java.security.KeyStore;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
@@ -33,6 +41,9 @@ class BulkPaymentsApplicationTests {
 
     @Autowired
     XMLSigner xmlSigner;
+
+    @Autowired
+    TestKeySelector testKeySelector;
 
     @Test
     void testObjectToXMLFile() {
@@ -926,13 +937,55 @@ class BulkPaymentsApplicationTests {
 
             String signedXml = xmlSigner.sign(message);
 
-            System.out.println("RESULT--------------------------------------  \n" + signedXml);
+            Document document = xmlSigner.string2XML(signedXml);
+            boolean b = testVerify(document);
+
+            System.out.println("RESULT--------------------------------------  \n" + b);
 
 
         }catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+
+    @Test
+    public boolean testVerify(Document document) throws Exception {
+        XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
+
+        NodeList nl = document.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
+        if (nl.getLength() == 0) {
+            logger.info("Cannot find Signature element");
+            return false;
+        }
+
+        boolean result = false;
+
+        // try with presented cert in XML (if any)
+        NodeList x509elements = document.getElementsByTagNameNS(XMLSignature.XMLNS, "X509Certificate");
+        if (x509elements.getLength() > 0) {
+            logger.info("There is a cert, lets validate with it...");
+
+            DOMValidateContext valContext = new DOMValidateContext(new X509KeySelector(), nl.item(0));
+            XMLSignature signature = fac.unmarshalXMLSignature(valContext);
+
+            try {
+                result = signature.validate(valContext);
+            } catch (Exception e) {
+                logger.info(e.getMessage(), e);
+                //return false;
+            }
+        }
+
+        // try with external keystore
+        if (!result) {
+            DOMValidateContext valContext = new DOMValidateContext(testKeySelector, nl.item(0));
+            XMLSignature signature = fac.unmarshalXMLSignature(valContext);
+
+            result = signature.validate(valContext);
+        }
+
+        return result;
     }
 
 }

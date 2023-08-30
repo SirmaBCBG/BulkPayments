@@ -151,7 +151,6 @@ public class XMLSigner {
 
     public String sign(Message message) throws Exception {
 
-        System.setProperty("com.sun.org.apache.xml.internal.security.ignoreLineBreaks", "true");
         Document document = string2XML(XMLHelper.serializeXml(message));
 
         document = sign(document);
@@ -168,7 +167,8 @@ public class XMLSigner {
       KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(properties.getSignSBCKeyStoreAlias(), passwordProtection);
 
       XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
-      Transform exc14nTranform = fac.newTransform("http://www.w3.org/TR/2001/REC-xml-c14n-20010315", (TransformParameterSpec) null);
+      //Transform exc14nTranform = fac.newTransform("http://www.w3.org/TR/2001/REC-xml-c14n-20010315", (TransformParameterSpec) null);
+      Transform exc14nTranform = fac.newTransform("http://www.w3.org/2006/12/xml-c14n11", (TransformParameterSpec) null);
       Transform envTransform = fac.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null);
 
       List<Transform> transformList = new ArrayList();
@@ -178,7 +178,6 @@ public class XMLSigner {
       Reference ref = fac.newReference("", fac.newDigestMethod(DigestMethod.SHA256, null), transformList, null, null);
       //Reference ref = fac.newReference("",fac.newDigestMethod(DigestMethod.SHA256, null));
 
-      //todo: encrypt digest with SHA256 (Java 17 or BouncyCastle) instead of SHA1 (Java 1.8)
       SignedInfo si = fac.newSignedInfo(fac.newCanonicalizationMethod(CanonicalizationMethod.INCLUSIVE, (C14NMethodParameterSpec) null),
               fac.newSignatureMethod(SignatureMethod.RSA_SHA256, null), Collections.singletonList(ref));
 
@@ -191,7 +190,7 @@ public class XMLSigner {
 
       x509Content.add(cert.getSubjectX500Principal().getName());
       x509Content.add(issuer);
-      //x509Content.add(cert);
+      x509Content.add(cert);
 
       X509Data xd = kif.newX509Data(x509Content);
       KeyInfo ki = kif.newKeyInfo(Collections.singletonList(xd));
