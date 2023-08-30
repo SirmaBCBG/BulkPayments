@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -46,7 +45,6 @@ public class BorikaMessageService {
 
     @Autowired
     ParticipantsService participantsService;
-
 
     @Autowired
     public BorikaMessageService(BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, WrappedMessageBuilder wrappedMessageBuilder) {
@@ -84,7 +82,6 @@ public class BorikaMessageService {
             }else {
                 codesPacs002 = incmgMsg.validate();
             }
-
 
             // Check if the validation was successful
             if (codesPacs002 == CodesPacs002.OK01) {
@@ -168,9 +165,6 @@ public class BorikaMessageService {
             // Create a MessageWrapper object for the incoming message
             WrappedMessage incmgMsg = wrappedMessageBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), InOut.IN, response);
 
-            // Save the message to the database
-//            incmgMsg.saveToDatabase();
-
             // Validate the message's application header
             CodesPacs002 pacs002Code = incmgMsg.isValidAppHdrParticipants();
 
@@ -194,8 +188,6 @@ public class BorikaMessageService {
         String msgSeq = headers.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0);
         borikaClient.postAcknowledge(msgSeq);
     }
-
-
 
     private void updateRequestStatus(BulkMessagesEntity entity, String reqSts) {
         logger.info("Updating the database entity's request status");

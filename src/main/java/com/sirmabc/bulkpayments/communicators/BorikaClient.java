@@ -58,7 +58,7 @@ public class BorikaClient {
         logger.info("Acknowledge headers: " + request.headers());
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        logger.info("Post request response: " + response.body());
+        logger.info("Acknowledge response: " + response.body());
     }
 
     public HttpClient buildClient(int connectionTimeout) {

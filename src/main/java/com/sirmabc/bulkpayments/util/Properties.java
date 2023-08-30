@@ -49,7 +49,6 @@ public class Properties {
 
     private PropertiesEntity signSBCPrivateKeyPassword;
 
-
     private PropertiesEntity outgngBulkMsgsPath;
 
     private PropertiesEntity outgngBulkMsgsInProgressPath;

@@ -1,6 +1,7 @@
 package com.sirmabc.bulkpayments.message;
 
 import com.sirmabc.bulkpayments.communicators.BorikaClient;
+import com.sirmabc.bulkpayments.exceptions.PostMessageException;
 import com.sirmabc.bulkpayments.persistance.entities.BulkMessagesEntity;
 import com.sirmabc.bulkpayments.persistance.repositories.BulkMessagesRepository;
 import com.sirmabc.bulkpayments.persistance.repositories.ParticipantsRepository;
@@ -45,15 +46,13 @@ public class WrappedMessage {
 
     private static final Logger logger = LoggerFactory.getLogger(WrappedMessage.class);
 
-    private final Message message;
+    private Message message;
 
     private final InOut inOut;
 
     private final HttpResponse<String> response;
 
     private final String messageId;
-
-    //private final String originalXmlMessage;
 
     private static LocalDateTime prevSavedMsgDateTime;
 
@@ -82,14 +81,13 @@ public class WrappedMessage {
         this.properties = properties;
         this.xmlSigner = xmlSigner;
         messageId = getMessageId();
-        //originalXmlMessage = getOriginalXmlMessage();
     }
 
     static {
         prevSavedMsgDateTime = LocalDateTime.now();
     }
 
-    public void buildAppHdr() throws DatatypeConfigurationException {
+    public void buildAppHdr() throws Exception {
         if (message.getAppHdr() == null) {
             logger.info("Building application header");
 
@@ -157,6 +155,7 @@ public class WrappedMessage {
             appHdr.setSgntr(new SignatureEnvelope());
 
             message.setAppHdr(appHdr);
+            message = XMLHelper.deserializeXml(getSignedMessage(), Message.class);
         } else {
             logger.error("Application header already exists");
         }
@@ -199,6 +198,7 @@ public class WrappedMessage {
 
         return CodesPacs002.OK01;
     }
+
     public CodesPacs002 isValidAppHdrParticipants() throws Exception {
         logger.info("Validating the application header");
 
@@ -210,10 +210,8 @@ public class WrappedMessage {
         String senderBic = message.getAppHdr().getFr().getFIId().getFinInstnId().getBICFI();
         String receiverBic = message.getAppHdr().getTo().getFIId().getFinInstnId().getBICFI();
 
-
         String instBic = properties.getRtpChannel();
         String boricaBic = properties.getBorikaBic();
-
 
         // Check if sender bic is valid and check if receiver bic is the same as the institution bic.
         if (!boricaBic.equals(senderBic) || !receiverBic.equals(instBic)) {
@@ -251,10 +249,10 @@ public class WrappedMessage {
         transformer.transform(source, result);
     }
 
-    public HttpResponse<String> sendToBorika() throws Exception {
+    public HttpResponse<String> sendToBorika() throws JAXBException, PostMessageException {
         logger.info("Sending message to Borika");
 
-        String signedRequestMessageXML = getSignedMessage();
+        String signedRequestMessageXML = XMLHelper.serializeXml(message);
         logger.debug("Message after building application header: " + signedRequestMessageXML);
         HttpResponse<String> response = borikaClient.postMessage(signedRequestMessageXML);
 
@@ -287,7 +285,7 @@ public class WrappedMessage {
         while (currentMsgDateTime.equals(prevSavedMsgDateTime)) currentMsgDateTime = LocalDateTime.now();
         prevSavedMsgDateTime = currentMsgDateTime;
 
-        return "IN_"
+        return "in_"
                 + shortMessageType
                 + "_"
                 + currentMsgDateTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"))
@@ -382,13 +380,6 @@ public class WrappedMessage {
 
         return "";
     }
-
-    /*private String getOriginalXmlMessage() {
-        if (response != null) return response.body();
-        else {
-            return XMLHelper.serializeXml(message);
-        }
-    }*/
 
     public Message getMessage() {
         return message;
