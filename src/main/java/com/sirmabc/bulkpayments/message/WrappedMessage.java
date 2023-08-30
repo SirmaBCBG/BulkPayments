@@ -155,7 +155,6 @@ public class WrappedMessage {
             appHdr.setSgntr(new SignatureEnvelope());
 
             message.setAppHdr(appHdr);
-            signMessage();
         } else {
             logger.error("Application header already exists");
         }
@@ -221,10 +220,23 @@ public class WrappedMessage {
         return CodesPacs002.OK01;
     }
 
-    public BulkMessagesEntity saveToDatabase() throws JAXBException {
+    public BulkMessagesEntity saveToDatabase(String messageXml) throws JAXBException {
         logger.info("Saving message to the database");
 
-        BulkMessagesEntity entity = buildBulkMessagesEntity();
+        BulkMessagesEntity entity = new BulkMessagesEntity();
+
+        entity.setMessageId(messageId);
+        entity.setMessageXml(messageXml);
+        entity.setMessageType(message.getAppHdr().getMsgDefIdr());
+
+        if (response != null && response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header) != null) {
+            entity.setMessageSeq(response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0));
+        } else {
+            entity.setMessageSeq(null);
+        }
+
+        entity.setInOut(inOut.value);
+
         return bulkMessagesRepository.save(entity);
     }
 
@@ -243,20 +255,10 @@ public class WrappedMessage {
         Transformer transformer = transformerFactory.newTransformer();
         DOMSource source = new DOMSource(doc);
 
-        String xmlFilePath = properties.getIncmgBulkMsgsPath() + "\\" + generateUniqueFileName(message.getAppHdr().getMsgDefIdr()) + ".xml";
+        String xmlFilePath = properties.getIncmgBulkMsgsPath() + "/" + generateUniqueFileName(message.getAppHdr().getMsgDefIdr()) + ".xml";
 
         StreamResult result = new StreamResult(new File(xmlFilePath));
         transformer.transform(source, result);
-    }
-
-    public HttpResponse<String> sendToBorika() throws JAXBException, PostMessageException {
-        logger.info("Sending message to Borika");
-
-        String signedRequestMessageXML = XMLHelper.serializeXml(message);
-        logger.debug("Message after building application header: " + signedRequestMessageXML);
-        HttpResponse<String> response = borikaClient.postMessage(signedRequestMessageXML);
-
-        return response;
     }
 
     private CodesPacs002 isDuplicate() {
@@ -293,20 +295,6 @@ public class WrappedMessage {
                 + currentMsgDateTime.getNano();
     }
 
-    private void signMessage() throws Exception {
-        Document document = xmlSigner.string2XML(XMLHelper.serializeXml(message));
-
-        KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(properties.getSignSBCKeyStorePath()), properties.getSignSBCKeyStorePassword().toCharArray());
-        KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(properties.getSignSBCKeyStorePassword().toCharArray());
-        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(properties.getSignSBCKeyStoreAlias(), passwordProtection);
-
-        document = xmlSigner.sign(document, keyEntry);
-        String signedXml = xmlSigner.xml2String(document);
-
-        message = XMLHelper.deserializeXml(signedXml, Message.class);
-    }
-
     private XMLGregorianCalendar xmlGregorianCalendarToUTC(XMLGregorianCalendar calendar) throws DatatypeConfigurationException {
         int minuteOffset = calendar.getTimezone();
         if (minuteOffset == DatatypeConstants.FIELD_UNDEFINED || minuteOffset == 0) return calendar;
@@ -328,24 +316,6 @@ public class WrappedMessage {
         party9Choice.setFIId(branchAndFinancialInstitutionIdentification5);
 
         return party9Choice;
-    }
-
-    private BulkMessagesEntity buildBulkMessagesEntity() throws JAXBException {
-        BulkMessagesEntity entity = new BulkMessagesEntity();
-
-        entity.setMessageId(messageId);
-        entity.setMessageXml(XMLHelper.serializeXml(message));
-        entity.setMessageType(message.getAppHdr().getMsgDefIdr());
-
-        if (response != null && response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header) != null) {
-            entity.setMessageSeq(response.headers().map().get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0));
-        } else {
-            entity.setMessageSeq(null);
-        }
-
-        entity.setInOut(inOut.value);
-
-        return entity;
     }
 
     private String getMessageId() {

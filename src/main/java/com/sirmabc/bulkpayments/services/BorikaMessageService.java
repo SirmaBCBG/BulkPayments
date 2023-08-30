@@ -15,6 +15,8 @@ import com.sirmabc.bulkpayments.util.enums.InOut;
 import com.sirmabc.bulkpayments.util.enums.ReqSts;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
+import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
+import jakarta.xml.bind.JAXBException;
 import montranMessage.montran.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,8 @@ public class BorikaMessageService {
 
     @Autowired
     ParticipantsService participantsService;
+    @Autowired
+    XMLSigner xmlSigner;
 
     @Autowired
     public BorikaMessageService(BorikaClient borikaClient, BulkMessagesRepository bulkMessagesRepository, ParticipantsRepository participantsRepository, Properties properties, WrappedMessageBuilder wrappedMessageBuilder) {
@@ -72,7 +76,7 @@ public class BorikaMessageService {
             WrappedMessage incmgMsg = wrappedMessageBuilder.build(XMLHelper.deserializeXml(response.body(), Message.class), InOut.IN, response);
 
             // Save the message to the database
-            BulkMessagesEntity entity = incmgMsg.saveToDatabase();
+            BulkMessagesEntity entity = incmgMsg.saveToDatabase(response.body());
 
             // Validate the message
             //TODO: Check validation with Tceci about incoming bic
@@ -118,11 +122,14 @@ public class BorikaMessageService {
             // Build application header for the message
             outgngMsg.buildAppHdr();
 
+            //Signing message;
+            String signedMessage = xmlSigner.sign(outgngMsg.getMessage());
+
             // Save the message to the database
-            BulkMessagesEntity entity = outgngMsg.saveToDatabase();
+            BulkMessagesEntity entity = outgngMsg.saveToDatabase(signedMessage);
 
             // Send the message to Borika and get the response
-            HttpResponse<String> response = outgngMsg.sendToBorika();
+            HttpResponse<String> response = sendToBorika(signedMessage);
 
             // Get the headers from the response
             Map<String, List<String>> headers = response.headers().map();
@@ -180,6 +187,15 @@ public class BorikaMessageService {
             logger.error(Thread.currentThread().getName() + "threw an error: " + e.getMessage(), e);
             throw new AppException(e.getMessage(), e);
         }
+    }
+
+    public HttpResponse<String> sendToBorika(String signedMessage) throws JAXBException, PostMessageException {
+        logger.info("Sending message to Borika");
+
+        logger.debug("Message after building application header: " + signedMessage);
+        HttpResponse<String> response = borikaClient.postMessage(signedMessage);
+
+        return response;
     }
 
     private void acknowledge(Map<String, List<String>> headers) throws IOException, InterruptedException {

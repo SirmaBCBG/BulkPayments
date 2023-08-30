@@ -22,6 +22,7 @@ public class MontranPublicKeySelector extends KeySelector {
           throws KeySelectorException {
 
       try {
+        // todo: implement fallback certs
         KeyStore ks = KeyStore.getInstance("JKS");
 
         ks.load(new FileInputStream(properties.getSignBoricaKeyStorePath()), properties.getSignBoricaKeyStorePassword().toCharArray());

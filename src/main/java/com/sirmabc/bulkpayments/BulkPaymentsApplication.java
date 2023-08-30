@@ -19,11 +19,11 @@ public class BulkPaymentsApplication extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+
         return application.sources(BulkPaymentsApplication.class);
     }
 
-    public static void main(String[] args) {
-        SpringApplication.run(BulkPaymentsApplication.class, args);
+    public static void main(String[] args) {SpringApplication.run(BulkPaymentsApplication.class, args);
     }
 
 }

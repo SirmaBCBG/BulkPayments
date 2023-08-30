@@ -4,6 +4,7 @@ import com.sirmabc.bulkpayments.exceptions.PostMessageException;
 import com.sirmabc.bulkpayments.ssl.CustomSSL;
 import com.sirmabc.bulkpayments.util.enums.Header;
 import com.sirmabc.bulkpayments.util.Properties;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,22 @@ public class BorikaClient {
     @Autowired
     CustomSSL customSSL;
 
+    HttpClient httpClient;
+
+    private final static int SOCKET_TIMEOUT = 8;
+    private final static int READ_TIMEOUT = 8;
+
+    @PostConstruct
+    public void init() {
+
+        this.httpClient = HttpClient.newBuilder()
+                .sslContext(customSSL.getSslContext())
+                .version(HttpClient.Version.HTTP_1_1)
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofSeconds(SOCKET_TIMEOUT))
+                .build();
+    }
+
     public HttpResponse<String> postMessage(String requestBody) throws PostMessageException {
         logger.info("Posting message to Borika");
 
@@ -35,13 +52,12 @@ public class BorikaClient {
             java.util.Properties props = System.getProperties();
             props.setProperty("jdk.internal.httpclient.disableHostnameVerification", Boolean.TRUE.toString());
 
-            HttpClient client = buildClient(20);
             HttpRequest request = buildPostRequest(requestBody);
 
             logger.info("Post message headers: " + request.headers());
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            logger.info("Post request response: " + response.body());
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            logger.info("Post response: " + response.body());
 
             return response;
         } catch (Exception e) {
@@ -52,12 +68,11 @@ public class BorikaClient {
     public void postAcknowledge(String msgSeq) throws IOException, InterruptedException {
         logger.info("Posting acknowledge message to Borika");
 
-        HttpClient client = buildClient(20);
         HttpRequest request = buildPostAcknowledgeRequest("", msgSeq);
 
         logger.info("Acknowledge headers: " + request.headers());
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         logger.info("Acknowledge response: " + response.body());
     }
 
@@ -75,6 +90,7 @@ public class BorikaClient {
                 .uri(URI.create(properties.getBorikaUrl() + "/bulk/Message"))
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
+                .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .GET()
                 .build();
     }
@@ -84,6 +100,7 @@ public class BorikaClient {
                 .uri(URI.create(properties.getBorikaUrl() + "/api/participants"))
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
+                .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .GET()
                 .build();
     }
@@ -93,6 +110,7 @@ public class BorikaClient {
                 .uri(URI.create(properties.getBorikaUrl() + "/bulk/Message"))
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
+                .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
     }
@@ -100,10 +118,15 @@ public class BorikaClient {
     public HttpRequest buildPostAcknowledgeRequest(String requestBody, String msgSeq) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(properties.getBorikaUrl() + "/bulk/MessageAck"))
-                .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpVersion())
+                .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
                 .header(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header, msgSeq)
+                .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
+    }
+
+    public HttpClient getHttpClient() {
+        return httpClient;
     }
 }

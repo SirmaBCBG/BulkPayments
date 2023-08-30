@@ -1,6 +1,9 @@
 package com.sirmabc.bulkpayments.util.xmlsigner;
 
 import com.sirmabc.bulkpayments.communicators.BorikaClientScheduler;
+import com.sirmabc.bulkpayments.util.Properties;
+import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
+import montranMessage.montran.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,9 @@ public class XMLSigner {
 
     @Autowired
     MontranPublicKeySelector montranPublicKeySelector;
+
+    @Autowired
+    Properties properties;
 
     @Autowired
     public XMLSigner (MontranPublicKeySelector montranPublicKeySelector) {
@@ -143,7 +149,24 @@ public class XMLSigner {
       return result;
     }
 
-    public Document sign(Document doc, KeyStore.PrivateKeyEntry keyEntry) throws Exception {
+    public String sign(Message message) throws Exception {
+
+        System.setProperty("com.sun.org.apache.xml.internal.security.ignoreLineBreaks", "true");
+        Document document = string2XML(XMLHelper.serializeXml(message));
+
+        document = sign(document);
+        String signedXml = xml2String(document);
+
+        return signedXml;
+    }
+
+    private Document sign(Document doc) throws Exception {
+
+      KeyStore ks = KeyStore.getInstance("JKS");
+      ks.load(new FileInputStream(properties.getSignSBCKeyStorePath()), properties.getSignSBCKeyStorePassword().toCharArray());
+      KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(properties.getSignSBCKeyStorePassword().toCharArray());
+      KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(properties.getSignSBCKeyStoreAlias(), passwordProtection);
+
       XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
       Transform exc14nTranform = fac.newTransform("http://www.w3.org/TR/2001/REC-xml-c14n-20010315", (TransformParameterSpec) null);
       Transform envTransform = fac.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null);
@@ -183,22 +206,25 @@ public class XMLSigner {
     }
 
     public static void main(String[] args) {
-  //    try {
-  //      KeyStore ks = KeyStore.getInstance("JKS");
-  //      ks.load(new FileInputStream("d:\\xml_sign.jks"), "sla6945".toCharArray());
-  //      KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry("sirmabcxml", new KeyStore.PasswordProtection("sla6945".toCharArray()));
-  //
-  //      Document doc = loadXMLFromFile(new File("d:/work/c.xml"));
-  //      Document signedDoc = sign(doc, keyEntry);
-  //      System.out.println(xml2String(signedDoc));
-  //      saveXML(signedDoc, new File("d:/work/c3_signed.xml"));
-  //
-  //      Document doc2 = loadXMLFromFile(new File("d:/work/c3_signed.xml"));
-  //
-  //      System.out.println(verify(doc2));
-  //    } catch (Exception e) {
-  //      e.printStackTrace();
-  //    }
-    }
+
+
+//      try {
+//          XMLSigner signer = new XMLSigner();
+//        KeyStore ks = KeyStore.getInstance("JKS");
+//        ks.load(new FileInputStream("d:\\xml_sign.jks"), "sla6945".toCharArray());
+//        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry("sirmabcxml", new KeyStore.PasswordProtection("sla6945".toCharArray()));
+//
+//        Document doc = string2XML(xml);
+//        Document signedDoc = sign(doc, keyEntry);
+//        System.out.println(xml2String(signedDoc));
+//        saveXML(signedDoc, new File("d:/work/c3_signed.xml"));
+//
+//        Document doc2 = loadXMLFromFile(new File("d:/work/c3_signed.xml"));
+//
+//        System.out.println(verify(doc2));
+//      } catch (Exception e) {
+//        e.printStackTrace();
+//      }
+   }
 
 }

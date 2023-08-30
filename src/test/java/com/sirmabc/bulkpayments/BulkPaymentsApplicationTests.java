@@ -6,12 +6,16 @@ import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.enums.InOut;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
+import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
+import montranMessage.iso.std.iso._20022.tech.xsd.head_001_001.BusinessApplicationHeaderV01;
+import montranMessage.iso.std.iso._20022.tech.xsd.head_001_001.SignatureEnvelope;
 import montranMessage.montran.message.Message;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.w3c.dom.Document;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +30,9 @@ class BulkPaymentsApplicationTests {
 
     @Autowired
     private WrappedMessageBuilder wrappedMessageBuilder;
+
+    @Autowired
+    XMLSigner xmlSigner;
 
     @Test
     void testObjectToXMLFile() {
@@ -906,4 +913,26 @@ class BulkPaymentsApplicationTests {
             logger.error("testFileMoving() error: " + e.getMessage(), e);
         }
     }
+    @Test
+    void testSigner() {
+
+
+        try{
+//            System.setProperty("com.sun.org.apache.xml.internal.security.ignoreLineBreaks", "true"); --- Pavel know how.
+            Message message = XMLHelper.deserializeXml(new File("C:\\opt\\tomcat\\OUT_PACS008_230825_200017.XML"), Message.class);
+            BusinessApplicationHeaderV01 appHdr =  new BusinessApplicationHeaderV01();
+            appHdr.setSgntr(new SignatureEnvelope());
+            message.setAppHdr(appHdr);
+
+            String signedXml = xmlSigner.sign(message);
+
+            System.out.println("RESULT--------------------------------------  \n" + signedXml);
+
+
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }
