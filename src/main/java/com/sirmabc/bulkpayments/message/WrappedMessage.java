@@ -155,7 +155,7 @@ public class WrappedMessage {
             appHdr.setSgntr(new SignatureEnvelope());
 
             message.setAppHdr(appHdr);
-            message = getSignedMessage();
+            signMessage();
         } else {
             logger.error("Application header already exists");
         }
@@ -293,7 +293,7 @@ public class WrappedMessage {
                 + currentMsgDateTime.getNano();
     }
 
-    private Message getSignedMessage() throws Exception {
+    private void signMessage() throws Exception {
         Document document = xmlSigner.string2XML(XMLHelper.serializeXml(message));
 
         KeyStore ks = KeyStore.getInstance("JKS");
@@ -304,7 +304,7 @@ public class WrappedMessage {
         document = xmlSigner.sign(document, keyEntry);
         String signedXml = xmlSigner.xml2String(document);
 
-        return XMLHelper.deserializeXml(signedXml, Message.class);
+        message = XMLHelper.deserializeXml(signedXml, Message.class);
     }
 
     private XMLGregorianCalendar xmlGregorianCalendarToUTC(XMLGregorianCalendar calendar) throws DatatypeConfigurationException {
