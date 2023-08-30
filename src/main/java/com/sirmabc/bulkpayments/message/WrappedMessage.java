@@ -151,7 +151,7 @@ public class WrappedMessage {
 
             appHdr.setFr(generateParty9Choice(properties.getRtpChannel()));
             appHdr.setTo(generateParty9Choice(properties.getBorikaBic()));
-            appHdr.setBizMsgIdr(properties.getBizMsgIdr());
+            appHdr.setBizMsgIdr(messageId);
             appHdr.setSgntr(new SignatureEnvelope());
 
             message.setAppHdr(appHdr);
