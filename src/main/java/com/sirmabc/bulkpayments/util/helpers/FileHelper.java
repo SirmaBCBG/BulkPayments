@@ -1,13 +1,26 @@
 package com.sirmabc.bulkpayments.util.helpers;
 
+import com.sirmabc.bulkpayments.util.enums.InOut;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class FileHelper {
 
+    private static LocalDateTime prevSavedMsgDateTime;
+
+    static {
+        prevSavedMsgDateTime = LocalDateTime.now();
+    }
+
+    // Moves the given file to the desired directory
     public static File moveFile(File file, String targetPath) throws IOException {
         Path sourcePath = Path.of(file.getPath());
         Path destinationPath = Path.of(targetPath, file.getName());
@@ -30,5 +43,28 @@ public class FileHelper {
         if (files == null) files = new File[0];
 
         return files;
+    }
+
+    // Read all content from the given file
+    public static String readFile(File file) throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(file.getPath()));
+        return new String(encoded, StandardCharsets.UTF_8);
+    }
+
+    // Generates a unique file name
+    public synchronized static String generateUniqueFileName(InOut inOut, String msgDefIdr) {
+        String shortMessageType = msgDefIdr.substring(msgDefIdr.indexOf('.') + 1, msgDefIdr.indexOf('.', msgDefIdr.indexOf('.') + 1));
+        LocalDateTime currentMsgDateTime = LocalDateTime.now();
+
+        while (currentMsgDateTime.equals(prevSavedMsgDateTime)) currentMsgDateTime = LocalDateTime.now();
+        prevSavedMsgDateTime = currentMsgDateTime;
+
+        return inOut.value
+                + "_"
+                + shortMessageType
+                + "_"
+                + currentMsgDateTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"))
+                + "_"
+                + currentMsgDateTime.getNano();
     }
 }

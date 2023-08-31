@@ -42,6 +42,18 @@ public class BulkMessagesEntity {
     @Column(name = "IN_OUT")
     private String inOut;
 
+    @Basic
+    @Column(name = "FILE_NAME")
+    private String fileName;
+
+    @Basic
+    @Column(name = "ERROR")
+    private String error;
+
+    @Basic
+    @Column(name = "ORIGINAL_MESSAGE")
+    private String originalMessage;
+
     public BigInteger getId() {
         return id;
     }
@@ -112,6 +124,30 @@ public class BulkMessagesEntity {
 
     public void setInOut(String inOut) {
         this.inOut = inOut;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
+    public String getOriginalMessage() {
+        return originalMessage;
+    }
+
+    public void setOriginalMessage(String originalMessage) {
+        this.originalMessage = originalMessage;
     }
 
     @Override

@@ -2,10 +2,9 @@ package com.sirmabc.bulkpayments.communicators;
 
 import com.sirmabc.bulkpayments.exceptions.PostMessageException;
 import com.sirmabc.bulkpayments.ssl.CustomSSL;
-import com.sirmabc.bulkpayments.util.enums.Header;
 import com.sirmabc.bulkpayments.util.Properties;
+import com.sirmabc.bulkpayments.util.enums.Header;
 import jakarta.annotation.PostConstruct;
-import org.apache.hc.core5.http.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +65,7 @@ public class BorikaClient {
         }
     }
 
-    public void postAcknowledge(String msgSeq) throws IOException, InterruptedException {
+    public HttpResponse<String> postAcknowledge(String msgSeq) throws IOException, InterruptedException {
         logger.info("Posting acknowledge message to Borika");
 
         HttpRequest request = buildPostAcknowledgeRequest("", msgSeq);
@@ -75,6 +74,8 @@ public class BorikaClient {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         logger.info("Acknowledge response: " + response.body());
+
+        return response;
     }
 
     public HttpClient buildClient(int connectionTimeout) {

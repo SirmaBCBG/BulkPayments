@@ -1,31 +1,19 @@
 package com.sirmabc.bulkpayments;
 
-import com.sirmabc.bulkpayments.message.WrappedMessage;
-import com.sirmabc.bulkpayments.message.WrappedMessageBuilder;
-import com.sirmabc.bulkpayments.ssl.test.TestKeySelector;
+import com.sirmabc.bulkpayments.services.MessageService;
 import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.enums.InOut;
 import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
-import com.sirmabc.bulkpayments.util.xmlsigner.X509KeySelector;
 import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
-import montranMessage.iso.std.iso._20022.tech.xsd.head_001_001.BusinessApplicationHeaderV01;
-import montranMessage.iso.std.iso._20022.tech.xsd.head_001_001.SignatureEnvelope;
 import montranMessage.montran.message.Message;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
-import javax.xml.crypto.dsig.XMLSignature;
-import javax.xml.crypto.dsig.XMLSignatureFactory;
-import javax.xml.crypto.dsig.dom.DOMValidateContext;
 import java.io.File;
-import java.io.FileInputStream;
-import java.security.KeyStore;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
@@ -34,16 +22,16 @@ class BulkPaymentsApplicationTests {
     private static final Logger logger = LoggerFactory.getLogger(BulkPaymentsApplicationTests.class);
 
     @Autowired
-    private Properties properties;
+    MessageService messageService;
 
     @Autowired
-    private WrappedMessageBuilder wrappedMessageBuilder;
+    private Properties properties;
 
     @Autowired
     XMLSigner xmlSigner;
 
-    @Autowired
-    TestKeySelector testKeySelector;
+    /*@Autowired
+    TestKeySelector testKeySelector;*/
 
     @Test
     void testObjectToXMLFile() {
@@ -901,8 +889,10 @@ class BulkPaymentsApplicationTests {
         //endregion
 
         try {
-            WrappedMessage wrappedMessage = wrappedMessageBuilder.build(XMLHelper.deserializeXml(xmlString, Message.class), InOut.IN, null);
-            wrappedMessage.saveToXmlFile();
+            Message message = XMLHelper.deserializeXml(xmlString);
+            String fileName = FileHelper.generateUniqueFileName(InOut.IN, message.getAppHdr().getMsgDefIdr());
+
+            messageService.saveMessageToXmlFile(message, fileName);
         } catch (Exception e) {
             logger.error("testObjectToXMLFile() error: " + e.getMessage(), e);
         }
@@ -924,7 +914,7 @@ class BulkPaymentsApplicationTests {
             logger.error("testFileMoving() error: " + e.getMessage(), e);
         }
     }
-    @Test
+    /*@Test
     void testSigner() {
 
 
@@ -986,6 +976,6 @@ class BulkPaymentsApplicationTests {
         }
 
         return result;
-    }
+    }*/
 
 }

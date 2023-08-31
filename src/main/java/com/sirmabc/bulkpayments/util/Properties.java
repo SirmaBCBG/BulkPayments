@@ -57,6 +57,8 @@ public class Properties {
 
     private PropertiesEntity incmgBulkMsgsPath;
 
+    private PropertiesEntity errorBulkMsgsPath;
+
     private PropertiesEntity sslSBCKeyStorePath;
 
     private PropertiesEntity sslSBCKeyStorePassword;
@@ -150,6 +152,9 @@ public class Properties {
 
             incmgBulkMsgsPath = repository.findByName("incmgBulkMsgsPath");
             logger.info("Incoming bulk messages directory path: " + incmgBulkMsgsPath.getValue());
+
+            errorBulkMsgsPath = repository.findByName("errorBulkMsgsPath");
+            logger.info("Bulk messages which threw an error directory path: " + errorBulkMsgsPath.getValue());
 
             sslSBCKeyStorePath = repository.findByName("sslSBCKeyStorePath");
             logger.info("JKS sbc SSL key store path: " + sslSBCKeyStorePath.getValue());
@@ -350,6 +355,14 @@ public class Properties {
 
     public void setIncmgBulkMsgsPath(PropertiesEntity incmgBulkMsgsPath) {
         this.incmgBulkMsgsPath = incmgBulkMsgsPath;
+    }
+
+    public String getErrorBulkMsgsPath() {
+        return errorBulkMsgsPath.getValue();
+    }
+
+    public void setErrorBulkMsgsPath(PropertiesEntity errorBulkMsgsPath) {
+        this.errorBulkMsgsPath = errorBulkMsgsPath;
     }
 
     public String getSslSBCKeyStorePath() {
