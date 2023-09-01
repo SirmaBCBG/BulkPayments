@@ -32,10 +32,10 @@ public class BorikaClient {
 
     private final static int SOCKET_TIMEOUT = 8;
     private final static int READ_TIMEOUT = 8;
+    private static final String REQUEST_CONTENT_TYPE = "text/xml; charset=utf-8";
 
     @PostConstruct
     public void init() {
-
         this.httpClient = HttpClient.newBuilder()
                 .sslContext(customSSL.getSslContext())
                 .version(HttpClient.Version.HTTP_1_1)
@@ -88,6 +88,7 @@ public class BorikaClient {
     }
 
     public HttpRequest buildGETRequest() {
+        // TODO: Possibly add content type header
         return HttpRequest.newBuilder()
                 .uri(URI.create(properties.getBorikaUrl() + "/bulk/Message"))
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
@@ -102,7 +103,7 @@ public class BorikaClient {
                 .uri(URI.create(properties.getBorikaUrl() + "/api/participants"))
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
-                .header("Content-Type", "text/xml; charset=utf-8")
+                .header(Header.CONTENT_TYPE.header, REQUEST_CONTENT_TYPE)
                 .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .GET()
                 .build();
@@ -113,7 +114,7 @@ public class BorikaClient {
                 .uri(URI.create(properties.getBorikaUrl() + "/bulk/Message"))
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
-                .header("Content-Type", "text/xml; charset=utf-8")
+                .header(Header.CONTENT_TYPE.header, REQUEST_CONTENT_TYPE)
                 .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
@@ -125,7 +126,7 @@ public class BorikaClient {
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
                 .header(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header, msgSeq)
-                .header("Content-Type", "text/xml; charset=utf-8")
+                .header(Header.CONTENT_TYPE.header, REQUEST_CONTENT_TYPE)
                 .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();

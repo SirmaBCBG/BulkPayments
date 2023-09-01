@@ -56,7 +56,7 @@ public class MessageService {
 
     public BusinessApplicationHeaderV01 buildMessageAppHdr(Message message) throws Exception {
         if (message.getAppHdr() == null) {
-            logger.info("Building application header");
+            logger.info("buildMessageAppHdr(): Building application header");
 
             BusinessApplicationHeaderV01 appHdr = new BusinessApplicationHeaderV01();
 
@@ -129,14 +129,18 @@ public class MessageService {
             appHdr.setTo(generateParty9Choice(properties.getBorikaBic()));
             appHdr.setSgntr(new SignatureEnvelope());
 
+            logger.info("buildMessageAppHdr(): Built application header for message " + appHdr.getBizMsgIdr());
+
             return appHdr;
         } else {
-            logger.error("Application header already exists");
+            logger.error("buildMessageAppHdr(): Application header already exists for message " + message.getAppHdr().getBizMsgIdr());
             return message.getAppHdr();
         }
     }
 
     public CodesPacs002 validateMessage(Message message, HttpResponse<String> response) throws Exception {
+        logger.info("validateMessage(): Validating message " + message.getAppHdr().getBizMsgIdr());
+
         CodesPacs002 pacs002Code = validateMessageAppHdr(message, response.body());
         if (!pacs002Code.equals(CodesPacs002.OK01)) {
             logger.error("An error occurred while validating the application header. Error code: " + pacs002Code.errorCode);
@@ -153,7 +157,7 @@ public class MessageService {
     }
 
     public CodesPacs002 validateMessageAppHdr(Message message, String messageXml) throws Exception {
-        logger.info("Validating the application header");
+        logger.info("validateMessageAppHdr(): Validating application header for message " + message.getAppHdr().getBizMsgIdr());
 
         Document document = xmlSigner.string2XML(messageXml);
         if (!xmlSigner.verify(document)) {
@@ -175,7 +179,7 @@ public class MessageService {
     }
 
     public void saveMessageToXmlFile(Message message, String fileName) throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
-        logger.info("Saving message to an xml file");
+        logger.info("saveMessageToXmlFile(): Saving message " + message.getAppHdr().getBizMsgIdr() + " to an xml file named " + fileName);
 
         String xmlString = XMLHelper.serializeXml(message);
 
@@ -196,7 +200,7 @@ public class MessageService {
     }
 
     private CodesPacs002 isDuplicate(Message message, HttpResponse<String> response) {
-        logger.info("Checking if the message is duplicate");
+        logger.info("isDuplicate(): Checking if message " + message.getAppHdr().getBizMsgIdr() + " is duplicate");
 
         Boolean isDuplicateHeader = null;
         if (response != null) {

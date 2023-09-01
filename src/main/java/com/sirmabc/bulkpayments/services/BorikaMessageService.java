@@ -51,47 +51,72 @@ public class BorikaMessageService {
 
     @Async
     public void asyncProcessIncomingMessage(HttpResponse<String> response) throws AppException {
-        logger.info("Asynchronously processing the incoming message " + Thread.currentThread().getName());
+        logger.info("asyncProcessIncomingMessage()...");
 
         String error = null;
         BulkMessagesEntity messageEntity = null;
 
         try {
-            logger.debug("Incoming response headers: " + response.headers().toString());
+            if (response.headers() != null) {
+                logger.debug("asyncProcessIncomingMessage(): Response headers: " + response.headers().toString());
+            }
+
+            String originalMessage = response.body();
 
             // Get the headers from the response
             Map<String, List<String>> headersMap = response.headers().map();
 
             // Don't proceed with the method if there is no message present
-            if (headersMap.get(Header.X_MONTRAN_RTP_REQSTS.header) != null && headersMap.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0).equalsIgnoreCase(ReqSts.EMPTY.sts)) return;
+            if (headersMap.get(Header.X_MONTRAN_RTP_REQSTS.header) != null && headersMap.get(Header.X_MONTRAN_RTP_REQSTS.header).get(0).equalsIgnoreCase(ReqSts.EMPTY.sts)) {
+                logger.info("asyncProcessIncomingMessage(): No message to process");
+                return;
+            }
 
-            // Create a message object for the incoming message
-            Message message = XMLHelper.deserializeXml(response.body());
+            // Get the message sequence header
+            String messageSequence = null;
+            List<String> messageSequenceHeaders = headersMap.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header);
+
+            if (messageSequenceHeaders != null) {
+                messageSequence = headersMap.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0);
+            }
 
             // Build the initial bulk message entity
             messageEntity = databaseService.buildBulkMessageEntity(
-                    message.getAppHdr().getBizMsgIdr(),
                     null,
-                    message.getAppHdr().getMsgDefIdr(),
-                    headersMap.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0),
+                    null,
+                    null,
+                    messageSequence,
                     null,
                     null,
                     InOut.IN.value,
                     null,
-                    null,
-                    response.body()
+                    error,
+                    originalMessage
             );
 
+            // todo: should discuss if this is OK?!
+            if (messageSequence == null) {
+                throw new Exception("No " + Header.X_MONTRAN_RTP_MESSAGE_SEQ.header + " header!");
+            }
+
+            // Create a message object for the incoming message
+            Message message = XMLHelper.deserializeXml(originalMessage);
+
+            messageEntity.setMessageId(message.getAppHdr().getBizMsgIdr());
+            messageEntity.setMessageType(message.getAppHdr().getMsgDefIdr());
+
+            logger.info("asyncProcessIncomingMessage(): Processing message " + messageEntity.getMessageId());
+
             // Save the message to the database
-            messageEntity = databaseService.saveBulkMessageEntity(messageEntity);
+            //messageEntity = databaseService.saveBulkMessageEntity(messageEntity);
 
             // Validate the message
-            CodesPacs002 codesPacs002 = messageService.validateMessage(message, response);
+            //CodesPacs002 codesPacs002 = messageService.validateMessage(message, response);
 
             // Check if the validation was successful
-            if (codesPacs002 == CodesPacs002.OK01) {
+            //if (codesPacs002 == CodesPacs002.OK01) {
                 // Generate a unique file name
-                String fileName = FileHelper.generateUniqueFileName(InOut.IN, message.getAppHdr().getMsgDefIdr());
+                String fileName = FileHelper.generateUniqueFileName(InOut.IN, message.getAppHdr().getMsgDefIdr(), messageEntity.getMessageId());
 
                 // Save the message to an xml file
                 messageService.saveMessageToXmlFile(message, fileName);
@@ -99,18 +124,28 @@ public class BorikaMessageService {
                 // Updating the entity
                 messageEntity.setFileName(fileName);
 
-                // Acknowledge the message
-                HttpResponse<String> ackResponse = acknowledge(headersMap);
-
-                // Updating the entity
-                messageEntity.setAcknowledged(ackResponse.body());
-            } else {
+            /*} else {
                 logger.error("The message was not validated successfully. Code: " + codesPacs002.errorCode);
                 error = "The message was not validated successfully. Code: " + codesPacs002.errorCode;
-            }
+            }*/
+
+            // Acknowledge the message
+            HttpResponse<String> ackResponse = acknowledge(headersMap, messageEntity.getMessageId());
+
+            // Updating the entity
+            messageEntity.setAcknowledged(ackResponse.body());
         } catch (Exception e) {
-            logger.error(Thread.currentThread().getName() + " threw an error: " + e.getMessage(), e);
-            error = e.getMessage();
+            logger.error("asyncProcessIncomingMessage(): Exception: " + e.getMessage(), e);
+
+            if (e.getMessage() == null) {
+                Throwable t = e.getCause();
+
+                if (t != null) {
+                    error = t.getMessage();
+                }
+            } else {
+                error = e.getMessage();
+            }
 
             throw new AppException(e.getMessage(), e);
         } finally {
@@ -119,7 +154,7 @@ public class BorikaMessageService {
                     messageEntity.setError(error);
                     databaseService.saveBulkMessageEntity(messageEntity);
                 } catch (Exception e) {
-                    logger.error(Thread.currentThread().getName() + " threw an error: " + e.getMessage(), e);
+                    logger.error("asyncProcessIncomingMessage(): Finally block exception: " + e.getMessage(), e);
                 }
             }
         }
@@ -127,13 +162,13 @@ public class BorikaMessageService {
 
     @Async
     public void asyncProcessOutgoingMessage(File xmlFile) throws AppException {
-        logger.info("Asynchronously building the outgoing message: " + Thread.currentThread().getName());
+        logger.info("asyncProcessOutgoingMessage()...");
 
         String error = null;
         BulkMessagesEntity messageEntity = null;
 
         try {
-            logger.info("Processing outgoing file:" + xmlFile.getAbsolutePath());
+            logger.info("asyncProcessOutgoingMessage(): Processing file:" + xmlFile.getName());
 
             // Move the xml file to the "in progress" directory
             xmlFile = FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsInProgressPath());
@@ -143,6 +178,7 @@ public class BorikaMessageService {
 
             // Get all content from the xml file as a string
             String originalMessage = FileHelper.readFile(xmlFile);
+            logger.info("asyncProcessOutgoingMessage(): Original message from file: " + originalMessage);
 
             // Build the initial bulk message entity
             messageEntity = databaseService.buildBulkMessageEntity(
@@ -173,7 +209,7 @@ public class BorikaMessageService {
             messageEntity.setMessageType(message.getAppHdr().getMsgDefIdr());
 
             // Send the message to Borika and get the response
-            HttpResponse<String> response = sendToBorika(signedMessage);
+            HttpResponse<String> response = sendToBorika(signedMessage, messageEntity.getMessageId());
 
             // Updating the entity
             messageEntity.setReqSts(response.headers().map().get(Header.X_MONTRAN_RTP_REQSTS.header).get(0));
@@ -183,45 +219,49 @@ public class BorikaMessageService {
 
             // TODO: Decide what to do after checking the request status
         } catch (PostMessageException e) {
-            logger.error("Sending message to borika failed with error: " + e.getMessage(), e);
+            logger.error("asyncProcessOutgoingMessage(): PostMessageException: " + e.getMessage(), e);
             error = e.getMessage();
 
             // If the connection to Borika times out, move the xml file back to its original location
             try {
                 FileHelper.moveFile(xmlFile, properties.getOutgngBulkMsgsPath());
             } catch (IOException ex) {
-                logger.error("Moving xml file back to the original location failed with error: " + ex.getMessage(), ex);
+                logger.error("Error while moving xml file named " + xmlFile.getName() + " back to the original location: " + ex.getMessage(), ex);
             }
 
             throw new AppException(e.getMessage(), e);
         } catch (Exception e) {
-            logger.error(Thread.currentThread().getName() + " threw an error: " + e.getMessage(), e);
+            logger.error("asyncProcessOutgoingMessage(): Exception: " + e.getMessage(), e);
             error = e.getMessage();
 
             // If there are any errors inside the file, move it to the error folder
             try {
                 FileHelper.moveFile(xmlFile, properties.getErrorBulkMsgsPath());
             } catch (IOException ex) {
-                logger.error("Moving xml file back to the original location failed with error: " + ex.getMessage(), ex);
+                logger.error("Error while moving xml file named " + xmlFile.getName() + " to the error directory: " + ex.getMessage(), ex);
             }
 
             throw new AppException(e.getMessage(), e);
         } finally {
-            try {
-                messageEntity.setError(error);
-                databaseService.saveBulkMessageEntity(messageEntity);
-            } catch (Exception e) {
-                logger.error(Thread.currentThread().getName() + " threw an error: " + e.getMessage(), e);
+            if (messageEntity != null) {
+                try {
+                    messageEntity.setError(error);
+                    databaseService.saveBulkMessageEntity(messageEntity);
+                } catch (Exception e) {
+                    logger.error("asyncProcessOutgoingMessage(): Finally block exception: " + e.getMessage(), e);
+                }
             }
         }
     }
 
     @Async()
     public void asyncProcessParticipantsMessage(HttpResponse<String> response) throws AppException {
-        logger.info("asyncStartProcessingParticipantsMessage..." + Thread.currentThread().getName());
+        logger.info("asyncProcessParticipantsMessage()...");
 
         try {
-            logger.debug("Incoming response headers: " + response.headers().toString());
+            if (response.headers() != null) {
+                logger.debug("asyncProcessParticipantsMessage(): Response headers: " + response.headers().toString());
+            }
 
             // Create a message object for the incoming message
             Message message = XMLHelper.deserializeXml(response.body());
@@ -235,16 +275,16 @@ public class BorikaMessageService {
                 // Update the participants inside the database
                 databaseService.updateParticipants(message.getParticipants());
             } else {
-                logger.error("The message's application header was not validated successfully");
+                logger.error("asyncProcessParticipantsMessage(): The message's application header was not validated successfully. Code: " + pacs002Code.errorCode);
             }
         } catch (Exception e) {
-            logger.error(Thread.currentThread().getName() + "threw an error: " + e.getMessage(), e);
+            logger.error("asyncProcessParticipantsMessage(): Exception: " + e.getMessage(), e);
             throw new AppException(e.getMessage(), e);
         }
     }
 
-    public HttpResponse<String> sendToBorika(String signedMessage) throws PostMessageException {
-        logger.info("Sending message to Borika");
+    public HttpResponse<String> sendToBorika(String signedMessage, String messageId) throws PostMessageException {
+        logger.info("sendToBorika(): Sending message " + messageId);
 
         logger.debug("Message after building application header: " + signedMessage);
         HttpResponse<String> response = borikaClient.postMessage(signedMessage);
@@ -252,8 +292,8 @@ public class BorikaMessageService {
         return response;
     }
 
-    private HttpResponse<String> acknowledge(Map<String, List<String>> headersMap) throws IOException, InterruptedException {
-        logger.info("Acknowledging the message");
+    private HttpResponse<String> acknowledge(Map<String, List<String>> headersMap, String messageId) throws IOException, InterruptedException {
+        logger.info("acknowledge(): Acknowledging message " + messageId);
 
         String msgSeq = headersMap.get(Header.X_MONTRAN_RTP_MESSAGE_SEQ.header).get(0);
         HttpResponse<String> response = borikaClient.postAcknowledge(msgSeq);

@@ -29,10 +29,12 @@ public class DatabaseService {
     }
 
     public BulkMessagesEntity saveBulkMessageEntity(BulkMessagesEntity entity) {
+        logger.info("saveBulkMessageEntity(): Saving message entity " + entity);
         return bulkMessagesRepository.save(entity);
     }
 
     public BulkMessagesEntity findBulkMessageEntity(String messageId) {
+        logger.info("saveBulkMessageEntity(): Searching for message entity with id " + messageId);
         return bulkMessagesRepository.findByMessageId(messageId);
     }
 

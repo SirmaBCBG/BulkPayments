@@ -1,6 +1,8 @@
 package com.sirmabc.bulkpayments.util.helpers;
 
 import com.sirmabc.bulkpayments.util.enums.InOut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +16,8 @@ import java.time.format.DateTimeFormatter;
 
 public class FileHelper {
 
+    private static final Logger logger = LoggerFactory.getLogger(FileHelper.class);
+
     private static LocalDateTime prevSavedMsgDateTime;
 
     static {
@@ -24,6 +28,8 @@ public class FileHelper {
     public static File moveFile(File file, String targetPath) throws IOException {
         Path sourcePath = Path.of(file.getPath());
         Path destinationPath = Path.of(targetPath, file.getName());
+
+        logger.info("moveFile(): Moving file from " + sourcePath + " to " + destinationPath);
 
         return Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING).toFile();
     }
@@ -52,7 +58,9 @@ public class FileHelper {
     }
 
     // Generates a unique file name
-    public synchronized static String generateUniqueFileName(InOut inOut, String msgDefIdr) {
+    public synchronized static String generateUniqueFileName(InOut inOut, String msgDefIdr, String messageId) {
+        logger.info("generateUniqueFileName(): Generating file name for message " + messageId);
+
         String shortMessageType = msgDefIdr.substring(msgDefIdr.indexOf('.') + 1, msgDefIdr.indexOf('.', msgDefIdr.indexOf('.') + 1));
         LocalDateTime currentMsgDateTime = LocalDateTime.now();
 

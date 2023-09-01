@@ -150,6 +150,7 @@ public class XMLSigner {
     }
 
     public String sign(Message message) throws Exception {
+        logger.info("sign(): Signing message " + message.getAppHdr().getBizMsgIdr());
 
         Document document = string2XML(XMLHelper.serializeXml(message));
 

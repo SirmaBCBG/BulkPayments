@@ -182,7 +182,9 @@ public class Properties {
     }
 
     public String getBorikaUrl() {
-        return borikaUrl.getValue();
+        // TODO: Uncomment this
+        //return borikaUrl.getValue();
+        return "http://172.16.51.196:8888/certservice/api/borica";
     }
 
     public void setBorikaUrl(PropertiesEntity borikaUrl) {

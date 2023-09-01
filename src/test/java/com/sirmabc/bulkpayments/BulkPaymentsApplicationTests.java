@@ -1,25 +1,11 @@
 package com.sirmabc.bulkpayments;
 
-import com.sirmabc.bulkpayments.services.MessageService;
-import com.sirmabc.bulkpayments.util.Properties;
-import com.sirmabc.bulkpayments.util.enums.InOut;
-import com.sirmabc.bulkpayments.util.helpers.FileHelper;
-import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
-import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
-import montranMessage.montran.message.Message;
-import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 class BulkPaymentsApplicationTests {
 
-    private static final Logger logger = LoggerFactory.getLogger(BulkPaymentsApplicationTests.class);
+    /*private static final Logger logger = LoggerFactory.getLogger(BulkPaymentsApplicationTests.class);
 
     @Autowired
     MessageService messageService;
@@ -31,7 +17,7 @@ class BulkPaymentsApplicationTests {
     XMLSigner xmlSigner;
 
     /*@Autowired
-    TestKeySelector testKeySelector;*/
+    TestKeySelector testKeySelector;
 
     @Test
     void testObjectToXMLFile() {
@@ -890,7 +876,7 @@ class BulkPaymentsApplicationTests {
 
         try {
             Message message = XMLHelper.deserializeXml(xmlString);
-            String fileName = FileHelper.generateUniqueFileName(InOut.IN, message.getAppHdr().getMsgDefIdr());
+            String fileName = FileHelper.generateUniqueFileName(InOut.IN, message.getAppHdr().getMsgDefIdr(), message.getAppHdr().getBizMsgIdr());
 
             messageService.saveMessageToXmlFile(message, fileName);
         } catch (Exception e) {
@@ -914,7 +900,7 @@ class BulkPaymentsApplicationTests {
             logger.error("testFileMoving() error: " + e.getMessage(), e);
         }
     }
-    /*@Test
+    @Test
     void testSigner() {
 
 

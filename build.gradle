@@ -8,9 +8,12 @@ plugins {
 group = 'com.sirmabc'
 version = '0.0.1-SNAPSHOT'
 
-war {
+jar {
+    archiveFileName  = 'XConnectorBulk.jar'
+}
 
-    archiveBaseName = 'xconnectorbulk'
+war {
+    archiveFileName  = 'XConnectorBulk.war'
 }
 
 java {

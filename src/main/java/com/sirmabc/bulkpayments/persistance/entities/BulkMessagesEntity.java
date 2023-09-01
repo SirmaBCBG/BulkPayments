@@ -162,4 +162,22 @@ public class BulkMessagesEntity {
     public int hashCode() {
         return Objects.hash(id, creationDate, messageId, messageXml, messageType, messageSeq);
     }
+
+    @Override
+    public String toString() {
+        return "BulkMessagesEntity{" +
+                "id=" + id +
+                ", creationDate=" + creationDate +
+                ", messageId='" + messageId + '\'' +
+                ", messageXml='" + messageXml + '\'' +
+                ", messageType='" + messageType + '\'' +
+                ", messageSeq='" + messageSeq + '\'' +
+                ", acknowledged='" + acknowledged + '\'' +
+                ", reqSts='" + reqSts + '\'' +
+                ", inOut='" + inOut + '\'' +
+                ", fileName='" + fileName + '\'' +
+                ", error='" + error + '\'' +
+                ", originalMessage='" + originalMessage + '\'' +
+                '}';
+    }
 }
