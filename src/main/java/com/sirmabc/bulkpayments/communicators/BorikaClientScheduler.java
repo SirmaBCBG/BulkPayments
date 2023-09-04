@@ -32,7 +32,7 @@ public class BorikaClientScheduler {
 
     @Scheduled(fixedDelay = 60000)
     public void getMessage() {
-        logger.info("getMessage() execution started");
+        logger.info("getMessage()...");
 
         try {
             // Build http client
@@ -40,24 +40,24 @@ public class BorikaClientScheduler {
             // Build GET request
             HttpRequest request = borikaClient.buildGETRequest();
 
-            logger.debug("GET request headers: " + request.headers().toString());
+            logger.debug("getMessage(): GET request headers: " + request.headers().toString());
 
             // Send the GET request
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            logger.info("Get response headers: " + response.headers());
-            logger.debug("GET response: " + response.body());
+            logger.info("getMessage(): GET response headers: " + response.headers());
+            logger.debug("getMessage(): GET response: " + response.body());
 
             // Process the incoming message
             borikaMessageService.asyncProcessIncomingMessage(response);
 
         } catch (Exception e) {
-            logger.error("getMessage() error: " + e.getMessage(), e);
+            logger.error("getMessage(): Exception: " + e.getMessage(), e);
         }
     }
 
     @Scheduled(fixedDelay = 60000)
     public void sendMessages() {
-        logger.info("sendMessage() execution started");
+        logger.info("sendMessage()...");
 
         // Get all xml files from the directory
         File[] files = FileHelper.getFilesFromPath(properties.getOutgngBulkMsgsPath(), ".xml");
@@ -66,14 +66,14 @@ public class BorikaClientScheduler {
             try {
                 borikaMessageService.asyncProcessOutgoingMessage(file);
             } catch (Exception e) {
-                logger.error("sendMessage() error: " + e.getMessage(), e);
+                logger.error("sendMessage(): Exception: " + e.getMessage(), e);
             }
         }
     }
 
     @Scheduled(cron = "0 1 00 * * ?")
     public void getParticipantsMessage() {
-        logger.info("getParticipantsMessage() execution started");
+        logger.info("getParticipantsMessage()...");
 
         try {
             // Build http client
@@ -83,18 +83,18 @@ public class BorikaClientScheduler {
 
             // Send the GET request
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            logger.debug("GET response: " + response.body());
+            logger.debug("getParticipantsMessage(): GET response: " + response.body());
 
             // Process the incoming message
             borikaMessageService.asyncProcessParticipantsMessage(response);
 
         } catch (Exception e) {
-            logger.error("getMessage error: " + e.getMessage(), e);
+            logger.error("getParticipantsMessage(): Exception: " + e.getMessage(), e);
         }
     }
 
     public String getParticipantsMessageResource() {
-        logger.info("getParticipantsMessage() execution started");
+        logger.info("getParticipantsMessageResource()...");
 
         try {
             // Build http client
@@ -104,14 +104,14 @@ public class BorikaClientScheduler {
 
             // Send the GET request
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            logger.debug("GET response: " + response.body());
+            logger.debug("getParticipantsMessageResource(): GET response: " + response.body());
 
             // Process the incoming message
             borikaMessageService.asyncProcessParticipantsMessage(response);
 
             return response.body();
         } catch (Exception e) {
-            logger.error("getMessage error: " + e.getMessage(), e);
+            logger.error("getParticipantsMessageResource(): Exception: " + e.getMessage(), e);
             return e.getMessage();
         }
     }

@@ -1,10 +1,7 @@
 package com.sirmabc.bulkpayments.services;
 
-import com.sirmabc.bulkpayments.persistance.entities.BulkMessagesEntity;
-import com.sirmabc.bulkpayments.persistance.repositories.BulkMessagesRepository;
 import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.enums.CodesPacs002;
-import com.sirmabc.bulkpayments.util.enums.Header;
 import com.sirmabc.bulkpayments.util.enums.MsgDefIdrs;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
 import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
@@ -34,22 +31,18 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.http.HttpResponse;
 
 @Service
 public class MessageService {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageService.class);
 
-    private final BulkMessagesRepository bulkMessagesRepository;
-
     private final Properties properties;
 
     private final XMLSigner xmlSigner;
 
     @Autowired
-    public MessageService(BulkMessagesRepository bulkMessagesRepository, Properties properties, XMLSigner xmlSigner) {
-        this.bulkMessagesRepository = bulkMessagesRepository;
+    public MessageService(Properties properties, XMLSigner xmlSigner) {
         this.properties = properties;
         this.xmlSigner = xmlSigner;
     }
@@ -138,44 +131,15 @@ public class MessageService {
         }
     }
 
-    public CodesPacs002 validateMessage(Message message, HttpResponse<String> response) throws Exception {
+    public CodesPacs002 validateMessage(Message message, String messageXml) throws Exception {
         logger.info("validateMessage(): Validating message " + message.getAppHdr().getBizMsgIdr());
-
-        CodesPacs002 pacs002Code = validateMessageAppHdr(message, response.body());
-        if (!pacs002Code.equals(CodesPacs002.OK01)) {
-            logger.error("An error occurred while validating the application header. Error code: " + pacs002Code.errorCode);
-            return pacs002Code;
-        }
-
-        pacs002Code = isDuplicate(message, response);
-        if (!pacs002Code.equals(CodesPacs002.OK01)) {
-            logger.error("The message is duplicate. Error code: " + pacs002Code.errorCode);
-            return pacs002Code;
-        }
-
-        return CodesPacs002.OK01;
-    }
-
-    public CodesPacs002 validateMessageAppHdr(Message message, String messageXml) throws Exception {
-        logger.info("validateMessageAppHdr(): Validating application header for message " + message.getAppHdr().getBizMsgIdr());
 
         Document document = xmlSigner.string2XML(messageXml);
         if (!xmlSigner.verify(document)) {
             return CodesPacs002.FF01;
+        } else {
+            return CodesPacs002.OK01;
         }
-
-        String senderBic = message.getAppHdr().getFr().getFIId().getFinInstnId().getBICFI();
-        String receiverBic = message.getAppHdr().getTo().getFIId().getFinInstnId().getBICFI();
-
-        String instBic = properties.getRtpChannel();
-        String boricaBic = properties.getBorikaBic();
-
-        // Check if sender bic is valid and check if receiver bic is the same as the institution bic.
-        if (!boricaBic.equals(senderBic) || !receiverBic.equals(instBic)) {
-            return CodesPacs002.RC01;
-        }
-
-        return CodesPacs002.OK01;
     }
 
     public void saveMessageToXmlFile(Message message, String fileName) throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
@@ -197,56 +161,6 @@ public class MessageService {
 
         StreamResult result = new StreamResult(new File(xmlFilePath));
         transformer.transform(source, result);
-    }
-
-    private CodesPacs002 isDuplicate(Message message, HttpResponse<String> response) {
-        logger.info("isDuplicate(): Checking if message " + message.getAppHdr().getBizMsgIdr() + " is duplicate");
-
-        Boolean isDuplicateHeader = null;
-        if (response != null) {
-            isDuplicateHeader = response.headers().map().containsKey(Header.X_MONTRAN_RTP_POSSIBLE_DUPLICATE.header);
-        }
-
-        if (Boolean.TRUE.equals(isDuplicateHeader)) {
-            String messageId = "";
-
-            // pacs.008
-            if (message.getFIToFICstmrCdtTrf() != null) {
-                messageId = message.getFIToFICstmrCdtTrf().getGrpHdr().getMsgId();
-            } else if (message.getPmtRtr() != null) {
-                // pacs.004
-                messageId = message.getPmtRtr().getGrpHdr().getMsgId();
-            } else if (message.getFIToFIPmtCxlReq() != null) {
-                // camt.056
-                messageId = message.getFIToFIPmtCxlReq().getAssgnmt().getId();
-            } else if (message.getRsltnOfInvstgtn() != null) {
-                // camt.029.001.03
-                messageId = message.getRsltnOfInvstgtn().getAssgnmt().getId();
-            } else if (message.getFIToFIPmtStsReq() != null) {
-                // pacs.028
-                messageId = message.getFIToFIPmtStsReq().getGrpHdr().getMsgId();
-            } else if (message.getFIToFIPmtStsRpt() != null) {
-                // pacs.002
-                messageId = message.getFIToFIPmtStsRpt().getGrpHdr().getMsgId();
-            } else if (message.getCdtrPmtActvtnReq() != null) {
-                // pain.013
-                messageId = message.getCdtrPmtActvtnReq().getGrpHdr().getMsgId();
-            } else if (message.getCdtrPmtActvtnReqStsRpt() != null) {
-                // pain.014
-                messageId = message.getCdtrPmtActvtnReqStsRpt().getGrpHdr().getMsgId();
-            } else if (message.getBkToCstmrStmt() != null) {
-                // camt.053
-                messageId = message.getBkToCstmrStmt().getGrpHdr().getMsgId();
-            }
-
-            BulkMessagesEntity entity = bulkMessagesRepository.findByMessageId(messageId);
-
-            if (entity != null) {
-                return CodesPacs002.AM05;
-            }
-        }
-
-        return CodesPacs002.OK01;
     }
 
     private XMLGregorianCalendar xmlGregorianCalendarToUTC(XMLGregorianCalendar calendar) throws DatatypeConfigurationException {

@@ -88,11 +88,11 @@ public class BorikaClient {
     }
 
     public HttpRequest buildGETRequest() {
-        // TODO: Possibly add content type header
         return HttpRequest.newBuilder()
                 .uri(URI.create(properties.getBorikaUrl() + "/bulk/Message"))
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
+                .header(Header.CONTENT_TYPE.header, REQUEST_CONTENT_TYPE)
                 .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .GET()
                 .build();
