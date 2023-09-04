@@ -138,7 +138,11 @@ public class BorikaMessageService {
         } finally {
             if (messageEntity != null) {
                 try {
-                    messageEntity.setError(error);
+                    if (error != null) {
+                        String formattedError = error.substring(0, Math.min(255, error.length()));
+                        messageEntity.setError(formattedError);
+                    }
+
                     databaseService.saveBulkMessageEntity(messageEntity);
                 } catch (Exception e) {
                     logger.error("asyncProcessIncomingMessage(): Finally block exception: " + e.getMessage(), e);
@@ -229,7 +233,11 @@ public class BorikaMessageService {
         } finally {
             if (messageEntity != null) {
                 try {
-                    messageEntity.setError(error);
+                    if (error != null) {
+                        String formattedError = error.substring(0, Math.min(255, error.length()));
+                        messageEntity.setError(formattedError);
+                    }
+
                     databaseService.saveBulkMessageEntity(messageEntity);
                 } catch (Exception e) {
                     logger.error("asyncProcessOutgoingMessage(): Finally block exception: " + e.getMessage(), e);
