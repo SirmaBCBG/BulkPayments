@@ -13,7 +13,7 @@ jar {
 }
 
 war {
-    archiveFileName  = 'XConnectorBulk.war'
+    archiveFileName  = 'xconnectorbulk.war'
 }
 
 java {
