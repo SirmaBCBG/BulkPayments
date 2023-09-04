@@ -30,6 +30,8 @@ public class BorikaMessageService {
 
     private static final Logger logger = LoggerFactory.getLogger(BorikaMessageService.class);
 
+    private static final int ERROR_MAX_LENGTH = 255;
+
     private final BorikaClient borikaClient;
 
     private final DatabaseService databaseService;
@@ -139,7 +141,7 @@ public class BorikaMessageService {
             if (messageEntity != null) {
                 try {
                     if (error != null) {
-                        String formattedError = error.substring(0, Math.min(255, error.length()));
+                        String formattedError = error.substring(0, Math.min(ERROR_MAX_LENGTH, error.length()));
                         messageEntity.setError(formattedError);
                     }
 
@@ -234,7 +236,7 @@ public class BorikaMessageService {
             if (messageEntity != null) {
                 try {
                     if (error != null) {
-                        String formattedError = error.substring(0, Math.min(255, error.length()));
+                        String formattedError = error.substring(0, Math.min(ERROR_MAX_LENGTH, error.length()));
                         messageEntity.setError(formattedError);
                     }
 
