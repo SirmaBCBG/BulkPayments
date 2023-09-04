@@ -14,6 +14,8 @@ import java.io.File;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Arrays;
+import java.util.Comparator;
 
 @Service
 @Scope("singleton")
@@ -63,6 +65,9 @@ public class BorikaClientScheduler {
 
         // Get all xml files from the directory
         File[] files = FileHelper.getFilesFromPath(properties.getOutgngBulkMsgsPath(), ".xml");
+
+        // Sort the files by date
+        if (files.length > 1) Arrays.sort(files, Comparator.comparingLong(File::lastModified));
 
         // Process the files simultaneously
         for (int i = 0; i < Math.min(FILE_BATCH, files.length); i++) {
