@@ -21,6 +21,8 @@ public class BorikaClientScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(BorikaClientScheduler.class);
 
+    private static final int FILE_BATCH = 10;
+
     @Autowired
     private BorikaClient borikaClient;
 
@@ -55,16 +57,17 @@ public class BorikaClientScheduler {
         }
     }
 
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelay = 10000)
     public void sendMessages() {
         logger.info("sendMessage()...");
 
         // Get all xml files from the directory
         File[] files = FileHelper.getFilesFromPath(properties.getOutgngBulkMsgsPath(), ".xml");
+
         // Process the files simultaneously
-        for (File file : files) {
+        for (int i = 0; i < Math.min(FILE_BATCH, files.length); i++) {
             try {
-                borikaMessageService.asyncProcessOutgoingMessage(file);
+                borikaMessageService.asyncProcessOutgoingMessage(files[i]);
             } catch (Exception e) {
                 logger.error("sendMessage(): Exception: " + e.getMessage(), e);
             }
