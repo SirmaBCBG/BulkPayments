@@ -16,26 +16,19 @@ public class XMLHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(XMLHelper.class);
 
-    private static Marshaller marshaller;
-    private static Unmarshaller unmarshaller;
+    private static JAXBContext jaxbContext;
 
     static {
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(Message.class);
-
-            marshaller = jaxbContext.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            unmarshaller = jaxbContext.createUnmarshaller();
+            jaxbContext = JAXBContext.newInstance(Message.class);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
     }
 
     public static String serializeXml(Message message) throws JAXBException {
-        if (marshaller == null) {
-            throw new JAXBException("No marshaller created!");
-        }
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         StringWriter stringWriter = new StringWriter();
         marshaller.marshal(message, stringWriter);
@@ -46,9 +39,7 @@ public class XMLHelper {
     }
 
     public static Message deserializeXml(String xml) throws JAXBException {
-        if (unmarshaller == null) {
-            throw new JAXBException("No unmarshaller created!");
-        }
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
         StringReader reader = new StringReader(xml);
         Message result = (Message) unmarshaller.unmarshal(reader);
@@ -57,10 +48,7 @@ public class XMLHelper {
     }
 
     public static Message deserializeXml(File xmlFile) throws JAXBException {
-        if (unmarshaller == null) {
-            throw new JAXBException("No unmarshaller created!");
-        }
-
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         Message result = (Message) unmarshaller.unmarshal(xmlFile);
 
         return result;
