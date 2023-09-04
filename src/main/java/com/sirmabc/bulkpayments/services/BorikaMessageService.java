@@ -261,13 +261,13 @@ public class BorikaMessageService {
             Message message = XMLHelper.deserializeXml(response.body());
 
             // Validate the message's application header
-            CodesPacs002 pacs002Code = messageService.validateMessage(message, response.body());
+            CodesPacs002 codesPacs002 = messageService.validateMessage(message, response.body());
 
-            if (pacs002Code == CodesPacs002.OK01) {
+            if (codesPacs002 == CodesPacs002.OK01) {
                 // Update the participants inside the database
                 databaseService.updateParticipants(message.getParticipants());
             } else {
-                logger.error("asyncProcessParticipantsMessage(): The message's application header was not validated successfully. Code: " + pacs002Code.errorCode);
+                logger.error("asyncProcessParticipantsMessage(): The message was not validated successfully. Code: " + codesPacs002.errorCode);
             }
         } catch (Exception e) {
             logger.error("asyncProcessParticipantsMessage(): Exception: " + e.getMessage(), e);
