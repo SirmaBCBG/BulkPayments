@@ -58,8 +58,8 @@ public class FileHelper {
     }
 
     // Generates a unique file name
-    public synchronized static String generateUniqueFileName(InOut inOut, String msgDefIdr, String messageId) {
-        logger.info("generateUniqueFileName(): Generating file name for message " + messageId);
+    public synchronized static String generateUniqueFileBaseName(InOut inOut, String msgDefIdr, String messageId) {
+        logger.info("generateUniqueFileBaseName(): Generating base file name for message " + messageId);
 
         String shortMessageType = msgDefIdr.substring(msgDefIdr.indexOf('.') + 1, msgDefIdr.indexOf('.', msgDefIdr.indexOf('.') + 1));
         LocalDateTime currentMsgDateTime = LocalDateTime.now();

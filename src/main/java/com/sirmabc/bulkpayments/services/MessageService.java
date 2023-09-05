@@ -2,7 +2,9 @@ package com.sirmabc.bulkpayments.services;
 
 import com.sirmabc.bulkpayments.util.Properties;
 import com.sirmabc.bulkpayments.util.enums.CodesPacs002;
+import com.sirmabc.bulkpayments.util.enums.InOut;
 import com.sirmabc.bulkpayments.util.enums.MsgDefIdrs;
+import com.sirmabc.bulkpayments.util.helpers.FileHelper;
 import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
 import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
 import jakarta.xml.bind.JAXBException;
@@ -142,8 +144,8 @@ public class MessageService {
         }
     }
 
-    public void saveMessageToXmlFile(Message message, String fileName) throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
-        logger.info("saveMessageToXmlFile(): Saving message " + message.getAppHdr().getBizMsgIdr() + " to an xml file named " + fileName);
+    public String saveMessageToXmlFile(Message message) throws JAXBException, ParserConfigurationException, IOException, SAXException, TransformerException {
+        logger.info("saveMessageToXmlFile(): Saving message " + message.getAppHdr().getBizMsgIdr() + " to an xml file");
 
         String xmlString = XMLHelper.serializeXml(message);
 
@@ -157,10 +159,14 @@ public class MessageService {
         Transformer transformer = transformerFactory.newTransformer();
         DOMSource source = new DOMSource(doc);
 
-        String xmlFilePath = properties.getIncmgBulkMsgsPath() + "/" + fileName + ".xml";
+        // Generate a unique file name
+        String fileName = FileHelper.generateUniqueFileBaseName(InOut.IN, message.getAppHdr().getMsgDefIdr(), message.getAppHdr().getBizMsgIdr()) + ".xml";
+        logger.info("saveMessageToXmlFile(): Generated file name for message " + message.getAppHdr().getBizMsgIdr() + " is " + fileName);
 
-        StreamResult result = new StreamResult(new File(xmlFilePath));
+        StreamResult result = new StreamResult(new File(properties.getIncmgBulkMsgsPath() + "/" + fileName));
         transformer.transform(source, result);
+
+        return fileName;
     }
 
     private XMLGregorianCalendar xmlGregorianCalendarToUTC(XMLGregorianCalendar calendar) throws DatatypeConfigurationException {
