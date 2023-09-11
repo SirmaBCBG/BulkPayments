@@ -100,13 +100,6 @@ public class BorikaMessageService {
                 throw new Exception("No " + Header.X_MONTRAN_RTP_MESSAGE_SEQ.header + " header");
             }
 
-            // Acknowledge the message
-            logger.info("asyncProcessIncomingMessage(): Acknowledging message " + messageEntity.getMessageId());
-            HttpResponse<String> ackResponse = borikaClient.postAcknowledge(messageSequence);
-
-            // Updating the entity
-            messageEntity.setAcknowledged(ackResponse.body());
-
             // Create a message object for the incoming message
             Message message = XMLHelper.deserializeXml(originalMessage);
 
@@ -129,6 +122,13 @@ public class BorikaMessageService {
                 logger.error("asyncProcessIncomingMessage(): The message was not validated successfully. Code: " + codesPacs002.errorCode);
                 error = "The message was not validated successfully. Code: " + codesPacs002.errorCode;
             }
+
+            // Acknowledge the message
+            logger.info("asyncProcessIncomingMessage(): Acknowledging message " + messageEntity.getMessageId());
+            HttpResponse<String> ackResponse = borikaClient.postAcknowledge(messageSequence);
+
+            // Updating the entity
+            messageEntity.setAcknowledged(ackResponse.body());
         } catch (Exception e) {
             logger.error("asyncProcessIncomingMessage(): Exception: " + e.getMessage(), e);
             error = getErrorMessage(e);
