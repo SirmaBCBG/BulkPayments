@@ -85,7 +85,7 @@ public class BorikaMessageService {
             // Build the initial bulk message entity
             messageEntity = databaseService.buildBulkMessageEntity(
                     null,
-                    null,
+                    originalMessage,
                     null,
                     messageSequence,
                     null,
@@ -113,11 +113,8 @@ public class BorikaMessageService {
 
             // Check if the validation was successful
             if (codesPacs002 == CodesPacs002.OK01) {
-                // Generate a unique file name
-                String fileName = FileHelper.generateUniqueFileName(InOut.IN, message.getAppHdr().getMsgDefIdr(), messageEntity.getMessageId());
-
                 // Save the message to an xml file
-                messageService.saveMessageToXmlFile(message, fileName);
+                String fileName = messageService.saveMessageToXmlFile(message);
 
                 // Updating the entity
                 messageEntity.setFileName(fileName);
