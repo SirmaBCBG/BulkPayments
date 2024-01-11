@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.Objects;
 
 @Entity
-@Table(name = "BULK_MESSAGES", schema = "UBXIP", catalog = "")
+@Table(name = "BULK_MESSAGES", schema = "UBXIPBULK", catalog = "")
 public class BulkMessagesEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

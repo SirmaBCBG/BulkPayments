@@ -6,7 +6,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 
 @Entity
-@Table(name = "PROPERTIES", schema = "UBXIP", catalog = "")
+@Table(name = "PROPERTIES", schema = "UBXIPBULK", catalog = "")
 public class PropertiesEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
