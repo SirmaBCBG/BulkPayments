@@ -14,10 +14,10 @@ public interface ParticipantsRepository extends CrudRepository<ParticipantsEntit
 
     ParticipantsEntity findByBic(String bic);
 
-    @Procedure(procedureName = "ubxip.CHECKPARTICIPANT", outputParameterName = "p_count")
+    @Procedure(procedureName = "ubxipbulk.CHECKPARTICIPANT", outputParameterName = "p_count")
     int checkParticipant(@Param("p_bic") String bic);
 
-    @Procedure(procedureName = "ubxip.archiveParticipants")
+    @Procedure(procedureName = "ubxipbulk.archiveParticipants")
     @Modifying
     void archive();
 

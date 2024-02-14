@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -246,19 +247,21 @@ public class BorikaMessageService {
     }
 
     @Async()
-    public void asyncProcessParticipantsMessage(HttpResponse<String> response) throws AppException {
+    public void asyncProcessParticipantsMessage(HttpResponse<byte[]> response) throws AppException {
         logger.info("asyncProcessParticipantsMessage()...");
 
         try {
             if (response.headers() != null) {
                 logger.debug("asyncProcessParticipantsMessage(): Response headers: " + response.headers().toString());
             }
+            String body = new String(response.body(), StandardCharsets.UTF_8);
 
+            logger.debug("Response body: " + body);
             // Create a message object for the incoming message
-            Message message = XMLHelper.deserializeXml(response.body());
+            Message message = XMLHelper.deserializeXml(body);
 
             // Validate the message's application header
-            CodesPacs002 codesPacs002 = messageService.validateMessage(message, response.body());
+            CodesPacs002 codesPacs002 = messageService.validateMessage(message, body);
 
             if (codesPacs002 == CodesPacs002.OK01) {
                 // Update the participants inside the database

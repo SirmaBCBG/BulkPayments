@@ -208,20 +208,22 @@ public class XMLSigner {
     public static void main(String[] args) {
 
 
+
 //      try {
 //          XMLSigner signer = new XMLSigner();
-//        KeyStore ks = KeyStore.getInstance("JKS");
-//        ks.load(new FileInputStream("d:\\xml_sign.jks"), "sla6945".toCharArray());
-//        KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry("sirmabcxml", new KeyStore.PasswordProtection("sla6945".toCharArray()));
+//            KeyStore ks = KeyStore.getInstance("JKS");
+//            ks.load(new FileInputStream("c:\\borika_sign.jks"), "sla6945".toCharArray());
+//            KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry("sirmabcxml", new KeyStore.PasswordProtection("sla6945".toCharArray()));
+//            String xml = "C:\\Users\\nikolay.stanev\\IdeaProjects\\BulkPayments\\src\\main\\resources\\sign.xml";
 //
-//        Document doc = string2XML(xml);
-//        Document signedDoc = sign(doc, keyEntry);
-//        System.out.println(xml2String(signedDoc));
-//        saveXML(signedDoc, new File("d:/work/c3_signed.xml"));
+//            Document doc = signer.loadXMLFromFile(new File((xml));
+//            Document signedDoc = signer.sign(doc, keyEntry);
+//            System.out.println(signer.xml2String(signedDoc));
+//          signer.saveXML(signedDoc, new File("d:/work/c3_signed.xml"));
 //
-//        Document doc2 = loadXMLFromFile(new File("d:/work/c3_signed.xml"));
+//        Document doc2 = signer.loadXMLFromFile(new File("d:/work/c3_signed.xml"));
 //
-//        System.out.println(verify(doc2));
+//        System.out.println(signer.verify(doc2));
 //      } catch (Exception e) {
 //        e.printStackTrace();
 //      }

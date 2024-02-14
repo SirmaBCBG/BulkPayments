@@ -11,9 +11,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -90,7 +93,7 @@ public class BorikaClientScheduler {
             HttpRequest request = borikaClient.buildGETParticipantsRequest();
 
             // Send the GET request
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
             logger.debug("getParticipantsMessage(): GET response: " + response.body());
 
             // Process the incoming message
@@ -111,13 +114,25 @@ public class BorikaClientScheduler {
             HttpRequest request = borikaClient.buildGETParticipantsRequest();
 
             // Send the GET request
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            logger.debug("getParticipantsMessageResource(): GET response: " + response.body());
+            HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+//            try(OutputStream os = new FileOutputStream("/opt/tomcat/a")){
+//
+//                os.write(response.body());
+//                os.flush();
+//
+//            }catch (Exception e) {
+//                logger.error("Error while dumping to file: " + e.getMessage());
+//            }
+
+
+            String body = new String(response.body(), StandardCharsets.UTF_8);
+            logger.debug("getParticipantsMessageResource(): GET response: " + body);
 
             // Process the incoming message
             borikaMessageService.asyncProcessParticipantsMessage(response);
 
-            return response.body();
+            return body;
         } catch (Exception e) {
             logger.error("getParticipantsMessageResource(): Exception: " + e.getMessage(), e);
             return e.getMessage();

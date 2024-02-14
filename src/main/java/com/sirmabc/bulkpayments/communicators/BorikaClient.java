@@ -103,7 +103,7 @@ public class BorikaClient {
                 .uri(URI.create(properties.getBorikaUrl() + "/api/participants"))
                 .header(Header.X_MONTRAN_RTP_CHANNEL.header, properties.getRtpChannel())
                 .header(Header.X_MONTRAN_RTP_VERSION.header, properties.getRtpVersion())
-                .header(Header.CONTENT_TYPE.header, REQUEST_CONTENT_TYPE)
+                .header(Header.CONTENT_TYPE.header, "application/xml;charset=iso-8859-1")
                 .timeout(Duration.ofSeconds(READ_TIMEOUT))
                 .GET()
                 .build();

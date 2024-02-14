@@ -1,9 +1,22 @@
 package com.sirmabc.bulkpayments;
 
+import com.sirmabc.bulkpayments.util.helpers.XMLHelper;
+import com.sirmabc.bulkpayments.util.xmlsigner.XMLSigner;
+import montranMessage.iso.std.iso._20022.tech.xsd.head_001_001.BusinessApplicationHeaderV01;
+import montranMessage.iso.std.iso._20022.tech.xsd.head_001_001.SignatureEnvelope;
+import montranMessage.montran.message.Message;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.w3c.dom.Document;
+
+import java.io.File;
 
 @SpringBootTest
 class BulkPaymentsApplicationTests {
+
+    @Autowired
+    XMLSigner xmlSigner;
 
     /*private static final Logger logger = LoggerFactory.getLogger(BulkPaymentsApplicationTests.class);
 
@@ -963,5 +976,12 @@ class BulkPaymentsApplicationTests {
 
         return result;
     }*/
+
+    @Test
+    public void testVerify () throws Exception {
+
+        Document doc = xmlSigner.loadXMLFromFile(new File("C:\\Users\\nikolay.stanev\\IdeaProjects\\BulkPayments\\src\\main\\resources\\sign2.xml"));
+        System.out.println(xmlSigner.verify(doc));
+    }
 
 }
